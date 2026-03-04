@@ -2,14 +2,38 @@ import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { clients, getClientRankings, getTopGainers, getTopLosers, getNearWins, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
+import { useClient, useKeywords, useCompetitors, useAuditIssues } from "@/hooks/use-api";
+import { clients as dummyClients, getClientRankings, getTopGainers, getTopLosers, getNearWins, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
 import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target } from "lucide-react";
+import type { KeywordRanking, AuditIssue } from "@/lib/api";
 
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
-  const client = clients.find((c) => c.id === id);
+
+  const { data: apiClient, isError: clientError } = useClient(id!);
+  const { data: apiKeywords } = useKeywords(id!);
+  const { data: apiCompetitors } = useCompetitors(id!);
+  const { data: apiAuditIssues } = useAuditIssues(id!);
+
+  // Fallback to dummy data if API unavailable
+  const dummyClient = dummyClients.find((c) => c.id === id);
+  const client = apiClient ?? dummyClient;
+
+  const kws = apiKeywords ?? getClientRankings(id!).map(r => ({
+    ...r, current_position: r.current_position, last_position: r.last_position, change: r.change, ranking_url: r.ranking_url, tracked_date: r.tracked_date
+  }));
+
+  const comps = apiCompetitors ?? getClientCompetitors(id!).map(c => ({
+    id: c.id, domain: c.domain, label: null, source: "manual", confirmed: true
+  }));
+
+  const issues = apiAuditIssues ?? getClientAuditIssues(id!).map(i => ({
+    id: i.id, issue_type: i.type, severity: i.severity, affected_url: i.affected_url,
+    description: i.description, fix_instruction: i.fix_instruction, status: i.status
+  }));
 
   if (!client) {
     return (
@@ -20,12 +44,10 @@ export default function ClientDetail() {
     );
   }
 
-  const kws = getClientRankings(client.id);
-  const gainers = getTopGainers(client.id);
-  const losers = getTopLosers(client.id);
-  const nearWins = getNearWins(client.id);
-  const comps = getClientCompetitors(client.id);
-  const issues = getClientAuditIssues(client.id);
+  const gainers = [...kws].filter((r) => (r.change ?? 0) > 0).sort((a, b) => (b.change ?? 0) - (a.change ?? 0)).slice(0, 5);
+  const losers = [...kws].filter((r) => (r.change ?? 0) < 0).sort((a, b) => (a.change ?? 0) - (b.change ?? 0)).slice(0, 5);
+  const nearWins = kws.filter((r) => (r.current_position ?? 100) >= 11 && (r.current_position ?? 100) <= 20);
+  const openIssues = issues.filter((i) => i.status !== "done");
 
   return (
     <div className="space-y-6">
@@ -41,7 +63,7 @@ export default function ClientDetail() {
         {[
           { label: "Keywords", value: kws.length },
           { label: "Competitors", value: comps.length },
-          { label: "Open Issues", value: issues.filter(i => i.status !== "done").length },
+          { label: "Open Issues", value: openIssues.length },
           { label: "Health Score", value: `${client.health_score}%` },
         ].map((s) => (
           <Card key={s.label}>
@@ -58,7 +80,7 @@ export default function ClientDetail() {
           <TabsTrigger value="rankings">Rankings</TabsTrigger>
           <TabsTrigger value="movers">Movers</TabsTrigger>
           <TabsTrigger value="competitors">Competitors</TabsTrigger>
-          <TabsTrigger value="issues">Issues ({issues.filter(i => i.status !== "done").length})</TabsTrigger>
+          <TabsTrigger value="issues">Issues ({openIssues.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="rankings">
@@ -79,10 +101,10 @@ export default function ClientDetail() {
                     {kws.map((r) => (
                       <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                         <td className="p-3 font-medium">{r.keyword}</td>
-                        <td className="p-3 text-center font-mono">{r.current_position}</td>
-                        <td className="p-3 text-center font-mono text-muted-foreground">{r.last_position}</td>
-                        <td className="p-3 text-center"><RankChangeIndicator change={r.change} /></td>
-                        <td className="p-3 text-xs font-mono text-muted-foreground truncate max-w-[200px]">{r.ranking_url}</td>
+                        <td className="p-3 text-center font-mono">{r.current_position ?? "–"}</td>
+                        <td className="p-3 text-center font-mono text-muted-foreground">{r.last_position ?? "–"}</td>
+                        <td className="p-3 text-center"><RankChangeIndicator change={r.change ?? 0} /></td>
+                        <td className="p-3 text-xs font-mono text-muted-foreground truncate max-w-[200px]">{r.ranking_url ?? "–"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -101,7 +123,7 @@ export default function ClientDetail() {
                 {gainers.map((r) => (
                   <div key={r.id} className="flex justify-between py-2 border-b last:border-0">
                     <span className="text-sm">{r.keyword}</span>
-                    <RankChangeIndicator change={r.change} />
+                    <RankChangeIndicator change={r.change ?? 0} />
                   </div>
                 ))}
               </CardContent>
@@ -113,7 +135,7 @@ export default function ClientDetail() {
                 {losers.map((r) => (
                   <div key={r.id} className="flex justify-between py-2 border-b last:border-0">
                     <span className="text-sm">{r.keyword}</span>
-                    <RankChangeIndicator change={r.change} />
+                    <RankChangeIndicator change={r.change ?? 0} />
                   </div>
                 ))}
               </CardContent>
@@ -139,13 +161,7 @@ export default function ClientDetail() {
               <Card key={c.id}>
                 <CardContent className="p-5">
                   <p className="font-mono font-medium">{c.domain}</p>
-                  <p className="text-xs text-muted-foreground mt-1">SERP Overlap</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full rounded-full bg-primary" style={{ width: `${c.overlap_score}%` }} />
-                    </div>
-                    <span className="text-sm font-mono font-semibold">{c.overlap_score}%</span>
-                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{c.label || "Competitor"}</p>
                 </CardContent>
               </Card>
             ))}
@@ -155,14 +171,14 @@ export default function ClientDetail() {
 
         <TabsContent value="issues">
           <div className="space-y-2">
-            {issues.filter(i => i.status !== "done").map((issue) => (
+            {openIssues.map((issue) => (
               <Card key={issue.id}>
                 <CardContent className="p-4 flex items-start gap-4">
                   <Badge variant={issue.severity === "critical" ? "destructive" : issue.severity === "warning" ? "secondary" : "outline"} className="text-xs shrink-0 mt-0.5">
                     {issue.severity}
                   </Badge>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{issue.type}</p>
+                    <p className="font-medium text-sm">{issue.issue_type}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{issue.description}</p>
                     <p className="text-xs font-mono text-muted-foreground mt-1 truncate">{issue.affected_url}</p>
                   </div>

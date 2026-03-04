@@ -1,14 +1,23 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { clients, rankings, auditIssues } from "@/data/dummy";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useClients } from "@/hooks/use-api";
+import { clients as dummyClients, rankings as dummyRankings, auditIssues as dummyAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
 import { Users, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 
 export default function Dashboard() {
+  const { data: apiClients, isLoading, isError } = useClients();
+  const clients = apiClients ?? dummyClients;
+
+  // For dashboard-level stats we still use dummy rankings/audit data
+  // until a dedicated dashboard endpoint is built
+  const rankings = dummyRankings;
+  const auditIssues = dummyAuditIssues;
+
   const allGainers = rankings.filter((r) => r.change > 0).sort((a, b) => b.change - a.change).slice(0, 5);
   const allLosers = rankings.filter((r) => r.change < 0).sort((a, b) => a.change - b.change).slice(0, 5);
-  const openIssues = auditIssues.filter((i) => i.status === "open").length;
   const criticalIssues = auditIssues.filter((i) => i.severity === "critical" && i.status !== "done").length;
 
   const stats = [
@@ -22,7 +31,10 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground text-sm mt-1">Overview of all SEO operations</p>
+        <p className="text-muted-foreground text-sm mt-1">
+          Overview of all SEO operations
+          {isError && <span className="text-warning ml-2">(using demo data)</span>}
+        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -86,30 +98,27 @@ export default function Dashboard() {
           <CardTitle className="text-base">Client Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {clients.map((c) => (
-              <Link
-                key={c.id}
-                to={`/clients/${c.id}`}
-                className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-muted/50 transition-colors border-b last:border-0"
-              >
-                <div>
-                  <p className="font-medium text-sm">{c.name}</p>
-                  <p className="text-xs text-muted-foreground font-mono">{c.domain}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant="secondary" className="text-xs font-mono">{c.keywords_count} kw</Badge>
-                  <div className="h-2 w-16 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-primary transition-all"
-                      style={{ width: `${c.health_score}%` }}
-                    />
+          {isLoading ? (
+            <div className="space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
+          ) : (
+            <div className="space-y-2">
+              {clients.map((c) => (
+                <Link key={c.id} to={`/clients/${c.id}`} className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-muted/50 transition-colors border-b last:border-0">
+                  <div>
+                    <p className="font-medium text-sm">{c.name}</p>
+                    <p className="text-xs text-muted-foreground font-mono">{c.domain}</p>
                   </div>
-                  <span className="text-xs font-mono text-muted-foreground w-8 text-right">{c.health_score}%</span>
-                </div>
-              </Link>
-            ))}
-          </div>
+                  <div className="flex items-center gap-3">
+                    <Badge variant="secondary" className="text-xs font-mono">{c.keywords_count} kw</Badge>
+                    <div className="h-2 w-16 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${c.health_score}%` }} />
+                    </div>
+                    <span className="text-xs font-mono text-muted-foreground w-8 text-right">{c.health_score}%</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

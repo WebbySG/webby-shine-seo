@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { clients, getClientAuditIssues } from "@/data/dummy";
+import { useClients, useAuditIssues } from "@/hooks/use-api";
+import { clients as dummyClients, getClientAuditIssues } from "@/data/dummy";
 import { AlertTriangle, AlertCircle, Info, CheckCircle2 } from "lucide-react";
 
 const severityConfig = {
@@ -13,8 +14,15 @@ const severityConfig = {
 };
 
 export default function Audit() {
+  const { data: apiClients } = useClients();
+  const clients = apiClients ?? dummyClients;
   const [clientId, setClientId] = useState(clients[0]?.id ?? "");
-  const issues = getClientAuditIssues(clientId);
+  const { data: apiIssues } = useAuditIssues(clientId);
+
+  const issues = apiIssues ?? getClientAuditIssues(clientId).map(i => ({
+    id: i.id, issue_type: i.type, severity: i.severity, affected_url: i.affected_url,
+    description: i.description, fix_instruction: i.fix_instruction as string | null, status: i.status,
+  }));
 
   const statusGroups = {
     open: issues.filter((i) => i.status === "open"),
@@ -72,14 +80,16 @@ export default function Audit() {
                       <Icon className={`h-5 w-5 shrink-0 mt-0.5 ${cfg.color}`} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium text-sm">{issue.type}</p>
+                          <p className="font-medium text-sm">{issue.issue_type}</p>
                           <Badge variant={cfg.badge} className="text-xs">{issue.severity}</Badge>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">{issue.description}</p>
                         <p className="text-xs font-mono text-muted-foreground mt-1 truncate">{issue.affected_url}</p>
-                        <div className="mt-3 p-2 rounded bg-muted/50">
-                          <p className="text-xs"><span className="font-medium">Fix:</span> {issue.fix_instruction}</p>
-                        </div>
+                        {issue.fix_instruction && (
+                          <div className="mt-3 p-2 rounded bg-muted/50">
+                            <p className="text-xs"><span className="font-medium">Fix:</span> {issue.fix_instruction}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
