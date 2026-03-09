@@ -80,6 +80,15 @@ export default function ClientDetail() {
   const contentClusters: ContentPlanCluster[] = apiContentPlan?.clusters ?? buildDummyContentPlan();
   const contentTotal = apiContentPlan?.total ?? contentClusters.reduce((acc, c) => acc + c.suggestions.length, 0);
 
+  const briefs: SeoBrief[] = apiBriefs ?? buildDummyBriefs();
+
+  const handleGenerateBrief = (keyword: string) => {
+    generateBrief.mutate(keyword, {
+      onSuccess: () => toast.success(`Brief generated for "${keyword}"`),
+      onError: () => toast.error("Failed to generate brief"),
+    });
+  };
+
   if (!client) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
