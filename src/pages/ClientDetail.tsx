@@ -142,8 +142,12 @@ export default function ClientDetail() {
   const publishArticle = usePublishArticle(id!);
   const saveCmsConnection = useSaveCmsConnection(id!);
   const testCmsConnection = useTestCmsConnection(id!);
+  const generateSocialPosts = useGenerateSocialPosts(id!);
+  const { data: apiSocialPosts } = useSocialPosts(selectedArticleForSocial || "");
+  const updateSocialPost = useUpdateSocialPost(selectedArticleForSocial || "");
+  const approveSocialPost = useApproveSocialPost(selectedArticleForSocial || "");
 
-  const cmsConnection: CmsConnection | null = apiCmsConnection ?? null;
+  const socialPosts: SocialPost[] = apiSocialPosts ?? [];
 
   const dummyClient = dummyClients.find((c) => c.id === id);
   const client = apiClient ?? dummyClient;
