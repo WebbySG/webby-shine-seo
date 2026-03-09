@@ -68,3 +68,12 @@ export function useAuditIssues(clientId: string) {
     enabled: !!clientId,
   });
 }
+
+// ---------- Opportunities ----------
+export function useOpportunities(clientId: string) {
+  return useQuery({
+    queryKey: ["opportunities", clientId],
+    queryFn: () => api.getOpportunities(clientId),
+    enabled: !!clientId,
+  });
+}
