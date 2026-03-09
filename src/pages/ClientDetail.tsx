@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks } from "@/hooks/use-api";
+import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan } from "@/hooks/use-api";
 import { clients as dummyClients, getClientRankings, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink } from "lucide-react";
-import type { InternalLinkSuggestion } from "@/lib/api";
+import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree } from "lucide-react";
+import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster } from "@/lib/api";
 
 const PRIORITY_BADGE: Record<string, "destructive" | "secondary" | "outline"> = {
   high: "destructive",
@@ -23,6 +23,28 @@ function buildDummyInternalLinks(): InternalLinkSuggestion[] {
   ];
 }
 
+function buildDummyContentPlan(): ContentPlanCluster[] {
+  return [
+    {
+      cluster_name: "renovation singapore",
+      high_priority_count: 2,
+      suggestions: [
+        { id: "cs1", cluster_name: "renovation singapore", keyword: "renovation cost singapore 2026", suggested_slug: "/renovation-cost-singapore-2026", reason: "Competitor renocraft.sg ranks #3. Create dedicated content to capture this traffic.", priority: "high", status: "pending", created_at: new Date().toISOString() },
+        { id: "cs2", cluster_name: "renovation singapore", keyword: "hdb renovation package", suggested_slug: "/hdb-renovation-package", reason: "Competitor buildmate.sg ranks #5. Create dedicated content to capture this traffic.", priority: "high", status: "pending", created_at: new Date().toISOString() },
+        { id: "cs3", cluster_name: "renovation singapore", keyword: "renovation timeline singapore", suggested_slug: "/renovation-timeline-singapore", reason: 'Supporting content for the "renovation singapore" topic cluster. Builds topical authority.', priority: "low", status: "pending", created_at: new Date().toISOString() },
+      ],
+    },
+    {
+      cluster_name: "kitchen renovation",
+      high_priority_count: 1,
+      suggestions: [
+        { id: "cs4", cluster_name: "kitchen renovation", keyword: "kitchen cabinet design singapore", suggested_slug: "/kitchen-cabinet-design-singapore", reason: "Keyword ranks #22 but has no dedicated target page. Create optimized content.", priority: "medium", status: "pending", created_at: new Date().toISOString() },
+        { id: "cs5", cluster_name: "kitchen renovation", keyword: "small kitchen renovation ideas", suggested_slug: "/small-kitchen-renovation-ideas", reason: "Competitor renocraft.sg ranks #7. Create dedicated content to capture this traffic.", priority: "high", status: "pending", created_at: new Date().toISOString() },
+      ],
+    },
+  ];
+}
+
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
 
@@ -31,6 +53,7 @@ export default function ClientDetail() {
   const { data: apiCompetitors } = useCompetitors(id!);
   const { data: apiAuditIssues } = useAuditIssues(id!);
   const { data: apiInternalLinks } = useInternalLinks(id!);
+  const { data: apiContentPlan } = useContentPlan(id!);
 
   const dummyClient = dummyClients.find((c) => c.id === id);
   const client = apiClient ?? dummyClient;
@@ -49,6 +72,8 @@ export default function ClientDetail() {
   }));
 
   const internalLinks: InternalLinkSuggestion[] = apiInternalLinks ?? buildDummyInternalLinks();
+  const contentClusters: ContentPlanCluster[] = apiContentPlan?.clusters ?? buildDummyContentPlan();
+  const contentTotal = apiContentPlan?.total ?? contentClusters.reduce((acc, c) => acc + c.suggestions.length, 0);
 
   if (!client) {
     return (
@@ -75,12 +100,13 @@ export default function ClientDetail() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-6">
         {[
           { label: "Keywords", value: kws.length },
           { label: "Competitors", value: comps.length },
           { label: "Open Issues", value: openIssues.length },
           { label: "Link Suggestions", value: pendingLinks.length },
+          { label: "Content Ideas", value: contentTotal },
           { label: "Health Score", value: `${client.health_score}%` },
         ].map((s) => (
           <Card key={s.label}>
@@ -93,11 +119,12 @@ export default function ClientDetail() {
       </div>
 
       <Tabs defaultValue="rankings" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="rankings">Rankings</TabsTrigger>
           <TabsTrigger value="movers">Movers</TabsTrigger>
           <TabsTrigger value="competitors">Competitors</TabsTrigger>
           <TabsTrigger value="internal-links">Internal Links ({pendingLinks.length})</TabsTrigger>
+          <TabsTrigger value="content-plan">Content Plan ({contentTotal})</TabsTrigger>
           <TabsTrigger value="issues">Issues ({openIssues.length})</TabsTrigger>
         </TabsList>
 
@@ -217,8 +244,45 @@ export default function ClientDetail() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="content-plan">
+          <div className="space-y-6">
+            {contentClusters.length === 0 && <p className="text-sm text-muted-foreground">No content suggestions at the moment.</p>}
+            {contentClusters.map((cluster) => (
+              <Card key={cluster.cluster_name}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <FolderTree className="h-4 w-4 text-primary" />
+                    <span className="capitalize">{cluster.cluster_name}</span>
+                    {cluster.high_priority_count > 0 && (
+                      <Badge variant="destructive" className="text-xs ml-2">{cluster.high_priority_count} high priority</Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {cluster.suggestions.map((s) => (
+                    <div key={s.id} className="p-4 rounded-md border bg-muted/20 space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant={PRIORITY_BADGE[s.priority]} className="text-xs">{s.priority}</Badge>
+                        <span className="text-sm font-medium">{s.keyword}</span>
+                      </div>
+                      {s.suggested_slug && (
+                        <div className="flex items-center gap-2 text-xs">
+                          <FileText className="h-3 w-3 text-muted-foreground" />
+                          <span className="font-mono text-muted-foreground">{s.suggested_slug}</span>
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground">{s.reason}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
         <TabsContent value="issues">
           <div className="space-y-2">
+            {openIssues.length === 0 && <p className="text-sm text-muted-foreground">No open issues.</p>}
             {openIssues.map((issue) => (
               <Card key={issue.id}>
                 <CardContent className="p-4 flex items-start gap-4">
