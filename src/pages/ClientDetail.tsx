@@ -11,7 +11,7 @@ import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLink
 import { clients as dummyClients, getClientRankings, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
 import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit, Settings, Upload, Loader2, Share2, MessageSquare } from "lucide-react";
-import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief, SeoArticle, CmsConnection } from "@/lib/api";
+import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief, SeoArticle, CmsConnection, SocialPost } from "@/lib/api";
 import { toast } from "sonner";
 
 const PRIORITY_BADGE: Record<string, "destructive" | "secondary" | "outline"> = {
