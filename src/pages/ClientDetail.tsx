@@ -7,11 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief, useArticles, useGenerateArticle, useUpdateArticle, useApproveArticle, usePublishArticle, useCmsConnection, useSaveCmsConnection, useTestCmsConnection } from "@/hooks/use-api";
+import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief, useArticles, useGenerateArticle, useUpdateArticle, useApproveArticle, usePublishArticle, useCmsConnection, useSaveCmsConnection, useTestCmsConnection, useSocialPosts, useGenerateSocialPosts, useUpdateSocialPost, useApproveSocialPost } from "@/hooks/use-api";
 import { clients as dummyClients, getClientRankings, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit, Settings, Upload, Loader2 } from "lucide-react";
-import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief, SeoArticle, CmsConnection } from "@/lib/api";
+import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit, Settings, Upload, Loader2, Share2, MessageSquare } from "lucide-react";
+import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief, SeoArticle, CmsConnection, SocialPost } from "@/lib/api";
 import { toast } from "sonner";
 
 const PRIORITY_BADGE: Record<string, "destructive" | "secondary" | "outline"> = {
@@ -122,6 +122,9 @@ export default function ClientDetail() {
   const [editingArticle, setEditingArticle] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{ title: string; meta_description: string; content: string; slug: string }>({ title: "", meta_description: "", content: "", slug: "" });
   const [cmsForm, setCmsForm] = useState<{ site_url: string; username: string; application_password: string }>({ site_url: "", username: "", application_password: "" });
+  const [selectedArticleForSocial, setSelectedArticleForSocial] = useState<string | null>(null);
+  const [editingSocialPost, setEditingSocialPost] = useState<string | null>(null);
+  const [socialEditContent, setSocialEditContent] = useState("");
 
   const { data: apiClient } = useClient(id!);
   const { data: apiKeywords } = useKeywords(id!);
@@ -139,6 +142,12 @@ export default function ClientDetail() {
   const publishArticle = usePublishArticle(id!);
   const saveCmsConnection = useSaveCmsConnection(id!);
   const testCmsConnection = useTestCmsConnection(id!);
+  const generateSocialPosts = useGenerateSocialPosts(id!);
+  const { data: apiSocialPosts } = useSocialPosts(selectedArticleForSocial || "");
+  const updateSocialPost = useUpdateSocialPost(selectedArticleForSocial || "");
+  const approveSocialPost = useApproveSocialPost(selectedArticleForSocial || "");
+
+  const socialPosts: SocialPost[] = apiSocialPosts ?? [];
 
   const cmsConnection: CmsConnection | null = apiCmsConnection ?? null;
 
@@ -292,6 +301,7 @@ export default function ClientDetail() {
           <TabsTrigger value="content-plan">Content Plan ({contentTotal})</TabsTrigger>
           <TabsTrigger value="briefs">Briefs ({briefs.length})</TabsTrigger>
           <TabsTrigger value="articles">Articles ({articles.length})</TabsTrigger>
+          <TabsTrigger value="social">Social Posts</TabsTrigger>
           <TabsTrigger value="issues">Issues ({openIssues.length})</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
@@ -716,6 +726,134 @@ export default function ClientDetail() {
             })}
           </div>
         </TabsContent>
+
+        <TabsContent value="social">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground">Social Media Posts</h3>
+              {articles.filter(a => a.status === "published" || a.status === "approved").length > 0 && (
+                <select
+                  className="text-sm border rounded px-2 py-1 bg-background"
+                  defaultValue=""
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      generateSocialPosts.mutate(e.target.value, {
+                        onSuccess: () => {
+                          setSelectedArticleForSocial(e.target.value);
+                          toast.success("Social posts generated!");
+                        },
+                        onError: () => toast.error("Failed to generate social posts"),
+                      });
+                    }
+                    e.target.value = "";
+                  }}
+                  disabled={generateSocialPosts.isPending}
+                >
+                  <option value="" disabled>{generateSocialPosts.isPending ? "Generating…" : "Generate from article…"}</option>
+                  {articles.filter(a => a.status === "published" || a.status === "approved").map((a) => (
+                    <option key={a.id} value={a.id}>{a.title}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {/* Article selector to view existing social posts */}
+            {articles.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">View posts for:</span>
+                <select
+                  className="text-sm border rounded px-2 py-1 bg-background"
+                  value={selectedArticleForSocial || ""}
+                  onChange={(e) => setSelectedArticleForSocial(e.target.value || null)}
+                >
+                  <option value="">Select article…</option>
+                  {articles.map((a) => (
+                    <option key={a.id} value={a.id}>{a.title}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {!selectedArticleForSocial && (
+              <p className="text-sm text-muted-foreground">Select an article above to view or generate social posts.</p>
+            )}
+
+            {selectedArticleForSocial && socialPosts.length === 0 && (
+              <p className="text-sm text-muted-foreground">No social posts for this article yet. Generate them using the dropdown above.</p>
+            )}
+
+            {socialPosts.map((post) => {
+              const isEditing = editingSocialPost === post.id;
+              const platformIcons: Record<string, string> = {
+                facebook: "📘", instagram: "📸", linkedin: "💼", twitter: "🐦", tiktok: "🎵",
+              };
+              return (
+                <Card key={post.id}>
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{platformIcons[post.platform] || "📱"}</span>
+                        <span className="text-sm font-medium capitalize">{post.platform}</span>
+                      </div>
+                      <Badge
+                        variant={post.status === "approved" ? "default" : post.status === "scheduled" ? "secondary" : "outline"}
+                        className="text-xs"
+                      >
+                        {post.status}
+                      </Badge>
+                    </div>
+
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={socialEditContent}
+                          onChange={(e) => setSocialEditContent(e.target.value)}
+                          className="text-sm min-h-[120px]"
+                        />
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={() => {
+                            updateSocialPost.mutate({ postId: post.id, data: { content: socialEditContent } }, {
+                              onSuccess: () => { toast.success("Post updated"); setEditingSocialPost(null); },
+                              onError: () => toast.error("Failed to update"),
+                            });
+                          }} disabled={updateSocialPost.isPending}>
+                            <Check className="h-3.5 w-3.5 mr-1" />Save
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingSocialPost(null)}>
+                            <X className="h-3.5 w-3.5 mr-1" />Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <pre className="text-sm whitespace-pre-wrap bg-muted/30 p-3 rounded">{post.content}</pre>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => {
+                            setEditingSocialPost(post.id);
+                            setSocialEditContent(post.content);
+                          }}>
+                            <Pencil className="h-3.5 w-3.5 mr-1" />Edit
+                          </Button>
+                          {post.status === "draft" && (
+                            <Button size="sm" onClick={() => {
+                              approveSocialPost.mutate(post.id, {
+                                onSuccess: () => toast.success("Post approved!"),
+                                onError: () => toast.error("Failed to approve"),
+                              });
+                            }} disabled={approveSocialPost.isPending}>
+                              <Check className="h-3.5 w-3.5 mr-1" />Approve
+                            </Button>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
 
         <TabsContent value="issues">
           <div className="space-y-2">

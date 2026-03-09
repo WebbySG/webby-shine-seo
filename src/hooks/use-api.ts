@@ -179,3 +179,37 @@ export function useTestCmsConnection(clientId: string) {
     mutationFn: () => api.testCmsConnection(clientId),
   });
 }
+
+// ---------- Social Posts ----------
+export function useSocialPosts(articleId: string) {
+  return useQuery({
+    queryKey: ["social-posts", articleId],
+    queryFn: () => api.getSocialPosts(articleId),
+    enabled: !!articleId,
+  });
+}
+
+export function useGenerateSocialPosts(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (articleId: string) => api.generateSocialPosts(clientId, articleId),
+    onSuccess: (_data, articleId) => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }),
+  });
+}
+
+export function useUpdateSocialPost(articleId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ postId, data }: { postId: string; data: { content?: string; scheduled_time?: string } }) =>
+      api.updateSocialPost(postId, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }),
+  });
+}
+
+export function useApproveSocialPost(articleId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (postId: string) => api.approveSocialPost(postId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }),
+  });
+}
