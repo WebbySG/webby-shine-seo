@@ -387,3 +387,78 @@ export function useUpdateInsightStatus(clientId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["performance-insights", clientId] }),
   });
 }
+
+// ---------- GBP / Local SEO ----------
+export function useGbpConnection(clientId: string) {
+  return useQuery({ queryKey: ["gbp-connection", clientId], queryFn: () => api.getGbpConnection(clientId), enabled: !!clientId });
+}
+export function useGbpProfile(clientId: string) {
+  return useQuery({ queryKey: ["gbp-profile", clientId], queryFn: () => api.getGbpProfile(clientId), enabled: !!clientId });
+}
+export function useGbpPosts(clientId: string) {
+  return useQuery({ queryKey: ["gbp-posts", clientId], queryFn: () => api.getGbpPosts(clientId), enabled: !!clientId });
+}
+export function useGbpReviews(clientId: string) {
+  return useQuery({ queryKey: ["gbp-reviews", clientId], queryFn: () => api.getGbpReviews(clientId), enabled: !!clientId });
+}
+export function useGbpQna(clientId: string) {
+  return useQuery({ queryKey: ["gbp-qna", clientId], queryFn: () => api.getGbpQna(clientId), enabled: !!clientId });
+}
+export function useLocalSeoInsights(clientId: string) {
+  return useQuery({ queryKey: ["local-seo-insights", clientId], queryFn: () => api.getLocalSeoInsights(clientId), enabled: !!clientId });
+}
+export function useSyncGbp() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (clientId: string) => api.syncGbp(clientId),
+    onSuccess: (_data, clientId) => {
+      qc.invalidateQueries({ queryKey: ["gbp-profile", clientId] });
+      qc.invalidateQueries({ queryKey: ["gbp-reviews", clientId] });
+      qc.invalidateQueries({ queryKey: ["gbp-qna", clientId] });
+      qc.invalidateQueries({ queryKey: ["local-seo-insights", clientId] });
+    },
+  });
+}
+export function useApproveGbpPost(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (postId: string) => api.approveGbpPost(postId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-posts", clientId] }),
+  });
+}
+export function useGenerateReviewResponse(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (reviewId: string) => api.generateReviewResponse(reviewId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-reviews", clientId] }),
+  });
+}
+export function useApproveReviewResponse(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (reviewId: string) => api.approveReviewResponse(reviewId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-reviews", clientId] }),
+  });
+}
+export function useGenerateQnaAnswer(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (qnaId: string) => api.generateQnaAnswer(qnaId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-qna", clientId] }),
+  });
+}
+export function useApproveQnaAnswer(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (qnaId: string) => api.approveQnaAnswer(qnaId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-qna", clientId] }),
+  });
+}
+export function useUpdateLocalInsightStatus(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ insightId, status }: { insightId: string; status: string }) =>
+      api.updateLocalInsightStatus(insightId, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["local-seo-insights", clientId] }),
+  });
+}

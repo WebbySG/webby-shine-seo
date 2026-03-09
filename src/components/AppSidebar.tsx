@@ -6,6 +6,7 @@ import {
   Lightbulb,
   Search,
   TrendingUp,
+  MapPin,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -29,6 +30,7 @@ const navItems = [
   { title: "Audit", url: "/audit", icon: Shield },
   { title: "Opportunities", url: "/opportunities", icon: Lightbulb },
   { title: "Analytics", url: "/analytics", icon: TrendingUp },
+  { title: "Local SEO", url: "/local-seo", icon: MapPin },
 ];
 
 export function AppSidebar() {

@@ -11,6 +11,7 @@ import Rankings from "@/pages/Rankings";
 import Audit from "@/pages/Audit";
 import Opportunities from "@/pages/Opportunities";
 import Analytics from "@/pages/Analytics";
+import LocalSEO from "@/pages/LocalSEO";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/audit" element={<Audit />} />
             <Route path="/opportunities" element={<Opportunities />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/local-seo" element={<LocalSEO />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

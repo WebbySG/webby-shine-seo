@@ -497,3 +497,94 @@ export const getPerformanceInsights = (clientId: string, status?: string) =>
 
 export const updateInsightStatus = (insightId: string, status: string) =>
   request<PerformanceInsight>(`/analytics/insights/${insightId}`, { method: "PATCH", body: JSON.stringify({ status }) });
+
+// ---------- GBP / Local SEO ----------
+export interface GbpConnection {
+  id: string;
+  client_id: string;
+  location_id: string | null;
+  account_id: string | null;
+  business_name: string | null;
+  primary_category: string | null;
+  site_url: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GbpProfile {
+  business_name: string;
+  primary_category: string;
+  reviews_count: number;
+  average_rating: number;
+  photos_count: number;
+  posts_count: number;
+  qna_count: number;
+  completeness: { score: number; missingItems: string[]; priorityActions: string[] };
+  [key: string]: any;
+}
+
+export interface GbpPostDraft {
+  id: string; client_id: string; article_id: string | null; title: string; content: string;
+  cta_type: string | null; cta_url: string | null; image_prompt: string | null;
+  status: string; scheduled_time: string | null; created_at: string;
+}
+
+export interface GbpReviewItem {
+  id: string; client_id: string; review_id: string; reviewer_name: string;
+  rating: number; review_text: string; review_date: string;
+  response_draft: string | null; response_status: string; created_at: string;
+}
+
+export interface GbpQnaItem {
+  id: string; client_id: string; question_id: string; question_text: string;
+  answer_draft: string | null; status: string; created_at: string;
+}
+
+export interface LocalSeoInsight {
+  id: string; client_id: string; insight_type: string; priority: string;
+  title: string; description: string; recommended_action: string | null;
+  status: string; created_at: string;
+}
+
+export const getGbpConnection = (clientId: string) =>
+  request<GbpConnection | null>(`/clients/${clientId}/gbp-connection`);
+
+export const getGbpProfile = (clientId: string) =>
+  request<GbpProfile | null>(`/clients/${clientId}/gbp-profile`);
+
+export const getGbpPosts = (clientId: string) =>
+  request<GbpPostDraft[]>(`/clients/${clientId}/gbp-posts`);
+
+export const getGbpReviews = (clientId: string) =>
+  request<GbpReviewItem[]>(`/clients/${clientId}/gbp-reviews`);
+
+export const getGbpQna = (clientId: string) =>
+  request<GbpQnaItem[]>(`/clients/${clientId}/gbp-qna`);
+
+export const getLocalSeoInsights = (clientId: string, status?: string) =>
+  request<LocalSeoInsight[]>(`/clients/${clientId}/local-seo-insights?status=${status || "open"}`);
+
+export const syncGbp = (clientId: string) =>
+  request<any>(`/gbp/sync`, { method: "POST", body: JSON.stringify({ client_id: clientId }) });
+
+export const generateGbpPost = (clientId: string, articleId: string) =>
+  request<GbpPostDraft>(`/gbp/posts/generate`, { method: "POST", body: JSON.stringify({ client_id: clientId, article_id: articleId }) });
+
+export const approveGbpPost = (postId: string) =>
+  request<GbpPostDraft>(`/gbp/posts/${postId}/approve`, { method: "POST" });
+
+export const generateReviewResponse = (reviewId: string) =>
+  request<GbpReviewItem>(`/gbp/reviews/${reviewId}/generate-response`, { method: "POST" });
+
+export const approveReviewResponse = (reviewId: string) =>
+  request<GbpReviewItem>(`/gbp/reviews/${reviewId}/approve`, { method: "POST" });
+
+export const generateQnaAnswer = (qnaId: string) =>
+  request<GbpQnaItem>(`/gbp/qna/${qnaId}/generate-answer`, { method: "POST" });
+
+export const approveQnaAnswer = (qnaId: string) =>
+  request<GbpQnaItem>(`/gbp/qna/${qnaId}/approve`, { method: "POST" });
+
+export const updateLocalInsightStatus = (insightId: string, status: string) =>
+  request<LocalSeoInsight>(`/gbp/insights/${insightId}`, { method: "PATCH", body: JSON.stringify({ status }) });

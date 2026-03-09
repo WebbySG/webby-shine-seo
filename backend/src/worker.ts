@@ -803,7 +803,74 @@ async function syncAnalyticsData() {
 }
 
 // ====================================================================
-// 7. COMBINED DAILY JOB
+// 7. GBP SYNC
+// ====================================================================
+async function syncGbpData() {
+  console.log(`[${new Date().toISOString()}] 📍 GBP sync started`);
+  try {
+    const { rows: conns } = await pool.query(
+      `SELECT * FROM gbp_connections WHERE status = 'connected'`
+    );
+    for (const conn of conns) {
+      try {
+        const { fetchGbpProfile, calculateCompleteness, fetchGbpReviews, fetchGbpQuestions, generateLocalSeoInsights } =
+          await import("./services/local/gbpService.js");
+
+        const profile = await fetchGbpProfile({
+          accessToken: conn.access_token, refreshToken: conn.refresh_token,
+          accountId: conn.account_id, locationId: conn.location_id,
+        });
+        const completeness = calculateCompleteness(profile);
+
+        await pool.query(
+          `INSERT INTO gbp_profile_snapshots
+           (client_id, location_id, business_name, primary_category, additional_categories, address, phone, website_url, business_description, opening_hours, services_count, products_count, photos_count, posts_count, reviews_count, average_rating, qna_count, completeness_score)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
+          [conn.client_id, conn.location_id, profile.businessName, profile.primaryCategory,
+            JSON.stringify(profile.additionalCategories), profile.address, profile.phone, profile.websiteUrl,
+            profile.businessDescription, profile.openingHours ? JSON.stringify(profile.openingHours) : null,
+            profile.servicesCount, profile.productsCount, profile.photosCount, profile.postsCount,
+            profile.reviewsCount, profile.averageRating, profile.qnaCount, completeness.score]
+        );
+
+        const reviews = await fetchGbpReviews({
+          accessToken: conn.access_token, refreshToken: conn.refresh_token,
+          accountId: conn.account_id, locationId: conn.location_id,
+        });
+        for (const r of reviews) {
+          await pool.query(
+            `INSERT INTO gbp_review_items (client_id, review_id, reviewer_name, rating, review_text, review_date)
+             VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING`,
+            [conn.client_id, r.reviewId, r.reviewerName, r.rating, r.reviewText, r.reviewDate]
+          );
+        }
+
+        const questions = await fetchGbpQuestions({
+          accessToken: conn.access_token, refreshToken: conn.refresh_token,
+          accountId: conn.account_id, locationId: conn.location_id,
+        });
+        for (const q of questions) {
+          await pool.query(
+            `INSERT INTO gbp_qna_items (client_id, question_id, question_text)
+             VALUES ($1,$2,$3) ON CONFLICT DO NOTHING`,
+            [conn.client_id, q.questionId, q.questionText]
+          );
+        }
+
+        const insightCount = await generateLocalSeoInsights(conn.client_id);
+        console.log(`  ✓ GBP sync for client ${conn.client_id}: score=${completeness.score}, insights=${insightCount}`);
+      } catch (err: any) {
+        console.error(`  ✗ GBP sync error for client ${conn.client_id}:`, err.message);
+      }
+    }
+    console.log(`[${new Date().toISOString()}] ✅ GBP sync completed`);
+  } catch (error) {
+    console.error("Fatal error in GBP sync:", error);
+  }
+}
+
+// ====================================================================
+// 8. COMBINED DAILY JOB
 // ====================================================================
 async function dailyJob() {
   await fetchRankings();
@@ -811,6 +878,7 @@ async function dailyJob() {
   await generateInternalLinks();
   await generateContentPlan();
   await syncAnalyticsData();
+  await syncGbpData();
 }
 
 // Run daily at 02:00 SGT
@@ -821,11 +889,16 @@ cron.schedule("0 2 * * *", dailyJob, {
 // Process publishing jobs every minute
 cron.schedule("* * * * *", processPublishingJobs);
 
-// Analytics sync daily at 04:00 SGT (also runs as part of dailyJob, but this ensures standalone)
+// Analytics sync daily at 04:00 SGT
 cron.schedule("0 4 * * *", syncAnalyticsData, {
   timezone: "Asia/Singapore",
 });
 
-console.log("🕐 Cron worker started — daily SEO jobs at 02:00 SGT, analytics at 04:00 SGT, publishing jobs every minute");
+// GBP sync daily at 05:00 SGT
+cron.schedule("0 5 * * *", syncGbpData, {
+  timezone: "Asia/Singapore",
+});
 
-export { fetchRankings, generateOpportunities, generateInternalLinks, generateContentPlan, processPublishingJobs, syncAnalyticsData };
+console.log("🕐 Cron worker started — daily SEO jobs at 02:00 SGT, analytics at 04:00 SGT, GBP at 05:00 SGT, publishing jobs every minute");
+
+export { fetchRankings, generateOpportunities, generateInternalLinks, generateContentPlan, processPublishingJobs, syncAnalyticsData, syncGbpData };
