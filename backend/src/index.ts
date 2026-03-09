@@ -38,6 +38,7 @@ app.use("/api/clients", briefsRouter);
 app.use("/api/briefs", briefsRouter);
 app.use("/api/clients", articlesRouter);
 app.use("/api/articles", articlesRouter);
+app.use("/api/clients", cmsRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
