@@ -157,6 +157,6 @@ export default function Audit() {
           </TabsContent>
         ))}
       </Tabs>
-    </div>
+    </PageTransition>
   );
 }
