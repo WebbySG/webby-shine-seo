@@ -66,6 +66,8 @@ app.use("/api/ads", adsRouter);
 app.use("/api/clients", adsRouter);
 app.use("/api/command", commandRouter);
 app.use("/api/clients", commandRouter);
+app.use("/api/crm", crmRouter);
+app.use("/api/clients", crmRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
