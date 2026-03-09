@@ -21,6 +21,7 @@ import gbpRouter from "./routes/gbp.js";
 import creativeRouter from "./routes/creative.js";
 import adsRouter from "./routes/ads.js";
 import commandRouter from "./routes/command.js";
+import crmRouter from "./routes/crm.js";
 
 dotenv.config();
 
