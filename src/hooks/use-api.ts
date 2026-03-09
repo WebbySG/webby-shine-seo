@@ -86,3 +86,12 @@ export function useInternalLinks(clientId: string) {
     enabled: !!clientId,
   });
 }
+
+// ---------- Content Plan ----------
+export function useContentPlan(clientId: string) {
+  return useQuery({
+    queryKey: ["content-plan", clientId],
+    queryFn: () => api.getContentPlan(clientId),
+    enabled: !!clientId,
+  });
+}
