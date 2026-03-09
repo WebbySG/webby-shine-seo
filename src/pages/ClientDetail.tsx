@@ -122,6 +122,9 @@ export default function ClientDetail() {
   const [editingArticle, setEditingArticle] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{ title: string; meta_description: string; content: string; slug: string }>({ title: "", meta_description: "", content: "", slug: "" });
   const [cmsForm, setCmsForm] = useState<{ site_url: string; username: string; application_password: string }>({ site_url: "", username: "", application_password: "" });
+  const [selectedArticleForSocial, setSelectedArticleForSocial] = useState<string | null>(null);
+  const [editingSocialPost, setEditingSocialPost] = useState<string | null>(null);
+  const [socialEditContent, setSocialEditContent] = useState("");
 
   const { data: apiClient } = useClient(id!);
   const { data: apiKeywords } = useKeywords(id!);
