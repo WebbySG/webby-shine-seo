@@ -7,6 +7,7 @@ import competitorsRouter from "./routes/competitors.js";
 import rankingsRouter from "./routes/rankings.js";
 import auditRouter from "./routes/audit.js";
 import opportunitiesRouter from "./routes/opportunities.js";
+import internalLinksRouter from "./routes/internal-links.js";
 
 dotenv.config();
 
