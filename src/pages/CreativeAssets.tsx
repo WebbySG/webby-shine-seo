@@ -208,8 +208,9 @@ export default function CreativeAssets() {
               <p className="text-3xl font-bold text-foreground mt-1">{kpi.value}</p>
             </CardContent>
           </Card>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
       <Tabs defaultValue="all" className="space-y-6">
         <TabsList className="bg-muted/50 border flex-wrap h-auto gap-1">
