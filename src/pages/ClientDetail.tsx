@@ -682,6 +682,15 @@ export default function ClientDetail() {
                           </pre>
                         </details>
 
+                        {article.cms_post_url && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>Published:</span>
+                            <a href={article.cms_post_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                              {article.cms_post_url} <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </div>
+                        )}
+
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline" onClick={() => startEditing(article)}>
                             <Pencil className="h-3.5 w-3.5 mr-1" />Edit
@@ -690,6 +699,12 @@ export default function ClientDetail() {
                             <Button size="sm" onClick={() => handleApprove(article.id)} disabled={approveArticle.isPending}>
                               <Check className="h-3.5 w-3.5 mr-1" />
                               {approveArticle.isPending ? "Approving…" : "Approve"}
+                            </Button>
+                          )}
+                          {article.status === "approved" && (
+                            <Button size="sm" onClick={() => handlePublish(article.id)} disabled={publishArticle.isPending}>
+                              <Upload className="h-3.5 w-3.5 mr-1" />
+                              {publishArticle.isPending ? "Publishing…" : "Publish to WordPress"}
                             </Button>
                           )}
                         </div>
