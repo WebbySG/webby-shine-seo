@@ -210,6 +210,9 @@ export interface SeoArticle {
   status: "draft" | "review" | "approved" | "published";
   target_keyword: string;
   slug: string | null;
+  publish_date: string | null;
+  cms_post_id: string | null;
+  cms_post_url: string | null;
   created_at: string;
   updated_at: string;
 }
