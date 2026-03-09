@@ -771,3 +771,57 @@ export const getMarketingGoals = (clientId: string) =>
 
 export const getQuickWins = (clientId: string) =>
   request<MarketingPriority[]>(`/clients/${clientId}/quick-wins`);
+
+// ---------- CRM ----------
+export interface CrmContact {
+  id: string; client_id: string; first_name: string | null; last_name: string | null;
+  full_name: string; email: string | null; phone: string | null; company_name: string | null;
+  job_title: string | null; status: string; source_type: string | null; lead_source: string | null;
+  notes: string | null; created_at: string; updated_at: string;
+}
+export interface CrmDeal {
+  id: string; client_id: string; contact_id: string | null; deal_name: string;
+  deal_value: number; deal_stage: string; pipeline_name: string; expected_close_date: string | null;
+  won_date: string | null; lost_reason: string | null; notes: string | null;
+  contact_name?: string; contact_email?: string; created_at: string; updated_at: string;
+}
+export interface CrmActivity {
+  id: string; client_id: string; contact_id: string | null; deal_id: string | null;
+  activity_type: string; title: string; description: string | null;
+  due_date: string | null; completed_at: string | null; created_at: string;
+}
+export interface CrmInsight {
+  id: string; client_id: string; insight_type: string; priority: string;
+  title: string; description: string | null; recommended_action: string | null;
+  status: string; created_at: string;
+}
+export interface AttributionOverview {
+  byChannel: { channel: string; attribution_model: string; total_credit: number; contacts: number }[];
+  dealAttribution: { channel: string; attribution_model: string; attributed_revenue: number; deals: number }[];
+}
+export interface AttributionContact {
+  id: string; channel: string; attribution_model: string; credit: number;
+  campaign_name: string | null; full_name: string; email: string | null; contact_status: string;
+}
+export interface AttributionDeal {
+  channel: string; attribution_model: string; credit: number; campaign_name: string | null;
+  deal_name: string; deal_value: number; deal_stage: string; won_date: string | null; contact_name: string;
+}
+
+export const getCrmContacts = (clientId: string) => request<CrmContact[]>(`/clients/${clientId}/crm/contacts`);
+export const createCrmContact = (data: any) => request<CrmContact>(`/crm/contacts`, { method: "POST", body: JSON.stringify(data) });
+export const updateCrmContact = (id: string, data: any) => request<CrmContact>(`/crm/contacts/${id}`, { method: "PUT", body: JSON.stringify(data) });
+export const getCrmDeals = (clientId: string) => request<CrmDeal[]>(`/clients/${clientId}/crm/deals`);
+export const createCrmDeal = (data: any) => request<CrmDeal>(`/crm/deals`, { method: "POST", body: JSON.stringify(data) });
+export const updateCrmDeal = (id: string, data: any) => request<CrmDeal>(`/crm/deals/${id}`, { method: "PUT", body: JSON.stringify(data) });
+export const getCrmActivities = (clientId: string) => request<CrmActivity[]>(`/clients/${clientId}/crm/activities`);
+export const createCrmActivity = (data: any) => request<CrmActivity>(`/crm/activities`, { method: "POST", body: JSON.stringify(data) });
+export const completeCrmActivity = (id: string) => request<CrmActivity>(`/crm/activities/${id}/complete`, { method: "PUT" });
+export const captureLead = (data: any) => request<any>(`/crm/leads/capture`, { method: "POST", body: JSON.stringify(data) });
+export const getCrmInsights = (clientId: string, status?: string) => request<CrmInsight[]>(`/clients/${clientId}/crm/insights${status ? `?status=${status}` : ""}`);
+export const recomputeCrmInsights = (clientId: string) => request<any>(`/clients/${clientId}/crm/insights/recompute`, { method: "POST" });
+export const updateCrmInsightStatus = (id: string, status: string) => request<CrmInsight>(`/crm/insights/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
+export const getAttributionOverview = (clientId: string) => request<AttributionOverview>(`/clients/${clientId}/attribution/overview`);
+export const getAttributionContacts = (clientId: string) => request<AttributionContact[]>(`/clients/${clientId}/attribution/contacts`);
+export const getAttributionDeals = (clientId: string) => request<AttributionDeal[]>(`/clients/${clientId}/attribution/deals`);
+export const recomputeAttribution = (clientId: string) => request<any>(`/clients/${clientId}/attribution/recompute`, { method: "POST" });

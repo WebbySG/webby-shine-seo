@@ -630,3 +630,66 @@ export function useUpdateWeeklyItemStatus(clientId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["weekly-plans", clientId] }),
   });
 }
+
+// ---------- CRM ----------
+export function useCrmContacts(clientId: string) {
+  return useQuery({ queryKey: ["crm-contacts", clientId], queryFn: () => api.getCrmContacts(clientId), enabled: !!clientId });
+}
+export function useCreateCrmContact(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (data: any) => api.createCrmContact(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-contacts", clientId] }) });
+}
+export function useUpdateCrmContact(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: ({ id, data }: { id: string; data: any }) => api.updateCrmContact(id, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-contacts", clientId] }) });
+}
+export function useCrmDeals(clientId: string) {
+  return useQuery({ queryKey: ["crm-deals", clientId], queryFn: () => api.getCrmDeals(clientId), enabled: !!clientId });
+}
+export function useCreateCrmDeal(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (data: any) => api.createCrmDeal(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-deals", clientId] }) });
+}
+export function useUpdateCrmDeal(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: ({ id, data }: { id: string; data: any }) => api.updateCrmDeal(id, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-deals", clientId] }) });
+}
+export function useCrmActivities(clientId: string) {
+  return useQuery({ queryKey: ["crm-activities", clientId], queryFn: () => api.getCrmActivities(clientId), enabled: !!clientId });
+}
+export function useCreateCrmActivity(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (data: any) => api.createCrmActivity(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-activities", clientId] }) });
+}
+export function useCompleteCrmActivity(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (id: string) => api.completeCrmActivity(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-activities", clientId] }) });
+}
+export function useCaptureLead(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (data: any) => api.captureLead(data), onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm-contacts", clientId] }); } });
+}
+export function useCrmInsights(clientId: string, status?: string) {
+  return useQuery({ queryKey: ["crm-insights", clientId, status], queryFn: () => api.getCrmInsights(clientId, status), enabled: !!clientId });
+}
+export function useRecomputeCrmInsights() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (clientId: string) => api.recomputeCrmInsights(clientId), onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["crm-insights", clientId] }) });
+}
+export function useUpdateCrmInsightStatus(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: ({ id, status }: { id: string; status: string }) => api.updateCrmInsightStatus(id, status), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-insights", clientId] }) });
+}
+export function useAttributionOverview(clientId: string) {
+  return useQuery({ queryKey: ["attribution-overview", clientId], queryFn: () => api.getAttributionOverview(clientId), enabled: !!clientId });
+}
+export function useAttributionContacts(clientId: string) {
+  return useQuery({ queryKey: ["attribution-contacts", clientId], queryFn: () => api.getAttributionContacts(clientId), enabled: !!clientId });
+}
+export function useAttributionDeals(clientId: string) {
+  return useQuery({ queryKey: ["attribution-deals", clientId], queryFn: () => api.getAttributionDeals(clientId), enabled: !!clientId });
+}
+export function useRecomputeAttribution() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (clientId: string) => api.recomputeAttribution(clientId), onSuccess: (_d, clientId) => { qc.invalidateQueries({ queryKey: ["attribution-overview", clientId] }); qc.invalidateQueries({ queryKey: ["attribution-contacts", clientId] }); qc.invalidateQueries({ queryKey: ["attribution-deals", clientId] }); } });
+}
