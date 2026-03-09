@@ -59,12 +59,13 @@ export default function Opportunities() {
       </div>
 
       {/* Summary cards with accent borders */}
-      <div className="grid gap-4 sm:grid-cols-4">
+      <StaggerContainer className="grid gap-4 sm:grid-cols-4">
         {(["near_win", "content_gap", "page_expansion", "technical_fix"] as const).map((type) => {
           const meta = TYPE_META[type];
           const Icon = meta.icon;
           return (
-            <Card key={type} className={`${meta.borderClass} border-l-4 hover-lift`}>
+            <StaggerItem key={type}>
+            <Card className={`${meta.borderClass} border-l-4 hover-lift`}>
               <CardContent className="p-4 flex items-center gap-3">
                 <div className={`p-2 rounded-lg ${meta.bgClass}`}>
                   <Icon className={`h-5 w-5 ${meta.colorClass}`} />
