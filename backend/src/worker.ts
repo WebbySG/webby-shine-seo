@@ -128,7 +128,7 @@ async function fetchRankings() {
 }
 
 // ====================================================================
-// 2. OPPORTUNITY GENERATION  (runs after rank tracking)
+// 2. OPPORTUNITY GENERATION
 // ====================================================================
 async function generateOpportunities() {
   console.log(`[${new Date().toISOString()}] 💡 Opportunity generation started`);
@@ -142,7 +142,6 @@ async function generateOpportunities() {
       const clientId = client.id;
       const clientDomain = client.domain;
 
-      // Clear previous open/dismissed opportunities for fresh generation
       await pool.query(
         `DELETE FROM seo_opportunities WHERE client_id = $1 AND status IN ('open','dismissed')`,
         [clientId]
@@ -154,7 +153,7 @@ async function generateOpportunities() {
       );
       const competitorDomains: string[] = competitors.map((r: any) => r.domain);
 
-      // ---------- Near Wins (pos 11–20) ----------
+      // Near Wins
       const { rows: nearWins } = await pool.query(
         `SELECT k.id AS keyword_id, k.keyword, k.target_url,
                 rs.position, rs.ranking_url
@@ -175,18 +174,12 @@ async function generateOpportunities() {
           `INSERT INTO seo_opportunities
            (client_id, keyword_id, type, priority, target_url, current_position, recommended_action)
            VALUES ($1, $2, 'near_win', $3, $4, $5, $6)`,
-          [
-            clientId,
-            r.keyword_id,
-            priority,
-            r.ranking_url ?? r.target_url,
-            r.position,
-            `Push "${r.keyword}" from #${r.position} to page 1. Add internal links, expand content, and optimize headings.`,
-          ]
+          [clientId, r.keyword_id, priority, r.ranking_url ?? r.target_url, r.position,
+            `Push "${r.keyword}" from #${r.position} to page 1. Add internal links, expand content, and optimize headings.`]
         );
       }
 
-      // ---------- Content Gap ----------
+      // Content Gap
       if (competitorDomains.length > 0) {
         const { rows: gaps } = await pool.query(
           `SELECT DISTINCT k.id AS keyword_id, k.keyword,
@@ -212,17 +205,13 @@ async function generateOpportunities() {
             `INSERT INTO seo_opportunities
              (client_id, keyword_id, type, priority, target_url, current_position, recommended_action)
              VALUES ($1, $2, 'content_gap', $3, NULL, NULL, $4)`,
-            [
-              clientId,
-              r.keyword_id,
-              r.competitor_position <= 5 ? "high" : "medium",
-              `Create new page for "${r.keyword}". Competitor ${r.competitor_domain} ranks #${r.competitor_position}.`,
-            ]
+            [clientId, r.keyword_id, r.competitor_position <= 5 ? "high" : "medium",
+              `Create new page for "${r.keyword}". Competitor ${r.competitor_domain} ranks #${r.competitor_position}.`]
           );
         }
       }
 
-      // ---------- Page Expansion ----------
+      // Page Expansion
       const { rows: expansions } = await pool.query(
         `WITH latest AS (
            SELECT DISTINCT ON (rs.keyword_id)
@@ -245,17 +234,12 @@ async function generateOpportunities() {
           `INSERT INTO seo_opportunities
            (client_id, keyword_id, type, priority, target_url, current_position, recommended_action)
            VALUES ($1, NULL, 'page_expansion', $2, $3, $4, $5)`,
-          [
-            clientId,
-            r.kw_count >= 4 ? "high" : "medium",
-            r.ranking_url,
-            r.best_pos,
-            `Expand page content. This URL ranks for ${r.kw_count} keywords (${r.keywords.join(", ")}). Consider splitting into dedicated pages.`,
-          ]
+          [clientId, r.kw_count >= 4 ? "high" : "medium", r.ranking_url, r.best_pos,
+            `Expand page content. This URL ranks for ${r.kw_count} keywords (${r.keywords.join(", ")}). Consider splitting into dedicated pages.`]
         );
       }
 
-      // ---------- Technical Fix ----------
+      // Technical Fix
       const { rows: techFixes } = await pool.query(
         `SELECT DISTINCT ON (ai.affected_url)
            ai.affected_url, ai.issue_type, ai.severity, ai.description, ai.fix_instruction,
@@ -278,14 +262,10 @@ async function generateOpportunities() {
           `INSERT INTO seo_opportunities
            (client_id, keyword_id, type, priority, target_url, current_position, recommended_action)
            VALUES ($1, $2, 'technical_fix', $3, $4, $5, $6)`,
-          [
-            clientId,
-            r.keyword_id,
+          [clientId, r.keyword_id,
             r.severity === "critical" ? "high" : r.severity === "warning" ? "medium" : "low",
-            r.affected_url,
-            r.position,
-            `Fix technical issues: ${r.severity.toUpperCase()} — ${r.issue_type}. ${r.description}. ${r.fix_instruction ?? "Review and fix."}`,
-          ]
+            r.affected_url, r.position,
+            `Fix technical issues: ${r.severity.toUpperCase()} — ${r.issue_type}. ${r.description}. ${r.fix_instruction ?? "Review and fix."}`]
         );
       }
 
@@ -299,11 +279,141 @@ async function generateOpportunities() {
 }
 
 // ====================================================================
-// 3. COMBINED DAILY JOB
+// 3. INTERNAL LINK SUGGESTIONS
+// ====================================================================
+async function generateInternalLinks() {
+  console.log(`[${new Date().toISOString()}] 🔗 Internal link suggestion generation started`);
+
+  try {
+    const { rows: activeClients } = await pool.query(
+      `SELECT id, domain FROM clients WHERE status = 'active'`
+    );
+
+    for (const client of activeClients) {
+      const clientId = client.id;
+      const clientDomain = client.domain;
+
+      // Clear old pending/dismissed suggestions
+      await pool.query(
+        `DELETE FROM internal_link_suggestions WHERE client_id = $1 AND status IN ('pending','dismissed')`,
+        [clientId]
+      );
+
+      // Get all keywords with their target URLs and current ranking positions
+      const { rows: keywordPages } = await pool.query(
+        `SELECT k.id AS keyword_id, k.keyword, k.target_url, k.cluster,
+                rs.position, rs.ranking_url
+         FROM keywords k
+         LEFT JOIN LATERAL (
+           SELECT position, ranking_url FROM rank_snapshots
+           WHERE keyword_id = k.id AND domain = $2
+           ORDER BY snapshot_date DESC LIMIT 1
+         ) rs ON true
+         WHERE k.client_id = $1 AND k.is_active`,
+        [clientId, clientDomain]
+      );
+
+      // Build page-keyword mapping
+      const pageKeywords = new Map<string, { keyword: string; position: number | null; targetUrl: string | null }[]>();
+      for (const kp of keywordPages) {
+        const url = kp.ranking_url || kp.target_url;
+        if (!url) continue;
+        const existing = pageKeywords.get(url) || [];
+        existing.push({ keyword: kp.keyword, position: kp.position, targetUrl: kp.target_url });
+        pageKeywords.set(url, existing);
+      }
+
+      // Find link opportunities: pages that could link to target pages for near-win keywords
+      const suggestions: {
+        from_url: string;
+        to_url: string;
+        anchor_text: string;
+        reason: string;
+        priority: string;
+      }[] = [];
+
+      for (const kp of keywordPages) {
+        const targetUrl = kp.target_url || kp.ranking_url;
+        if (!targetUrl) continue;
+        const position = kp.position;
+
+        // Only suggest for keywords in striking distance (11–30)
+        if (!position || position < 11 || position > 30) continue;
+
+        const priority =
+          position <= 15 ? "high" : position <= 20 ? "medium" : "low";
+
+        // Find other pages that could contextually link to this target
+        for (const [pageUrl, pageKws] of pageKeywords) {
+          if (pageUrl === targetUrl) continue;
+
+          // Check if pages share cluster or related topic
+          const hasRelatedTopic = pageKws.some(
+            (pk) =>
+              kp.cluster && pk.keyword.includes(kp.cluster?.split(" ")[0]) ||
+              pk.keyword.split(" ").some((w) => kp.keyword.includes(w) && w.length > 3)
+          );
+
+          if (hasRelatedTopic) {
+            suggestions.push({
+              from_url: pageUrl,
+              to_url: targetUrl,
+              anchor_text: kp.keyword,
+              reason: `Boost "${kp.keyword}" (currently #${position}) by adding internal link from related page.`,
+              priority,
+            });
+          }
+        }
+
+        // Also suggest linking from high-authority pages (pages ranking for multiple keywords)
+        for (const [pageUrl, pageKws] of pageKeywords) {
+          if (pageUrl === targetUrl) continue;
+          if (pageKws.length >= 2) {
+            const bestPos = Math.min(...pageKws.map((p) => p.position || 100));
+            if (bestPos <= 10 && !suggestions.find((s) => s.from_url === pageUrl && s.to_url === targetUrl)) {
+              suggestions.push({
+                from_url: pageUrl,
+                to_url: targetUrl,
+                anchor_text: kp.keyword,
+                reason: `Link from high-ranking page (#${bestPos}) to boost "${kp.keyword}" at #${position}.`,
+                priority,
+              });
+            }
+          }
+        }
+      }
+
+      // Insert suggestions (limit to top 20 per client)
+      const topSuggestions = suggestions
+        .sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.priority] ?? 2) - ({ high: 0, medium: 1, low: 2 }[b.priority] ?? 2))
+        .slice(0, 20);
+
+      for (const s of topSuggestions) {
+        await pool.query(
+          `INSERT INTO internal_link_suggestions
+           (client_id, from_url, to_url, anchor_text, reason, priority)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT DO NOTHING`,
+          [clientId, s.from_url, s.to_url, s.anchor_text, s.reason, s.priority]
+        );
+      }
+
+      console.log(`  ✓ ${topSuggestions.length} internal link suggestions for client ${clientId}`);
+    }
+
+    console.log(`[${new Date().toISOString()}] ✅ Internal link suggestion generation completed`);
+  } catch (error) {
+    console.error("Fatal error in internal link generation:", error);
+  }
+}
+
+// ====================================================================
+// 4. COMBINED DAILY JOB
 // ====================================================================
 async function dailyJob() {
   await fetchRankings();
   await generateOpportunities();
+  await generateInternalLinks();
 }
 
 // Run daily at 02:00 SGT
@@ -311,6 +421,6 @@ cron.schedule("0 2 * * *", dailyJob, {
   timezone: "Asia/Singapore",
 });
 
-console.log("🕐 Cron worker started — rank checks + opportunities daily at 02:00 SGT");
+console.log("🕐 Cron worker started — rank checks, opportunities, and internal links daily at 02:00 SGT");
 
-export { fetchRankings, generateOpportunities };
+export { fetchRankings, generateOpportunities, generateInternalLinks };

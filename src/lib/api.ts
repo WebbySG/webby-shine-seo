@@ -100,3 +100,24 @@ export const updateOpportunityStatus = (clientId: string, oppId: string, status:
     method: "PATCH",
     body: JSON.stringify({ status }),
   });
+
+// ---------- Internal Links ----------
+export interface InternalLinkSuggestion {
+  id: string;
+  from_url: string;
+  to_url: string;
+  anchor_text: string;
+  reason: string;
+  priority: "high" | "medium" | "low";
+  status: "pending" | "implemented" | "dismissed";
+  created_at: string;
+}
+
+export const getInternalLinks = (clientId: string) =>
+  request<InternalLinkSuggestion[]>(`/clients/${clientId}/internal-links`);
+
+export const updateInternalLinkStatus = (clientId: string, linkId: string, status: string) =>
+  request<InternalLinkSuggestion>(`/clients/${clientId}/internal-links/${linkId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });

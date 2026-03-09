@@ -7,6 +7,7 @@ import competitorsRouter from "./routes/competitors.js";
 import rankingsRouter from "./routes/rankings.js";
 import auditRouter from "./routes/audit.js";
 import opportunitiesRouter from "./routes/opportunities.js";
+import internalLinksRouter from "./routes/internal-links.js";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use("/api/clients/:id/rankings", (req, res, next) => {
 }, rankingsRouter);
 app.use("/api/audit", auditRouter);
 app.use("/api/clients", opportunitiesRouter);
+app.use("/api/clients", internalLinksRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
