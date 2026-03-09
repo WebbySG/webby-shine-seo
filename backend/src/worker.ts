@@ -408,12 +408,159 @@ async function generateInternalLinks() {
 }
 
 // ====================================================================
-// 4. COMBINED DAILY JOB
+// 4. CONTENT PLANNER (Topical Map Engine)
+// ====================================================================
+async function generateContentPlan() {
+  console.log(`[${new Date().toISOString()}] 📝 Content plan generation started`);
+
+  try {
+    const { rows: activeClients } = await pool.query(
+      `SELECT id, domain FROM clients WHERE status = 'active'`
+    );
+
+    for (const client of activeClients) {
+      const clientId = client.id;
+      const clientDomain = client.domain;
+
+      // Clear old pending/dismissed suggestions
+      await pool.query(
+        `DELETE FROM content_suggestions WHERE client_id = $1 AND status IN ('pending','dismissed')`,
+        [clientId]
+      );
+
+      // Get all keywords with their clusters and ranking data
+      const { rows: keywordData } = await pool.query(
+        `SELECT k.id, k.keyword, k.cluster, k.target_url,
+                rs.position AS client_position, rs.ranking_url
+         FROM keywords k
+         LEFT JOIN LATERAL (
+           SELECT position, ranking_url FROM rank_snapshots
+           WHERE keyword_id = k.id AND domain = $2
+           ORDER BY snapshot_date DESC LIMIT 1
+         ) rs ON true
+         WHERE k.client_id = $1 AND k.is_active`,
+        [clientId, clientDomain]
+      );
+
+      // Get competitor domains
+      const { rows: competitors } = await pool.query(
+        `SELECT domain FROM competitors WHERE client_id = $1`,
+        [clientId]
+      );
+      const competitorDomains: string[] = competitors.map((r: any) => r.domain);
+
+      // Group keywords by cluster
+      const clusterMap = new Map<string, typeof keywordData>();
+      for (const kw of keywordData) {
+        const cluster = kw.cluster || extractCluster(kw.keyword);
+        const existing = clusterMap.get(cluster) || [];
+        existing.push({ ...kw, cluster });
+        clusterMap.set(cluster, existing);
+      }
+
+      const suggestions: {
+        cluster_name: string;
+        keyword: string;
+        suggested_slug: string;
+        reason: string;
+        priority: string;
+      }[] = [];
+
+      for (const [cluster, keywords] of clusterMap) {
+        for (const kw of keywords) {
+          // High priority: Competitor ranks, client doesn't
+          if (competitorDomains.length > 0) {
+            const { rows: compRanks } = await pool.query(
+              `SELECT domain, position FROM rank_snapshots
+               WHERE keyword_id = $1 AND domain = ANY($2) AND position <= 10
+               ORDER BY snapshot_date DESC LIMIT 1`,
+              [kw.id, competitorDomains]
+            );
+
+            if (compRanks.length > 0 && (!kw.client_position || kw.client_position > 30)) {
+              suggestions.push({
+                cluster_name: cluster,
+                keyword: kw.keyword,
+                suggested_slug: generateSlug(kw.keyword),
+                reason: `Competitor ${compRanks[0].domain} ranks #${compRanks[0].position}. Create dedicated content to capture this traffic.`,
+                priority: "high",
+              });
+              continue;
+            }
+          }
+
+          // Medium priority: Has keyword but no dedicated page (no target_url)
+          if (!kw.target_url && kw.client_position && kw.client_position > 10) {
+            suggestions.push({
+              cluster_name: cluster,
+              keyword: kw.keyword,
+              suggested_slug: generateSlug(kw.keyword),
+              reason: `Keyword ranks #${kw.client_position} but has no dedicated target page. Create optimized content.`,
+              priority: "medium",
+            });
+            continue;
+          }
+
+          // Low priority: Supporting cluster content
+          if (!kw.client_position || kw.client_position > 50) {
+            suggestions.push({
+              cluster_name: cluster,
+              keyword: kw.keyword,
+              suggested_slug: generateSlug(kw.keyword),
+              reason: `Supporting content for the "${cluster}" topic cluster. Builds topical authority.`,
+              priority: "low",
+            });
+          }
+        }
+      }
+
+      // Insert suggestions (limit to top 30 per client)
+      const topSuggestions = suggestions
+        .sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.priority] ?? 2) - ({ high: 0, medium: 1, low: 2 }[b.priority] ?? 2))
+        .slice(0, 30);
+
+      for (const s of topSuggestions) {
+        await pool.query(
+          `INSERT INTO content_suggestions
+           (client_id, cluster_name, keyword, suggested_slug, reason, priority)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [clientId, s.cluster_name, s.keyword, s.suggested_slug, s.reason, s.priority]
+        );
+      }
+
+      console.log(`  ✓ ${topSuggestions.length} content suggestions for client ${clientId}`);
+    }
+
+    console.log(`[${new Date().toISOString()}] ✅ Content plan generation completed`);
+  } catch (error) {
+    console.error("Fatal error in content plan generation:", error);
+  }
+}
+
+// Helper: Extract cluster from keyword (simple n-gram approach)
+function extractCluster(keyword: string): string {
+  const words = keyword.toLowerCase().split(/\s+/);
+  // Use first 2 words as cluster, or full keyword if short
+  return words.slice(0, 2).join(" ");
+}
+
+// Helper: Generate URL slug from keyword
+function generateSlug(keyword: string): string {
+  return "/" + keyword
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 50);
+}
+
+// ====================================================================
+// 5. COMBINED DAILY JOB
 // ====================================================================
 async function dailyJob() {
   await fetchRankings();
   await generateOpportunities();
   await generateInternalLinks();
+  await generateContentPlan();
 }
 
 // Run daily at 02:00 SGT
@@ -421,6 +568,6 @@ cron.schedule("0 2 * * *", dailyJob, {
   timezone: "Asia/Singapore",
 });
 
-console.log("🕐 Cron worker started — rank checks, opportunities, and internal links daily at 02:00 SGT");
+console.log("🕐 Cron worker started — rank checks, opportunities, links, and content plan daily at 02:00 SGT");
 
-export { fetchRankings, generateOpportunities, generateInternalLinks };
+export { fetchRankings, generateOpportunities, generateInternalLinks, generateContentPlan };
