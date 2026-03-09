@@ -55,7 +55,7 @@ export default function Analytics() {
   ];
 
   return (
-    <div className="space-y-8">
+    <PageTransition className="space-y-8">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
