@@ -722,6 +722,81 @@ export default function ClientDetail() {
             ))}
           </div>
         </TabsContent>
+
+        <TabsContent value="settings">
+          <div className="space-y-6 max-w-xl">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Settings className="h-4 w-4" />WordPress Connection
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {cmsConnection ? (
+                  <div className="space-y-3">
+                    <div className="p-3 bg-muted/30 rounded-md">
+                      <p className="text-sm font-medium">{cmsConnection.site_url}</p>
+                      <p className="text-xs text-muted-foreground">User: {cmsConnection.username}</p>
+                      <p className="text-xs text-muted-foreground">Connected: {new Date(cmsConnection.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={handleTestCms} disabled={testCmsConnection.isPending}>
+                        {testCmsConnection.isPending ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : null}
+                        Test Connection
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Connect your WordPress site to enable automatic article publishing. You'll need an Application Password.
+                    </p>
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="wp-url" className="text-xs">Site URL</Label>
+                        <Input
+                          id="wp-url"
+                          placeholder="https://yoursite.com"
+                          value={cmsForm.site_url}
+                          onChange={(e) => setCmsForm((f) => ({ ...f, site_url: e.target.value }))}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="wp-user" className="text-xs">Username</Label>
+                        <Input
+                          id="wp-user"
+                          placeholder="admin"
+                          value={cmsForm.username}
+                          onChange={(e) => setCmsForm((f) => ({ ...f, username: e.target.value }))}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="wp-pass" className="text-xs">Application Password</Label>
+                        <Input
+                          id="wp-pass"
+                          type="password"
+                          placeholder="xxxx xxxx xxxx xxxx xxxx xxxx"
+                          value={cmsForm.application_password}
+                          onChange={(e) => setCmsForm((f) => ({ ...f, application_password: e.target.value }))}
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Generate at WordPress Dashboard → Users → Profile → Application Passwords
+                        </p>
+                      </div>
+                    </div>
+                    <Button onClick={handleSaveCms} disabled={saveCmsConnection.isPending}>
+                      {saveCmsConnection.isPending ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : null}
+                      Save Connection
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );
