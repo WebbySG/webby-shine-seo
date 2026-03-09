@@ -301,6 +301,7 @@ export default function ClientDetail() {
           <TabsTrigger value="content-plan">Content Plan ({contentTotal})</TabsTrigger>
           <TabsTrigger value="briefs">Briefs ({briefs.length})</TabsTrigger>
           <TabsTrigger value="articles">Articles ({articles.length})</TabsTrigger>
+          <TabsTrigger value="social">Social Posts</TabsTrigger>
           <TabsTrigger value="issues">Issues ({openIssues.length})</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
