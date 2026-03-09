@@ -10,6 +10,7 @@ import ClientDetail from "@/pages/ClientDetail";
 import Rankings from "@/pages/Rankings";
 import Audit from "@/pages/Audit";
 import Opportunities from "@/pages/Opportunities";
+import Analytics from "@/pages/Analytics";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
