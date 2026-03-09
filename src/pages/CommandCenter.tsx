@@ -394,7 +394,7 @@ export default function CommandCenter() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {quickWins?.map((win: any) => (
-                <Card key={win.id} className="border-l-4 border-l-yellow-500">
+                <Card key={win.id} className="border-l-4 border-l-amber-500">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div>
