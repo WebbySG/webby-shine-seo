@@ -880,6 +880,22 @@ export default function ClientDetail() {
                               <Check className="h-3.5 w-3.5 mr-1" />Approve
                             </Button>
                           )}
+                          {post.status === "approved" && (
+                            <Button size="sm" variant="secondary" onClick={() => {
+                              scheduleJob.mutate({
+                                asset_type: "social_post",
+                                asset_id: post.id,
+                                platform: post.platform,
+                                job_type: "publish",
+                                scheduled_time: scheduleDateTime ? new Date(scheduleDateTime).toISOString() : undefined,
+                              }, {
+                                onSuccess: () => toast.success(scheduleDateTime ? "Social post scheduled!" : "Social post queued for publishing!"),
+                                onError: () => toast.error("Failed to schedule"),
+                              });
+                            }} disabled={scheduleJob.isPending}>
+                              <Clock className="h-3.5 w-3.5 mr-1" />{scheduleDateTime ? "Schedule" : "Queue Publish"}
+                            </Button>
+                          )}
                         </div>
                       </>
                     )}
