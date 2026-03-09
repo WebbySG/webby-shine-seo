@@ -517,6 +517,145 @@ export default function ClientDetail() {
           </div>
         </TabsContent>
 
+        <TabsContent value="articles">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground">SEO Article Drafts</h3>
+              {briefs.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <select
+                    id="brief-select"
+                    className="text-sm border rounded px-2 py-1 bg-background"
+                    defaultValue=""
+                    onChange={(e) => {
+                      if (e.target.value) handleGenerateArticle(e.target.value);
+                      e.target.value = "";
+                    }}
+                    disabled={generateArticle.isPending}
+                  >
+                    <option value="" disabled>{generateArticle.isPending ? "Generating…" : "Generate from brief…"}</option>
+                    {briefs.map((b) => (
+                      <option key={b.id} value={b.id}>{b.keyword}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {articles.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No articles generated yet. Select a brief above to generate an article.
+              </p>
+            )}
+
+            {articles.map((article) => {
+              const isEditing = editingArticle === article.id;
+              return (
+                <Card key={article.id}>
+                  <CardContent className="p-4 space-y-4">
+                    {isEditing ? (
+                      <>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground">Title</label>
+                            <Input
+                              value={editForm.title}
+                              onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground">Meta Description</label>
+                            <Input
+                              value={editForm.meta_description}
+                              onChange={(e) => setEditForm((f) => ({ ...f, meta_description: e.target.value }))}
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground">Slug</label>
+                            <Input
+                              value={editForm.slug}
+                              onChange={(e) => setEditForm((f) => ({ ...f, slug: e.target.value }))}
+                              className="mt-1 font-mono text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground">Content (Markdown)</label>
+                            <Textarea
+                              value={editForm.content}
+                              onChange={(e) => setEditForm((f) => ({ ...f, content: e.target.value }))}
+                              className="mt-1 font-mono text-sm min-h-[300px]"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={() => saveArticle(article.id)} disabled={updateArticle.isPending}>
+                            <Check className="h-3.5 w-3.5 mr-1" />
+                            {updateArticle.isPending ? "Saving…" : "Save"}
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingArticle(null)}>
+                            <X className="h-3.5 w-3.5 mr-1" />Cancel
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <FileEdit className="h-4 w-4 text-primary shrink-0" />
+                              <h4 className="font-medium text-sm truncate">{article.title}</h4>
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-2">{article.meta_description}</p>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <span>Keyword: <strong>{article.target_keyword}</strong></span>
+                              {article.slug && <span className="font-mono">{article.slug}</span>}
+                            </div>
+                          </div>
+                          <Badge
+                            variant={
+                              article.status === "approved"
+                                ? "default"
+                                : article.status === "review"
+                                ? "secondary"
+                                : "outline"
+                            }
+                            className="text-xs shrink-0"
+                          >
+                            {article.status}
+                          </Badge>
+                        </div>
+
+                        <details className="text-sm">
+                          <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
+                            Preview content ({article.content.length} characters)
+                          </summary>
+                          <pre className="mt-2 p-3 bg-muted/30 rounded text-xs whitespace-pre-wrap font-mono max-h-[300px] overflow-auto">
+                            {article.content}
+                          </pre>
+                        </details>
+
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => startEditing(article)}>
+                            <Pencil className="h-3.5 w-3.5 mr-1" />Edit
+                          </Button>
+                          {article.status !== "approved" && article.status !== "published" && (
+                            <Button size="sm" onClick={() => handleApprove(article.id)} disabled={approveArticle.isPending}>
+                              <Check className="h-3.5 w-3.5 mr-1" />
+                              {approveArticle.isPending ? "Approving…" : "Approve"}
+                            </Button>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
         <TabsContent value="issues">
           <div className="space-y-2">
             {openIssues.length === 0 && <p className="text-sm text-muted-foreground">No open issues.</p>}
