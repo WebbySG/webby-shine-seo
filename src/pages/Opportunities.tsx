@@ -4,14 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useClients, useOpportunities } from "@/hooks/use-api";
 import { clients as dummyClients } from "@/data/dummy";
-import { Target, FileSearch, Layers, Wrench, Lightbulb } from "lucide-react";
+import { Target, FileSearch, Layers, Wrench, Lightbulb, TrendingUp } from "lucide-react";
 import type { Opportunity } from "@/lib/api";
 
-const TYPE_META: Record<Opportunity["type"], { label: string; icon: typeof Target; colorClass: string }> = {
-  near_win: { label: "Near Win", icon: Target, colorClass: "text-warning" },
-  content_gap: { label: "Content Gap", icon: FileSearch, colorClass: "text-primary" },
-  page_expansion: { label: "Page Expansion", icon: Layers, colorClass: "text-accent-foreground" },
-  technical_fix: { label: "Technical Fix", icon: Wrench, colorClass: "text-destructive" },
+const TYPE_META: Record<Opportunity["type"], { label: string; icon: typeof Target; colorClass: string; bgClass: string; borderClass: string }> = {
+  near_win: { label: "Near Win", icon: Target, colorClass: "text-amber-600", bgClass: "bg-amber-500/10", borderClass: "border-l-amber-500" },
+  content_gap: { label: "Content Gap", icon: FileSearch, colorClass: "text-primary", bgClass: "bg-primary/10", borderClass: "border-l-primary" },
+  page_expansion: { label: "Page Expansion", icon: Layers, colorClass: "text-violet-600", bgClass: "bg-violet-500/10", borderClass: "border-l-violet-500" },
+  technical_fix: { label: "Technical Fix", icon: Wrench, colorClass: "text-destructive", bgClass: "bg-destructive/10", borderClass: "border-l-destructive" },
 };
 
 const PRIORITY_BADGE: Record<string, "destructive" | "secondary" | "outline"> = {
@@ -40,31 +40,34 @@ export default function Opportunities() {
   const opportunities: Opportunity[] = apiOpportunities ?? buildDummyOpportunities();
 
   const countByType = (type: Opportunity["type"]) => opportunities.filter((o) => o.type === type).length;
+  const highPriorityCount = opportunities.filter(o => o.priority === "high").length;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Opportunities</h1>
-          <p className="text-muted-foreground text-sm mt-1">Weekly SEO action suggestions</p>
+          <p className="text-muted-foreground text-sm mt-1">Weekly SEO action suggestions · <span className="font-medium text-foreground">{highPriorityCount} high priority</span></p>
         </div>
         <Select value={clientId} onValueChange={setClientId}>
-          <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[200px] bg-card border"><SelectValue /></SelectTrigger>
           <SelectContent>
             {clients.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Summary cards */}
+      {/* Summary cards with accent borders */}
       <div className="grid gap-4 sm:grid-cols-4">
         {(["near_win", "content_gap", "page_expansion", "technical_fix"] as const).map((type) => {
           const meta = TYPE_META[type];
           const Icon = meta.icon;
           return (
-            <Card key={type}>
+            <Card key={type} className={`${meta.borderClass} border-l-4 hover-lift`}>
               <CardContent className="p-4 flex items-center gap-3">
-                <Icon className={`h-8 w-8 ${meta.colorClass}`} />
+                <div className={`p-2 rounded-lg ${meta.bgClass}`}>
+                  <Icon className={`h-5 w-5 ${meta.colorClass}`} />
+                </div>
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">{meta.label}</p>
                   <p className="text-2xl font-bold">{countByType(type)}</p>
@@ -77,21 +80,28 @@ export default function Opportunities() {
 
       {/* Near Wins section */}
       {countByType("near_win") > 0 && (
-        <Card>
+        <Card className="border-l-4 border-l-amber-500">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <Target className="h-4 w-4 text-warning" />Near Wins — Positions 11–20
+              <div className="p-1.5 rounded-md bg-amber-500/10">
+                <Target className="h-4 w-4 text-amber-600" />
+              </div>
+              Near Wins — Positions 11–20
+              <Badge variant="secondary" className="text-xs ml-auto">{countByType("near_win")} keywords</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
             {opportunities.filter((o) => o.type === "near_win").map((o) => (
-              <div key={o.id} className="flex items-center justify-between py-2 border-b last:border-0">
+              <div key={o.id} className="flex items-center justify-between py-3 border-b last:border-0 hover:bg-muted/30 transition-colors px-2 rounded">
                 <div>
                   <p className="text-sm font-medium">{o.keyword}</p>
-                  <p className="text-xs text-muted-foreground font-mono">{o.target_url ?? ""}</p>
+                  <p className="text-xs text-muted-foreground font-mono mt-0.5">{o.target_url ?? ""}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-sm">#{o.current_position}</span>
+                  <div className="flex items-center gap-1.5">
+                    <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="font-mono text-sm font-semibold">#{o.current_position}</span>
+                  </div>
                   <Badge variant={PRIORITY_BADGE[o.priority]} className="text-xs">{o.priority}</Badge>
                 </div>
               </div>
@@ -104,26 +114,39 @@ export default function Opportunities() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <Lightbulb className="h-4 w-4 text-primary" />All Recommendations
+            <div className="p-1.5 rounded-md bg-primary/10">
+              <Lightbulb className="h-4 w-4 text-primary" />
+            </div>
+            All Recommendations
+            <Badge variant="outline" className="text-xs ml-auto">{opportunities.length} total</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
-          {!isLoading && opportunities.length === 0 && <p className="text-sm text-muted-foreground">No opportunities found this week.</p>}
+          {!isLoading && opportunities.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <p className="text-sm font-medium">No opportunities found this week.</p>
+              <p className="text-xs mt-1">Check back after the next crawl cycle.</p>
+            </div>
+          )}
           {opportunities.map((o) => {
             const meta = TYPE_META[o.type];
             const Icon = meta.icon;
             return (
-              <div key={o.id} className="p-3 rounded-md border bg-muted/20">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <Icon className={`h-3.5 w-3.5 ${meta.colorClass}`} />
+              <div key={o.id} className={`p-4 rounded-lg border ${meta.borderClass} border-l-4 bg-muted/10 hover-lift`}>
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <div className={`p-1 rounded ${meta.bgClass}`}>
+                    <Icon className={`h-3.5 w-3.5 ${meta.colorClass}`} />
+                  </div>
                   <Badge variant="outline" className="text-xs">{meta.label}</Badge>
                   <span className="text-sm font-semibold">{o.keyword ?? "—"}</span>
-                  {o.current_position && <span className="text-xs font-mono text-muted-foreground">#{o.current_position}</span>}
+                  {o.current_position && (
+                    <span className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">#{o.current_position}</span>
+                  )}
                   <Badge variant={PRIORITY_BADGE[o.priority]} className="text-xs ml-auto">{o.priority}</Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">{o.recommended_action}</p>
-                {o.target_url && <p className="text-xs font-mono text-muted-foreground mt-1">{o.target_url}</p>}
+                <p className="text-xs text-muted-foreground leading-relaxed">{o.recommended_action}</p>
+                {o.target_url && <p className="text-xs font-mono text-muted-foreground/70 mt-1.5">{o.target_url}</p>}
               </div>
             );
           })}
