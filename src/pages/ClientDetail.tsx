@@ -1163,6 +1163,22 @@ export default function ClientDetail() {
                               <Check className="h-3.5 w-3.5 mr-1" />Approve
                             </Button>
                           )}
+                          {video.status === "approved" && (
+                            <Button size="sm" variant="secondary" onClick={() => {
+                              scheduleJob.mutate({
+                                asset_type: "video_asset",
+                                asset_id: video.id,
+                                platform: video.platform,
+                                job_type: "render",
+                                scheduled_time: scheduleDateTime ? new Date(scheduleDateTime).toISOString() : undefined,
+                              }, {
+                                onSuccess: () => toast.success("Video render job queued!"),
+                                onError: () => toast.error("Failed to queue render"),
+                              });
+                            }} disabled={scheduleJob.isPending}>
+                              <Play className="h-3.5 w-3.5 mr-1" />Queue Render
+                            </Button>
+                          )}
                         </div>
                       </>
                     )}
@@ -1172,8 +1188,6 @@ export default function ClientDetail() {
             })}
           </div>
         </TabsContent>
-
-        <TabsContent value="jobs">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
