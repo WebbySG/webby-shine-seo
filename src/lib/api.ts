@@ -121,3 +121,36 @@ export const updateInternalLinkStatus = (clientId: string, linkId: string, statu
     method: "PATCH",
     body: JSON.stringify({ status }),
   });
+
+// ---------- Content Plan ----------
+export interface ContentSuggestion {
+  id: string;
+  cluster_name: string;
+  keyword: string;
+  suggested_slug: string | null;
+  reason: string;
+  priority: "high" | "medium" | "low";
+  status: "pending" | "planned" | "published" | "dismissed";
+  created_at: string;
+}
+
+export interface ContentPlanCluster {
+  cluster_name: string;
+  suggestions: ContentSuggestion[];
+  high_priority_count: number;
+}
+
+export interface ContentPlanResponse {
+  total: number;
+  clusters: ContentPlanCluster[];
+  flat: ContentSuggestion[];
+}
+
+export const getContentPlan = (clientId: string) =>
+  request<ContentPlanResponse>(`/clients/${clientId}/content-plan`);
+
+export const updateContentSuggestionStatus = (clientId: string, suggestionId: string, status: string) =>
+  request<ContentSuggestion>(`/clients/${clientId}/content-plan/${suggestionId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
