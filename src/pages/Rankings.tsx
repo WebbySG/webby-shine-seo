@@ -86,8 +86,8 @@ export default function Rankings() {
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Page 1</p>
             <p className="text-2xl font-bold mt-1 text-emerald-600">{page1Count}</p>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-amber-500 hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-amber-500 hover-lift">
           <CardContent className="p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Improved</p>
             <p className="text-2xl font-bold mt-1 text-foreground">{gainers.length + rawKws.filter(r => (r.change ?? 0) > 0).length}</p>
