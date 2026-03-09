@@ -2,23 +2,36 @@ import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useClient, useKeywords, useCompetitors, useAuditIssues } from "@/hooks/use-api";
-import { clients as dummyClients, getClientRankings, getTopGainers, getTopLosers, getNearWins, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
+import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks } from "@/hooks/use-api";
+import { clients as dummyClients, getClientRankings, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target } from "lucide-react";
-import type { KeywordRanking, AuditIssue } from "@/lib/api";
+import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink } from "lucide-react";
+import type { InternalLinkSuggestion } from "@/lib/api";
+
+const PRIORITY_BADGE: Record<string, "destructive" | "secondary" | "outline"> = {
+  high: "destructive",
+  medium: "secondary",
+  low: "outline",
+};
+
+function buildDummyInternalLinks(): InternalLinkSuggestion[] {
+  return [
+    { id: "il1", from_url: "https://renovo.sg/services", to_url: "https://renovo.sg/kitchen", anchor_text: "kitchen renovation singapore", reason: 'Boost "kitchen renovation singapore" (currently #9) by adding internal link from related page.', priority: "high", status: "pending", created_at: new Date().toISOString() },
+    { id: "il2", from_url: "https://renovo.sg/hdb", to_url: "https://renovo.sg/condo", anchor_text: "condo renovation singapore", reason: 'Link from high-ranking page (#4) to boost "condo renovation singapore" at #11.', priority: "high", status: "pending", created_at: new Date().toISOString() },
+    { id: "il3", from_url: "https://renovo.sg/blog/ideas", to_url: "https://renovo.sg/interior", anchor_text: "interior design singapore", reason: 'Boost "interior design singapore" (currently #18) by adding internal link from related page.', priority: "medium", status: "pending", created_at: new Date().toISOString() },
+  ];
+}
 
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
 
-  const { data: apiClient, isError: clientError } = useClient(id!);
+  const { data: apiClient } = useClient(id!);
   const { data: apiKeywords } = useKeywords(id!);
   const { data: apiCompetitors } = useCompetitors(id!);
   const { data: apiAuditIssues } = useAuditIssues(id!);
+  const { data: apiInternalLinks } = useInternalLinks(id!);
 
-  // Fallback to dummy data if API unavailable
   const dummyClient = dummyClients.find((c) => c.id === id);
   const client = apiClient ?? dummyClient;
 
@@ -35,6 +48,8 @@ export default function ClientDetail() {
     description: i.description, fix_instruction: i.fix_instruction, status: i.status
   }));
 
+  const internalLinks: InternalLinkSuggestion[] = apiInternalLinks ?? buildDummyInternalLinks();
+
   if (!client) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -48,6 +63,7 @@ export default function ClientDetail() {
   const losers = [...kws].filter((r) => (r.change ?? 0) < 0).sort((a, b) => (a.change ?? 0) - (b.change ?? 0)).slice(0, 5);
   const nearWins = kws.filter((r) => (r.current_position ?? 100) >= 11 && (r.current_position ?? 100) <= 20);
   const openIssues = issues.filter((i) => i.status !== "done");
+  const pendingLinks = internalLinks.filter((l) => l.status === "pending");
 
   return (
     <div className="space-y-6">
@@ -59,11 +75,12 @@ export default function ClientDetail() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-5">
         {[
           { label: "Keywords", value: kws.length },
           { label: "Competitors", value: comps.length },
           { label: "Open Issues", value: openIssues.length },
+          { label: "Link Suggestions", value: pendingLinks.length },
           { label: "Health Score", value: `${client.health_score}%` },
         ].map((s) => (
           <Card key={s.label}>
@@ -80,6 +97,7 @@ export default function ClientDetail() {
           <TabsTrigger value="rankings">Rankings</TabsTrigger>
           <TabsTrigger value="movers">Movers</TabsTrigger>
           <TabsTrigger value="competitors">Competitors</TabsTrigger>
+          <TabsTrigger value="internal-links">Internal Links ({pendingLinks.length})</TabsTrigger>
           <TabsTrigger value="issues">Issues ({openIssues.length})</TabsTrigger>
         </TabsList>
 
@@ -167,6 +185,36 @@ export default function ClientDetail() {
             ))}
             {comps.length === 0 && <p className="text-sm text-muted-foreground">No competitors added yet.</p>}
           </div>
+        </TabsContent>
+
+        <TabsContent value="internal-links">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Link2 className="h-4 w-4 text-primary" />Internal Link Suggestions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {pendingLinks.length === 0 && <p className="text-sm text-muted-foreground">No internal link suggestions at the moment.</p>}
+              {pendingLinks.map((link) => (
+                <div key={link.id} className="p-4 rounded-md border bg-muted/20 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant={PRIORITY_BADGE[link.priority]} className="text-xs">{link.priority}</Badge>
+                    <span className="text-sm font-medium">"{link.anchor_text}"</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="font-mono truncate max-w-[280px]">{link.from_url}</span>
+                    <span>→</span>
+                    <span className="font-mono truncate max-w-[280px]">{link.to_url}</span>
+                    <a href={link.to_url} target="_blank" rel="noopener noreferrer" className="ml-1 hover:text-primary">
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{link.reason}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="issues">
