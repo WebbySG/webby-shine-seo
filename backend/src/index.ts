@@ -11,6 +11,7 @@ import internalLinksRouter from "./routes/internal-links.js";
 import contentPlanRouter from "./routes/content-plan.js";
 import briefsRouter from "./routes/briefs.js";
 import articlesRouter from "./routes/articles.js";
+import cmsRouter from "./routes/cms.js";
 
 dotenv.config();
 
