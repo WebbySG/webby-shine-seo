@@ -23,6 +23,14 @@ services:
       PORT: "3001"
       TENANT_ID: "00000000-0000-0000-0000-000000000001"
       CORS_ORIGIN: "http://localhost:5173"
+      # AI Provider: openai | gemini | template
+      AI_PROVIDER: "${AI_PROVIDER:-template}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-4o-mini}"
+      GEMINI_API_KEY: "${GEMINI_API_KEY:-}"
+      # Video/TTS providers
+      VIDEO_RENDER_PROVIDER: "${VIDEO_RENDER_PROVIDER:-placeholder}"
+      TTS_PROVIDER: "${TTS_PROVIDER:-placeholder}"
     depends_on:
       - db
 
@@ -34,6 +42,21 @@ services:
       TENANT_ID: "00000000-0000-0000-0000-000000000001"
       DATAFORSEO_LOGIN: "${DATAFORSEO_LOGIN}"
       DATAFORSEO_PASSWORD: "${DATAFORSEO_PASSWORD}"
+      # AI Provider config (shared with API for job processing)
+      AI_PROVIDER: "${AI_PROVIDER:-template}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      GEMINI_API_KEY: "${GEMINI_API_KEY:-}"
+      # Video/TTS/Social providers
+      VIDEO_RENDER_PROVIDER: "${VIDEO_RENDER_PROVIDER:-placeholder}"
+      TTS_PROVIDER: "${TTS_PROVIDER:-placeholder}"
+      SYNTHESIA_API_KEY: "${SYNTHESIA_API_KEY:-}"
+      ELEVENLABS_API_KEY: "${ELEVENLABS_API_KEY:-}"
+      # Social publishing credentials
+      FACEBOOK_ACCESS_TOKEN: "${FACEBOOK_ACCESS_TOKEN:-}"
+      INSTAGRAM_ACCESS_TOKEN: "${INSTAGRAM_ACCESS_TOKEN:-}"
+      LINKEDIN_ACCESS_TOKEN: "${LINKEDIN_ACCESS_TOKEN:-}"
+      TIKTOK_ACCESS_TOKEN: "${TIKTOK_ACCESS_TOKEN:-}"
+      YOUTUBE_API_KEY: "${YOUTUBE_API_KEY:-}"
     depends_on:
       - db
 

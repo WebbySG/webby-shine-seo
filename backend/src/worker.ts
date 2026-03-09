@@ -554,7 +554,154 @@ function generateSlug(keyword: string): string {
 }
 
 // ====================================================================
-// 5. COMBINED DAILY JOB
+// 5. PUBLISHING JOB PROCESSOR
+// ====================================================================
+const MAX_RETRIES = 3;
+
+async function processPublishingJobs() {
+  console.log(`[${new Date().toISOString()}] 📤 Processing publishing jobs`);
+
+  try {
+    // Get queued jobs and scheduled jobs whose time has come
+    const { rows: jobs } = await pool.query(
+      `SELECT * FROM publishing_jobs
+       WHERE publish_status IN ('queued', 'scheduled')
+         AND (scheduled_time IS NULL OR scheduled_time <= now())
+       ORDER BY created_at ASC
+       LIMIT 20`
+    );
+
+    if (jobs.length === 0) return;
+    console.log(`  Found ${jobs.length} jobs to process`);
+
+    for (const job of jobs) {
+      try {
+        // Mark as processing
+        await pool.query(
+          `UPDATE publishing_jobs SET publish_status = 'processing', updated_at = now() WHERE id = $1`,
+          [job.id]
+        );
+
+        let result: { externalPostId: string; publishedUrl: string } | null = null;
+
+        if (job.asset_type === "article" && job.job_type === "publish") {
+          result = await processArticlePublish(job);
+        } else if (job.asset_type === "social_post" && job.job_type === "publish") {
+          result = await processSocialPublish(job);
+        } else if (job.asset_type === "video_asset" && job.job_type === "render") {
+          result = await processVideoRender(job);
+        } else {
+          console.log(`  Unsupported job type: ${job.asset_type}/${job.job_type}`);
+          result = { externalPostId: `placeholder-${Date.now()}`, publishedUrl: "" };
+        }
+
+        // Mark as published
+        await pool.query(
+          `UPDATE publishing_jobs
+           SET publish_status = 'published', external_post_id = $1, published_url = $2, updated_at = now()
+           WHERE id = $3`,
+          [result?.externalPostId || null, result?.publishedUrl || null, job.id]
+        );
+
+        console.log(`  ✓ Job ${job.id} completed (${job.asset_type}/${job.job_type})`);
+      } catch (err: any) {
+        const retryCount = (job.retry_count || 0) + 1;
+        const newStatus = retryCount >= MAX_RETRIES ? "failed" : "queued";
+
+        await pool.query(
+          `UPDATE publishing_jobs
+           SET publish_status = $1, error_message = $2, retry_count = $3, updated_at = now()
+           WHERE id = $4`,
+          [newStatus, err.message || "Unknown error", retryCount, job.id]
+        );
+
+        console.error(`  ✗ Job ${job.id} failed (attempt ${retryCount}/${MAX_RETRIES}):`, err.message);
+      }
+    }
+  } catch (error) {
+    console.error("Fatal error in publishing job processor:", error);
+  }
+}
+
+async function processArticlePublish(job: any): Promise<{ externalPostId: string; publishedUrl: string }> {
+  const { rows: articleRows } = await pool.query(
+    `SELECT * FROM seo_articles WHERE id = $1`, [job.asset_id]
+  );
+  if (articleRows.length === 0) throw new Error("Article not found");
+  const article = articleRows[0];
+
+  const { rows: cmsRows } = await pool.query(
+    `SELECT site_url, username, application_password FROM cms_connections WHERE client_id = $1 AND cms_type = 'wordpress'`,
+    [job.client_id]
+  );
+  if (cmsRows.length === 0) throw new Error("No WordPress connection configured");
+
+  // Dynamic import to avoid circular deps at startup
+  const { publishToWordPress, markdownToHtml } = await import("./services/publishing/wordpressPublisher.js");
+
+  const result = await publishToWordPress(
+    { siteUrl: cmsRows[0].site_url, username: cmsRows[0].username, applicationPassword: cmsRows[0].application_password },
+    { title: article.title, content: markdownToHtml(article.content), slug: article.slug || "", metaDescription: article.meta_description, scheduleDate: job.scheduled_time?.toISOString() }
+  );
+
+  // Update article status
+  await pool.query(
+    `UPDATE seo_articles SET status = 'published', cms_post_id = $1, cms_post_url = $2, publish_date = now(), updated_at = now() WHERE id = $3`,
+    [result.postId, result.url, job.asset_id]
+  );
+
+  return { externalPostId: result.postId, publishedUrl: result.url };
+}
+
+async function processSocialPublish(job: any): Promise<{ externalPostId: string; publishedUrl: string }> {
+  const { rows } = await pool.query(`SELECT * FROM social_posts WHERE id = $1`, [job.asset_id]);
+  if (rows.length === 0) throw new Error("Social post not found");
+
+  const { createSocialPublisher } = await import("./services/publishing/socialPublisher.js");
+  const publisher = createSocialPublisher(job.platform);
+
+  const result = await publisher.publish({ content: rows[0].content, platform: job.platform, scheduledTime: job.scheduled_time?.toISOString() });
+
+  await pool.query(
+    `UPDATE social_posts SET status = 'published' WHERE id = $1`,
+    [job.asset_id]
+  );
+
+  return { externalPostId: result.externalPostId, publishedUrl: result.publishedUrl };
+}
+
+async function processVideoRender(job: any): Promise<{ externalPostId: string; publishedUrl: string }> {
+  const { rows } = await pool.query(`SELECT * FROM video_assets WHERE id = $1`, [job.asset_id]);
+  if (rows.length === 0) throw new Error("Video asset not found");
+  const video = rows[0];
+  const sceneBreakdown = typeof video.scene_breakdown === "string" ? JSON.parse(video.scene_breakdown) : video.scene_breakdown;
+
+  // Update status to rendering
+  await pool.query(`UPDATE video_assets SET status = 'rendering' WHERE id = $1`, [job.asset_id]);
+
+  const { createVideoRenderer } = await import("./services/video/videoRenderer.js");
+  const renderer = createVideoRenderer();
+
+  const result = await renderer.render({
+    videoScript: video.video_script,
+    sceneBreakdown,
+    avatarType: video.avatar_type,
+    voiceType: video.voice_type,
+    platform: video.platform,
+    captionText: video.caption_text,
+  });
+
+  // Update video with rendered URLs
+  await pool.query(
+    `UPDATE video_assets SET status = 'review', video_url = $1, thumbnail_url = $2 WHERE id = $3`,
+    [result.videoUrl, result.thumbnailUrl, job.asset_id]
+  );
+
+  return { externalPostId: `render-${Date.now()}`, publishedUrl: result.videoUrl };
+}
+
+// ====================================================================
+// 6. COMBINED DAILY JOB
 // ====================================================================
 async function dailyJob() {
   await fetchRankings();
@@ -568,6 +715,9 @@ cron.schedule("0 2 * * *", dailyJob, {
   timezone: "Asia/Singapore",
 });
 
-console.log("🕐 Cron worker started — rank checks, opportunities, links, and content plan daily at 02:00 SGT");
+// Process publishing jobs every minute
+cron.schedule("* * * * *", processPublishingJobs);
 
-export { fetchRankings, generateOpportunities, generateInternalLinks, generateContentPlan };
+console.log("🕐 Cron worker started — daily SEO jobs at 02:00 SGT, publishing jobs every minute");
+
+export { fetchRankings, generateOpportunities, generateInternalLinks, generateContentPlan, processPublishingJobs };
