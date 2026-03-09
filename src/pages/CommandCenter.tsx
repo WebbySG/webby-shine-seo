@@ -588,7 +588,7 @@ export default function CommandCenter() {
                     .map((p: any) => (
                       <div
                         key={p.id}
-                        className="rounded-lg border border-primary/50 bg-primary/5 p-2 text-sm cursor-pointer"
+                        className="rounded-lg border border-primary/50 bg-primary/5 p-2 text-sm cursor-pointer hover:bg-primary/10"
                         onClick={() =>
                           updatePriorityMutation.mutate({ priorityId: p.id, status: "done" })
                         }

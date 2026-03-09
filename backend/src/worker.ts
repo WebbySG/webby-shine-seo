@@ -892,7 +892,67 @@ async function syncAdsData() {
 }
 
 // ====================================================================
-// 9. COMBINED DAILY JOB
+// 9. COMMAND CENTER RECOMPUTATION
+// ====================================================================
+async function recomputeCommandCenter() {
+  console.log(`[${new Date().toISOString()}] 📊 Command center recomputation started`);
+
+  try {
+    const { rows: activeClients } = await pool.query(
+      `SELECT id FROM clients WHERE status = 'active'`
+    );
+
+    for (const client of activeClients) {
+      try {
+        const { recomputePriorities, generateCrossChannelRecommendations } =
+          await import("./services/command/commandCenterService.js");
+
+        const priorityCount = await recomputePriorities(client.id);
+        const recCount = await generateCrossChannelRecommendations(client.id);
+
+        console.log(
+          `  ✓ Client ${client.id}: ${priorityCount} priorities, ${recCount} cross-channel recommendations`
+        );
+      } catch (err: any) {
+        console.error(`  ✗ Error for client ${client.id}:`, err.message);
+      }
+    }
+
+    console.log(`[${new Date().toISOString()}] ✅ Command center recomputation completed`);
+  } catch (error) {
+    console.error("Fatal error in command center recomputation:", error);
+  }
+}
+
+// ====================================================================
+// 10. WEEKLY PLAN GENERATION
+// ====================================================================
+async function generateWeeklyPlans() {
+  console.log(`[${new Date().toISOString()}] 📅 Weekly plan generation started`);
+
+  try {
+    const { rows: activeClients } = await pool.query(
+      `SELECT id FROM clients WHERE status = 'active'`
+    );
+
+    for (const client of activeClients) {
+      try {
+        const { generateWeeklyPlan } = await import("./services/command/commandCenterService.js");
+        const planId = await generateWeeklyPlan(client.id);
+        console.log(`  ✓ Weekly plan generated for client ${client.id}: ${planId}`);
+      } catch (err: any) {
+        console.error(`  ✗ Error for client ${client.id}:`, err.message);
+      }
+    }
+
+    console.log(`[${new Date().toISOString()}] ✅ Weekly plan generation completed`);
+  } catch (error) {
+    console.error("Fatal error in weekly plan generation:", error);
+  }
+}
+
+// ====================================================================
+// 11. COMBINED DAILY JOB
 // ====================================================================
 async function dailyJob() {
   await fetchRankings();
@@ -902,6 +962,7 @@ async function dailyJob() {
   await syncAnalyticsData();
   await syncGbpData();
   await syncAdsData();
+  await recomputeCommandCenter();
 }
 
 // Run daily at 02:00 SGT
@@ -919,6 +980,23 @@ cron.schedule("0 5 * * *", syncGbpData, { timezone: "Asia/Singapore" });
 // Ads sync daily at 06:00 SGT
 cron.schedule("0 6 * * *", syncAdsData, { timezone: "Asia/Singapore" });
 
-console.log("🕐 Cron worker started — daily at 02:00 SGT, analytics 04:00, GBP 05:00, Ads 06:00, publishing every minute");
+// Command center recomputation daily at 07:00 SGT (after all data syncs)
+cron.schedule("0 7 * * *", recomputeCommandCenter, { timezone: "Asia/Singapore" });
 
-export { fetchRankings, generateOpportunities, generateInternalLinks, generateContentPlan, processPublishingJobs, syncAnalyticsData, syncGbpData, syncAdsData };
+// Weekly plan generation every Monday at 08:00 SGT
+cron.schedule("0 8 * * 1", generateWeeklyPlans, { timezone: "Asia/Singapore" });
+
+console.log("🕐 Cron worker started — daily at 02:00 SGT, analytics 04:00, GBP 05:00, Ads 06:00, Command 07:00, Weekly plans Monday 08:00, publishing every minute");
+
+export {
+  fetchRankings,
+  generateOpportunities,
+  generateInternalLinks,
+  generateContentPlan,
+  processPublishingJobs,
+  syncAnalyticsData,
+  syncGbpData,
+  syncAdsData,
+  recomputeCommandCenter,
+  generateWeeklyPlans,
+};
