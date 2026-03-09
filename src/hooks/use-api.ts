@@ -213,3 +213,38 @@ export function useApproveSocialPost(articleId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }),
   });
 }
+
+// ---------- Video Assets ----------
+export function useVideos(clientId: string) {
+  return useQuery({
+    queryKey: ["videos", clientId],
+    queryFn: () => api.getVideos(clientId),
+    enabled: !!clientId,
+  });
+}
+
+export function useGenerateVideo(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<Parameters<typeof api.generateVideo>[0], "client_id">) =>
+      api.generateVideo({ ...data, client_id: clientId }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }),
+  });
+}
+
+export function useUpdateVideo(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ videoId, data }: { videoId: string; data: { video_script?: string; caption_text?: string; avatar_type?: string; voice_type?: string } }) =>
+      api.updateVideo(videoId, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }),
+  });
+}
+
+export function useApproveVideo(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (videoId: string) => api.approveVideo(videoId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }),
+  });
+}
