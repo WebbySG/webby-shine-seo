@@ -1157,6 +1157,109 @@ export default function ClientDetail() {
           </div>
         </TabsContent>
 
+        <TabsContent value="jobs">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <ListTodo className="h-4 w-4" />Publishing Queue & Scheduled Jobs
+              </h3>
+              <div className="flex items-center gap-2">
+                <Label className="text-xs text-muted-foreground">Schedule for:</Label>
+                <Input
+                  type="datetime-local"
+                  value={scheduleDateTime}
+                  onChange={(e) => setScheduleDateTime(e.target.value)}
+                  className="w-auto text-xs h-8"
+                />
+              </div>
+            </div>
+
+            {jobs.length === 0 && (
+              <p className="text-sm text-muted-foreground">No publishing jobs yet. Schedule articles, social posts, or video renders from their respective tabs.</p>
+            )}
+
+            {jobs.map((job) => {
+              const statusColors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+                queued: "outline",
+                scheduled: "secondary",
+                processing: "secondary",
+                published: "default",
+                failed: "destructive",
+                cancelled: "outline",
+              };
+              const statusIcons: Record<string, string> = {
+                queued: "⏳",
+                scheduled: "📅",
+                processing: "⚙️",
+                published: "✅",
+                failed: "❌",
+                cancelled: "🚫",
+              };
+              return (
+                <Card key={job.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span>{statusIcons[job.publish_status] || "📋"}</span>
+                          <span className="text-sm font-medium capitalize">{job.asset_type.replace("_", " ")}</span>
+                          <span className="text-xs text-muted-foreground">→</span>
+                          <span className="text-sm capitalize">{job.platform}</span>
+                          <Badge variant="outline" className="text-[10px]">{job.job_type}</Badge>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          {job.scheduled_time && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {new Date(job.scheduled_time).toLocaleString()}
+                            </span>
+                          )}
+                          {job.provider && <span>Provider: {job.provider}</span>}
+                          {job.retry_count > 0 && <span>Retries: {job.retry_count}</span>}
+                          <span className="font-mono">{job.id.slice(0, 8)}</span>
+                        </div>
+                        {job.error_message && (
+                          <p className="text-xs text-destructive mt-1">{job.error_message}</p>
+                        )}
+                        {job.published_url && (
+                          <a href={job.published_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
+                            {job.published_url} <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={statusColors[job.publish_status] || "outline"} className="text-xs">
+                          {job.publish_status}
+                        </Badge>
+                        {job.publish_status === "failed" && (
+                          <Button size="sm" variant="outline" onClick={() => {
+                            retryJob.mutate(job.id, {
+                              onSuccess: () => toast.success("Job retried!"),
+                              onError: () => toast.error("Failed to retry"),
+                            });
+                          }} disabled={retryJob.isPending}>
+                            <RotateCcw className="h-3.5 w-3.5 mr-1" />Retry
+                          </Button>
+                        )}
+                        {(job.publish_status === "queued" || job.publish_status === "scheduled") && (
+                          <Button size="sm" variant="outline" onClick={() => {
+                            cancelJob.mutate(job.id, {
+                              onSuccess: () => toast.success("Job cancelled"),
+                              onError: () => toast.error("Failed to cancel"),
+                            });
+                          }} disabled={cancelJob.isPending}>
+                            <Ban className="h-3.5 w-3.5 mr-1" />Cancel
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
         <TabsContent value="issues">
           <div className="space-y-2">
             {openIssues.length === 0 && <p className="text-sm text-muted-foreground">No open issues.</p>}
