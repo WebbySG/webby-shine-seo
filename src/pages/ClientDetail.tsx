@@ -49,6 +49,7 @@ function buildDummyContentPlan(): ContentPlanCluster[] {
 
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
+  const [expandedBrief, setExpandedBrief] = useState<string | null>(null);
 
   const { data: apiClient } = useClient(id!);
   const { data: apiKeywords } = useKeywords(id!);
