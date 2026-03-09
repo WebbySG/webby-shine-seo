@@ -28,6 +28,7 @@ const navItems = [
   { title: "Rankings", url: "/rankings", icon: BarChart3 },
   { title: "Audit", url: "/audit", icon: Shield },
   { title: "Opportunities", url: "/opportunities", icon: Lightbulb },
+  { title: "Analytics", url: "/analytics", icon: TrendingUp },
 ];
 
 export function AppSidebar() {

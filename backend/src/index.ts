@@ -51,6 +51,8 @@ app.use("/api/videos", videosRouter);
 app.use("/api/publishing", publishingRouter);
 app.use("/api/clients", publishingRouter);
 app.use("/api/ai", aiRouter);
+app.use("/api/analytics", analyticsRouter);
+app.use("/api/clients", analyticsRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });

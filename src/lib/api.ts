@@ -428,3 +428,72 @@ export const aiGenerateVideo = (data: {
     method: "POST",
     body: JSON.stringify(data),
   });
+
+// ---------- Analytics ----------
+export interface AnalyticsConnection {
+  id: string;
+  client_id: string;
+  provider: "gsc" | "ga4";
+  property_id: string | null;
+  site_url: string | null;
+  status: "active" | "expired" | "disconnected";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PerformanceInsight {
+  id: string;
+  client_id: string;
+  asset_type: string | null;
+  asset_id: string | null;
+  insight_type: string;
+  priority: "high" | "medium" | "low";
+  title: string;
+  description: string;
+  recommended_action: string | null;
+  status: "open" | "reviewed" | "done";
+  created_at: string;
+}
+
+export interface PerformanceSummaryResponse {
+  summary: {
+    total_clicks: number;
+    total_impressions: number;
+    avg_ctr: number;
+    avg_position: number;
+    total_sessions: number;
+  };
+  topPages: any[];
+  topKeywords: any[];
+  insightCounts: any[];
+}
+
+export const getAnalyticsConnections = (clientId: string) =>
+  request<AnalyticsConnection[]>(`/clients/${clientId}/analytics-connections`);
+
+export const connectAnalytics = (data: { client_id: string; provider: string; property_id?: string; site_url?: string; access_token?: string; refresh_token?: string }) =>
+  request<AnalyticsConnection>(`/analytics/connect`, { method: "POST", body: JSON.stringify(data) });
+
+export const disconnectAnalytics = (connectionId: string) =>
+  request<{ success: boolean }>(`/analytics/${connectionId}/disconnect`, { method: "DELETE" });
+
+export const syncAnalytics = (clientId: string) =>
+  request<{ success: boolean; insights_generated: number }>(`/analytics/sync`, { method: "POST", body: JSON.stringify({ client_id: clientId }) });
+
+export const getPerformanceSummary = (clientId: string, days?: number) =>
+  request<PerformanceSummaryResponse>(`/clients/${clientId}/performance-summary?days=${days || 14}`);
+
+export const getPagePerformance = (clientId: string, days?: number) =>
+  request<any[]>(`/clients/${clientId}/page-performance?days=${days || 14}`);
+
+export const getKeywordPerformance = (clientId: string, days?: number) =>
+  request<any[]>(`/clients/${clientId}/keyword-performance?days=${days || 14}`);
+
+export const getAssetPerformance = (clientId: string, days?: number, assetType?: string) =>
+  request<any[]>(`/clients/${clientId}/asset-performance?days=${days || 14}${assetType ? `&asset_type=${assetType}` : ""}`);
+
+export const getPerformanceInsights = (clientId: string, status?: string) =>
+  request<PerformanceInsight[]>(`/clients/${clientId}/performance-insights?status=${status || "open"}`);
+
+export const updateInsightStatus = (insightId: string, status: string) =>
+  request<PerformanceInsight>(`/analytics/insights/${insightId}`, { method: "PATCH", body: JSON.stringify({ status }) });
