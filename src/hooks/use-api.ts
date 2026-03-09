@@ -77,3 +77,12 @@ export function useOpportunities(clientId: string) {
     enabled: !!clientId,
   });
 }
+
+// ---------- Internal Links ----------
+export function useInternalLinks(clientId: string) {
+  return useQuery({
+    queryKey: ["internal-links", clientId],
+    queryFn: () => api.getInternalLinks(clientId),
+    enabled: !!clientId,
+  });
+}
