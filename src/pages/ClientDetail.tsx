@@ -727,7 +727,134 @@ export default function ClientDetail() {
           </div>
         </TabsContent>
 
-        <TabsContent value="issues">
+        <TabsContent value="social">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground">Social Media Posts</h3>
+              {articles.filter(a => a.status === "published" || a.status === "approved").length > 0 && (
+                <select
+                  className="text-sm border rounded px-2 py-1 bg-background"
+                  defaultValue=""
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      generateSocialPosts.mutate(e.target.value, {
+                        onSuccess: () => {
+                          setSelectedArticleForSocial(e.target.value);
+                          toast.success("Social posts generated!");
+                        },
+                        onError: () => toast.error("Failed to generate social posts"),
+                      });
+                    }
+                    e.target.value = "";
+                  }}
+                  disabled={generateSocialPosts.isPending}
+                >
+                  <option value="" disabled>{generateSocialPosts.isPending ? "Generating…" : "Generate from article…"}</option>
+                  {articles.filter(a => a.status === "published" || a.status === "approved").map((a) => (
+                    <option key={a.id} value={a.id}>{a.title}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {/* Article selector to view existing social posts */}
+            {articles.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">View posts for:</span>
+                <select
+                  className="text-sm border rounded px-2 py-1 bg-background"
+                  value={selectedArticleForSocial || ""}
+                  onChange={(e) => setSelectedArticleForSocial(e.target.value || null)}
+                >
+                  <option value="">Select article…</option>
+                  {articles.map((a) => (
+                    <option key={a.id} value={a.id}>{a.title}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {!selectedArticleForSocial && (
+              <p className="text-sm text-muted-foreground">Select an article above to view or generate social posts.</p>
+            )}
+
+            {selectedArticleForSocial && socialPosts.length === 0 && (
+              <p className="text-sm text-muted-foreground">No social posts for this article yet. Generate them using the dropdown above.</p>
+            )}
+
+            {socialPosts.map((post) => {
+              const isEditing = editingSocialPost === post.id;
+              const platformIcons: Record<string, string> = {
+                facebook: "📘", instagram: "📸", linkedin: "💼", twitter: "🐦", tiktok: "🎵",
+              };
+              return (
+                <Card key={post.id}>
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{platformIcons[post.platform] || "📱"}</span>
+                        <span className="text-sm font-medium capitalize">{post.platform}</span>
+                      </div>
+                      <Badge
+                        variant={post.status === "approved" ? "default" : post.status === "scheduled" ? "secondary" : "outline"}
+                        className="text-xs"
+                      >
+                        {post.status}
+                      </Badge>
+                    </div>
+
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={socialEditContent}
+                          onChange={(e) => setSocialEditContent(e.target.value)}
+                          className="text-sm min-h-[120px]"
+                        />
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={() => {
+                            updateSocialPost.mutate({ postId: post.id, data: { content: socialEditContent } }, {
+                              onSuccess: () => { toast.success("Post updated"); setEditingSocialPost(null); },
+                              onError: () => toast.error("Failed to update"),
+                            });
+                          }} disabled={updateSocialPost.isPending}>
+                            <Check className="h-3.5 w-3.5 mr-1" />Save
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingSocialPost(null)}>
+                            <X className="h-3.5 w-3.5 mr-1" />Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <pre className="text-sm whitespace-pre-wrap bg-muted/30 p-3 rounded">{post.content}</pre>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => {
+                            setEditingSocialPost(post.id);
+                            setSocialEditContent(post.content);
+                          }}>
+                            <Pencil className="h-3.5 w-3.5 mr-1" />Edit
+                          </Button>
+                          {post.status === "draft" && (
+                            <Button size="sm" onClick={() => {
+                              approveSocialPost.mutate(post.id, {
+                                onSuccess: () => toast.success("Post approved!"),
+                                onError: () => toast.error("Failed to approve"),
+                              });
+                            }} disabled={approveSocialPost.isPending}>
+                              <Check className="h-3.5 w-3.5 mr-1" />Approve
+                            </Button>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+
           <div className="space-y-2">
             {openIssues.length === 0 && <p className="text-sm text-muted-foreground">No open issues.</p>}
             {openIssues.map((issue) => (
