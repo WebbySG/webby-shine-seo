@@ -505,3 +505,59 @@ export function useSaveBrandProfile(clientId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["brand-profile", clientId] }),
   });
 }
+
+// ---------- Google Ads ----------
+export function useAdsCampaigns(clientId: string) {
+  return useQuery({ queryKey: ["ads-campaigns", clientId], queryFn: () => api.getAdsCampaigns(clientId), enabled: !!clientId });
+}
+export function useAdsRecommendations(clientId: string) {
+  return useQuery({ queryKey: ["ads-recommendations", clientId], queryFn: () => api.getAdsRecommendations(clientId), enabled: !!clientId });
+}
+export function useAdsCopy(clientId: string) {
+  return useQuery({ queryKey: ["ads-copy", clientId], queryFn: () => api.getAdsCopy(clientId), enabled: !!clientId });
+}
+export function useAdsInsights(clientId: string) {
+  return useQuery({ queryKey: ["ads-insights", clientId], queryFn: () => api.getAdsInsights(clientId), enabled: !!clientId });
+}
+export function useAdsPerformance(clientId: string, days?: number) {
+  return useQuery({ queryKey: ["ads-performance", clientId, days], queryFn: () => api.getAdsPerformance(clientId, days), enabled: !!clientId });
+}
+export function useGenerateAdsRecommendations() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (clientId: string) => api.generateAdsRecommendations(clientId),
+    onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["ads-recommendations", clientId] }),
+  });
+}
+export function useGenerateAdCopy(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Parameters<typeof api.generateAdCopy>[0]) => api.generateAdCopy(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ads-copy", clientId] }),
+  });
+}
+export function useApproveAdCopy(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.approveAdCopy(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ads-copy", clientId] }),
+  });
+}
+export function useUpdateAdsRecommendation(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ recId, status }: { recId: string; status: string }) => api.updateAdsRecommendation(recId, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ads-recommendations", clientId] }),
+  });
+}
+export function useSyncAds() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (clientId: string) => api.syncAds(clientId),
+    onSuccess: (_d, clientId) => {
+      qc.invalidateQueries({ queryKey: ["ads-campaigns", clientId] });
+      qc.invalidateQueries({ queryKey: ["ads-insights", clientId] });
+      qc.invalidateQueries({ queryKey: ["ads-performance", clientId] });
+    },
+  });
+}

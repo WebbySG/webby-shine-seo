@@ -60,6 +60,8 @@ app.use("/api/gbp", gbpRouter);
 app.use("/api/clients", gbpRouter);
 app.use("/api/creative", creativeRouter);
 app.use("/api/clients", creativeRouter);
+app.use("/api/ads", adsRouter);
+app.use("/api/clients", adsRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });

@@ -629,3 +629,38 @@ export const getBrandProfile = (clientId: string) =>
 
 export const saveBrandProfile = (data: { client_id: string; brand_name?: string; primary_color?: string; secondary_color?: string; font_style?: string; tone?: string; logo_url?: string; image_style_notes?: string }) =>
   request<BrandProfile>(`/creative/brand`, { method: "POST", body: JSON.stringify(data) });
+
+// ---------- Google Ads ----------
+export interface AdsCampaign {
+  id: string; client_id: string; name: string; campaign_type: string; status: string;
+  budget_daily: number | null; location_targets: string[]; created_at: string;
+}
+export interface AdsRecommendation {
+  id: string; recommendation_type: string; campaign_name: string | null; ad_group_name: string | null;
+  keyword_text: string | null; landing_page_url: string | null; recommended_budget: number | null;
+  recommended_action: string; priority: string; status: string;
+}
+export interface AdsCopyDraft {
+  id: string; target_keyword: string; headline_1: string; headline_2: string; headline_3: string;
+  description_1: string; description_2: string; final_url: string; path_1: string; path_2: string; status: string;
+}
+export interface AdsInsight {
+  id: string; insight_type: string; priority: string; title: string; description: string;
+  recommended_action: string | null; status: string;
+}
+export interface AdsPerformanceResponse {
+  summary: { total_impressions: number; total_clicks: number; avg_ctr: number; avg_cpc: number; total_cost: number; total_conversions: number; cost_per_conversion: number };
+  campaigns: any[];
+}
+
+export const getAdsCampaigns = (clientId: string) => request<AdsCampaign[]>(`/clients/${clientId}/ads-campaigns`);
+export const getAdsRecommendations = (clientId: string) => request<AdsRecommendation[]>(`/clients/${clientId}/ads-recommendations`);
+export const getAdsCopy = (clientId: string) => request<AdsCopyDraft[]>(`/clients/${clientId}/ads-copy`);
+export const getAdsInsights = (clientId: string) => request<AdsInsight[]>(`/clients/${clientId}/ads-insights`);
+export const getAdsPerformance = (clientId: string, days?: number) => request<AdsPerformanceResponse>(`/clients/${clientId}/ads-performance?days=${days || 14}`);
+export const generateAdsRecommendations = (clientId: string) => request<{ count: number }>(`/ads/recommendations/generate`, { method: "POST", body: JSON.stringify({ client_id: clientId }) });
+export const generateAdCopy = (data: { clientId: string; targetKeyword: string; finalUrl?: string; campaignId?: string; adGroupId?: string }) =>
+  request<AdsCopyDraft>(`/ads/copy/generate`, { method: "POST", body: JSON.stringify({ client_id: data.clientId, target_keyword: data.targetKeyword, final_url: data.finalUrl, campaign_id: data.campaignId, ad_group_id: data.adGroupId }) });
+export const approveAdCopy = (id: string) => request<AdsCopyDraft>(`/ads/copy/${id}/approve`, { method: "POST" });
+export const updateAdsRecommendation = (id: string, status: string) => request<AdsRecommendation>(`/ads/recommendations/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
+export const syncAds = (clientId: string) => request<any>(`/ads/sync`, { method: "POST", body: JSON.stringify({ client_id: clientId }) });
