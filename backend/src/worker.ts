@@ -701,13 +701,116 @@ async function processVideoRender(job: any): Promise<{ externalPostId: string; p
 }
 
 // ====================================================================
-// 6. COMBINED DAILY JOB
+// 6. ANALYTICS SYNC & INSIGHT GENERATION
+// ====================================================================
+async function syncAnalyticsData() {
+  console.log(`[${new Date().toISOString()}] 📊 Analytics sync started`);
+
+  try {
+    const { rows: connections } = await pool.query(
+      `SELECT ac.*, c.domain FROM analytics_connections ac
+       JOIN clients c ON c.id = ac.client_id
+       WHERE ac.status = 'active'`
+    );
+
+    for (const conn of connections) {
+      try {
+        if (conn.provider === "gsc" && conn.access_token) {
+          const { fetchGscPagePerformance, fetchGscKeywordPerformance } = await import("./services/analytics/gscService.js");
+          const endDate = new Date().toISOString().split("T")[0];
+          const startDate = new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0];
+
+          const pages = await fetchGscPagePerformance(
+            { accessToken: conn.access_token, refreshToken: conn.refresh_token, siteUrl: conn.site_url },
+            startDate, endDate
+          );
+
+          for (const p of pages) {
+            await pool.query(
+              `INSERT INTO page_performance_snapshots (client_id, page_url, source, clicks, impressions, ctr, average_position, snapshot_date)
+               VALUES ($1, $2, 'gsc', $3, $4, $5, $6, CURRENT_DATE)
+               ON CONFLICT DO NOTHING`,
+              [conn.client_id, p.page, p.clicks, p.impressions, p.ctr, p.position]
+            );
+          }
+
+          const keywords = await fetchGscKeywordPerformance(
+            { accessToken: conn.access_token, refreshToken: conn.refresh_token, siteUrl: conn.site_url },
+            startDate, endDate
+          );
+
+          for (const k of keywords) {
+            // Try to match keyword to existing keyword_id
+            const { rows: kwMatch } = await pool.query(
+              `SELECT id FROM keywords WHERE client_id = $1 AND keyword ILIKE $2 LIMIT 1`,
+              [conn.client_id, k.query]
+            );
+            await pool.query(
+              `INSERT INTO keyword_performance_snapshots (client_id, keyword_id, page_url, clicks, impressions, ctr, average_position, snapshot_date)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_DATE)
+               ON CONFLICT DO NOTHING`,
+              [conn.client_id, kwMatch[0]?.id || null, k.page, k.clicks, k.impressions, k.ctr, k.position]
+            );
+          }
+
+          console.log(`  ✓ GSC sync for client ${conn.client_id}: ${pages.length} pages, ${keywords.length} keywords`);
+        }
+
+        if (conn.provider === "ga4" && conn.access_token) {
+          const { fetchGa4PagePerformance } = await import("./services/analytics/ga4Service.js");
+          const endDate = new Date().toISOString().split("T")[0];
+          const startDate = new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0];
+
+          const pages = await fetchGa4PagePerformance(
+            { accessToken: conn.access_token, refreshToken: conn.refresh_token, propertyId: conn.property_id },
+            startDate, endDate
+          );
+
+          for (const p of pages) {
+            await pool.query(
+              `INSERT INTO page_performance_snapshots (client_id, page_url, source, sessions, users, engagement_rate, snapshot_date)
+               VALUES ($1, $2, 'ga4', $3, $4, $5, CURRENT_DATE)
+               ON CONFLICT DO NOTHING`,
+              [conn.client_id, p.pagePath, p.sessions, p.users, p.engagementRate]
+            );
+          }
+
+          console.log(`  ✓ GA4 sync for client ${conn.client_id}: ${pages.length} pages`);
+        }
+      } catch (err: any) {
+        console.error(`  ✗ Analytics sync error for client ${conn.client_id} (${conn.provider}):`, err.message);
+      }
+    }
+
+    // Generate insights for all active clients
+    const { rows: activeClients } = await pool.query(
+      `SELECT DISTINCT client_id FROM analytics_connections WHERE status = 'active'`
+    );
+    for (const c of activeClients) {
+      try {
+        const { generatePerformanceInsights } = await import("./services/analytics/insightEngine.js");
+        const count = await generatePerformanceInsights(c.client_id);
+        console.log(`  ✓ Generated ${count} insights for client ${c.client_id}`);
+      } catch (err: any) {
+        console.error(`  ✗ Insight generation error for client ${c.client_id}:`, err.message);
+      }
+    }
+
+    console.log(`[${new Date().toISOString()}] ✅ Analytics sync completed`);
+  } catch (error) {
+    console.error("Fatal error in analytics sync:", error);
+  }
+}
+
+// ====================================================================
+// 7. COMBINED DAILY JOB
 // ====================================================================
 async function dailyJob() {
   await fetchRankings();
   await generateOpportunities();
   await generateInternalLinks();
   await generateContentPlan();
+  await syncAnalyticsData();
 }
 
 // Run daily at 02:00 SGT
@@ -718,6 +821,11 @@ cron.schedule("0 2 * * *", dailyJob, {
 // Process publishing jobs every minute
 cron.schedule("* * * * *", processPublishingJobs);
 
-console.log("🕐 Cron worker started — daily SEO jobs at 02:00 SGT, publishing jobs every minute");
+// Analytics sync daily at 04:00 SGT (also runs as part of dailyJob, but this ensures standalone)
+cron.schedule("0 4 * * *", syncAnalyticsData, {
+  timezone: "Asia/Singapore",
+});
 
-export { fetchRankings, generateOpportunities, generateInternalLinks, generateContentPlan, processPublishingJobs };
+console.log("🕐 Cron worker started — daily SEO jobs at 02:00 SGT, analytics at 04:00 SGT, publishing jobs every minute");
+
+export { fetchRankings, generateOpportunities, generateInternalLinks, generateContentPlan, processPublishingJobs, syncAnalyticsData };

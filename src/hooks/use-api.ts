@@ -318,3 +318,72 @@ export function useAiGenerateVideo(clientId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }),
   });
 }
+
+// ---------- Analytics ----------
+export function useAnalyticsConnections(clientId: string) {
+  return useQuery({
+    queryKey: ["analytics-connections", clientId],
+    queryFn: () => api.getAnalyticsConnections(clientId),
+    enabled: !!clientId,
+  });
+}
+
+export function useSyncAnalytics() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (clientId: string) => api.syncAnalytics(clientId),
+    onSuccess: (_data, clientId) => {
+      qc.invalidateQueries({ queryKey: ["performance-insights", clientId] });
+      qc.invalidateQueries({ queryKey: ["performance-summary", clientId] });
+    },
+  });
+}
+
+export function usePerformanceSummary(clientId: string, days?: number) {
+  return useQuery({
+    queryKey: ["performance-summary", clientId, days],
+    queryFn: () => api.getPerformanceSummary(clientId, days),
+    enabled: !!clientId,
+  });
+}
+
+export function usePagePerformance(clientId: string, days?: number) {
+  return useQuery({
+    queryKey: ["page-performance", clientId, days],
+    queryFn: () => api.getPagePerformance(clientId, days),
+    enabled: !!clientId,
+  });
+}
+
+export function useKeywordPerformance(clientId: string, days?: number) {
+  return useQuery({
+    queryKey: ["keyword-performance", clientId, days],
+    queryFn: () => api.getKeywordPerformance(clientId, days),
+    enabled: !!clientId,
+  });
+}
+
+export function useAssetPerformance(clientId: string, days?: number, assetType?: string) {
+  return useQuery({
+    queryKey: ["asset-performance", clientId, days, assetType],
+    queryFn: () => api.getAssetPerformance(clientId, days, assetType),
+    enabled: !!clientId,
+  });
+}
+
+export function usePerformanceInsights(clientId: string, status?: string) {
+  return useQuery({
+    queryKey: ["performance-insights", clientId, status],
+    queryFn: () => api.getPerformanceInsights(clientId, status),
+    enabled: !!clientId,
+  });
+}
+
+export function useUpdateInsightStatus(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ insightId, status }: { insightId: string; status: string }) =>
+      api.updateInsightStatus(insightId, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["performance-insights", clientId] }),
+  });
+}

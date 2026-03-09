@@ -10,6 +10,7 @@ import ClientDetail from "@/pages/ClientDetail";
 import Rankings from "@/pages/Rankings";
 import Audit from "@/pages/Audit";
 import Opportunities from "@/pages/Opportunities";
+import Analytics from "@/pages/Analytics";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/rankings" element={<Rankings />} />
             <Route path="/audit" element={<Audit />} />
             <Route path="/opportunities" element={<Opportunities />} />
+            <Route path="/analytics" element={<Analytics />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
