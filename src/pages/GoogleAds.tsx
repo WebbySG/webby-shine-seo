@@ -102,9 +102,10 @@ export default function GoogleAds() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+      <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         {kpiCards.map((kpi) => (
-          <Card key={kpi.label} className={`hover-lift border-l-4 ${kpi.color}`}>
+          <StaggerItem key={kpi.label}>
+          <Card className={`hover-lift border-l-4 ${kpi.color}`}>
             <CardContent className="p-4">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{kpi.label}</p>
               <p className="text-xl font-bold text-foreground mt-1">{kpi.value}</p>
