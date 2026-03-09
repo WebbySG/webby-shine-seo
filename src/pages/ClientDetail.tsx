@@ -864,6 +864,272 @@ export default function ClientDetail() {
         </TabsContent>
 
 
+        <TabsContent value="videos">
+          <div className="space-y-6">
+            {/* Generate Video Form */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Video className="h-4 w-4" />Generate Video Script
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label className="text-xs">Source Type</Label>
+                    <select
+                      className="w-full text-sm border rounded px-2 py-1.5 bg-background mt-1"
+                      value={videoGenForm.source}
+                      onChange={(e) => setVideoGenForm(f => ({ ...f, source: e.target.value as "article" | "social", sourceId: "" }))}
+                    >
+                      <option value="article">Article</option>
+                      <option value="social">Social Post</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Source</Label>
+                    <select
+                      className="w-full text-sm border rounded px-2 py-1.5 bg-background mt-1"
+                      value={videoGenForm.sourceId}
+                      onChange={(e) => setVideoGenForm(f => ({ ...f, sourceId: e.target.value }))}
+                    >
+                      <option value="">Select…</option>
+                      {videoGenForm.source === "article"
+                        ? articles.map(a => <option key={a.id} value={a.id}>{a.title}</option>)
+                        : socialPosts.map(sp => <option key={sp.id} value={sp.id}>{sp.platform}: {sp.content.slice(0, 50)}…</option>)
+                      }
+                    </select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Platform</Label>
+                    <select
+                      className="w-full text-sm border rounded px-2 py-1.5 bg-background mt-1"
+                      value={videoGenForm.platform}
+                      onChange={(e) => setVideoGenForm(f => ({ ...f, platform: e.target.value }))}
+                    >
+                      <option value="tiktok">TikTok</option>
+                      <option value="instagram_reels">Instagram Reels</option>
+                      <option value="facebook_reels">Facebook Reels</option>
+                      <option value="youtube_shorts">YouTube Shorts</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Avatar Style</Label>
+                    <select
+                      className="w-full text-sm border rounded px-2 py-1.5 bg-background mt-1"
+                      value={videoGenForm.avatar_type}
+                      onChange={(e) => setVideoGenForm(f => ({ ...f, avatar_type: e.target.value }))}
+                    >
+                      <option value="professional">Professional</option>
+                      <option value="casual">Casual</option>
+                      <option value="corporate">Corporate</option>
+                      <option value="creative">Creative</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Voice Style</Label>
+                    <select
+                      className="w-full text-sm border rounded px-2 py-1.5 bg-background mt-1"
+                      value={videoGenForm.voice_type}
+                      onChange={(e) => setVideoGenForm(f => ({ ...f, voice_type: e.target.value }))}
+                    >
+                      <option value="friendly">Friendly</option>
+                      <option value="authoritative">Authoritative</option>
+                      <option value="energetic">Energetic</option>
+                      <option value="calm">Calm</option>
+                    </select>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => {
+                    if (!videoGenForm.sourceId) { toast.error("Please select a source"); return; }
+                    generateVideo.mutate({
+                      ...(videoGenForm.source === "article" ? { article_id: videoGenForm.sourceId } : { social_post_id: videoGenForm.sourceId }),
+                      platform: videoGenForm.platform,
+                      avatar_type: videoGenForm.avatar_type,
+                      voice_type: videoGenForm.voice_type,
+                    }, {
+                      onSuccess: () => toast.success("Video script generated!"),
+                      onError: () => toast.error("Failed to generate video"),
+                    });
+                  }}
+                  disabled={generateVideo.isPending}
+                >
+                  {generateVideo.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                  Generate Video Script
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Video List */}
+            {videos.length === 0 && (
+              <p className="text-sm text-muted-foreground">No videos generated yet. Use the form above to create one.</p>
+            )}
+
+            {videos.map((video) => {
+              const isEditing = editingVideo === video.id;
+              const platformLabels: Record<string, string> = {
+                tiktok: "🎵 TikTok",
+                instagram_reels: "📸 Instagram Reels",
+                facebook_reels: "📘 Facebook Reels",
+                youtube_shorts: "▶️ YouTube Shorts",
+              };
+              return (
+                <Card key={video.id}>
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium">{platformLabels[video.platform] || video.platform}</span>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <User className="h-3 w-3" />{video.avatar_type}
+                          <span className="mx-1">·</span>
+                          🎤 {video.voice_type}
+                        </div>
+                      </div>
+                      <Badge
+                        variant={video.status === "approved" ? "default" : video.status === "rendering" ? "secondary" : "outline"}
+                        className="text-xs"
+                      >
+                        {video.status}
+                      </Badge>
+                    </div>
+
+                    {isEditing ? (
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-xs">Video Script</Label>
+                          <Textarea
+                            value={videoEditForm.video_script}
+                            onChange={(e) => setVideoEditForm(f => ({ ...f, video_script: e.target.value }))}
+                            className="mt-1 text-sm min-h-[150px]"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Caption Text</Label>
+                          <Textarea
+                            value={videoEditForm.caption_text}
+                            onChange={(e) => setVideoEditForm(f => ({ ...f, caption_text: e.target.value }))}
+                            className="mt-1 text-sm min-h-[80px]"
+                          />
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div>
+                            <Label className="text-xs">Avatar Style</Label>
+                            <select
+                              className="w-full text-sm border rounded px-2 py-1.5 bg-background mt-1"
+                              value={videoEditForm.avatar_type}
+                              onChange={(e) => setVideoEditForm(f => ({ ...f, avatar_type: e.target.value }))}
+                            >
+                              <option value="professional">Professional</option>
+                              <option value="casual">Casual</option>
+                              <option value="corporate">Corporate</option>
+                              <option value="creative">Creative</option>
+                            </select>
+                          </div>
+                          <div>
+                            <Label className="text-xs">Voice Style</Label>
+                            <select
+                              className="w-full text-sm border rounded px-2 py-1.5 bg-background mt-1"
+                              value={videoEditForm.voice_type}
+                              onChange={(e) => setVideoEditForm(f => ({ ...f, voice_type: e.target.value }))}
+                            >
+                              <option value="friendly">Friendly</option>
+                              <option value="authoritative">Authoritative</option>
+                              <option value="energetic">Energetic</option>
+                              <option value="calm">Calm</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={() => {
+                            updateVideoMut.mutate({ videoId: video.id, data: videoEditForm }, {
+                              onSuccess: () => { toast.success("Video updated"); setEditingVideo(null); },
+                              onError: () => toast.error("Failed to update"),
+                            });
+                          }} disabled={updateVideoMut.isPending}>
+                            <Check className="h-3.5 w-3.5 mr-1" />Save
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingVideo(null)}>
+                            <X className="h-3.5 w-3.5 mr-1" />Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Script Preview */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Video Script</p>
+                          <pre className="text-sm whitespace-pre-wrap bg-muted/30 p-3 rounded">{video.video_script}</pre>
+                        </div>
+
+                        {/* Scene Breakdown */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Scene Breakdown</p>
+                          <div className="space-y-2">
+                            {(video.scene_breakdown || []).map((scene, i) => (
+                              <div key={i} className="bg-muted/20 p-2 rounded text-xs">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0">Scene {scene.scene_number}</Badge>
+                                  <span className="text-muted-foreground">{scene.duration}</span>
+                                </div>
+                                <p className="text-muted-foreground">🎬 {scene.visual}</p>
+                                <p className="mt-1">🎤 "{scene.voiceover}"</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Caption */}
+                        <details className="text-sm">
+                          <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
+                            Caption text ({video.caption_text.length} chars)
+                          </summary>
+                          <pre className="mt-2 p-3 bg-muted/30 rounded text-xs whitespace-pre-wrap">{video.caption_text}</pre>
+                        </details>
+
+                        {/* Video Preview */}
+                        {video.video_url && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Play className="h-3 w-3" />
+                            <a href={video.video_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                              View rendered video <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => {
+                            setEditingVideo(video.id);
+                            setVideoEditForm({
+                              video_script: video.video_script,
+                              caption_text: video.caption_text,
+                              avatar_type: video.avatar_type,
+                              voice_type: video.voice_type,
+                            });
+                          }}>
+                            <Pencil className="h-3.5 w-3.5 mr-1" />Edit
+                          </Button>
+                          {video.status === "draft" && (
+                            <Button size="sm" onClick={() => {
+                              approveVideo.mutate(video.id, {
+                                onSuccess: () => toast.success("Video approved!"),
+                                onError: () => toast.error("Failed to approve"),
+                              });
+                            }} disabled={approveVideo.isPending}>
+                              <Check className="h-3.5 w-3.5 mr-1" />Approve
+                            </Button>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
         <TabsContent value="issues">
           <div className="space-y-2">
             {openIssues.length === 0 && <p className="text-sm text-muted-foreground">No open issues.</p>}
