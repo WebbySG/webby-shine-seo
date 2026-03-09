@@ -95,3 +95,20 @@ export function useContentPlan(clientId: string) {
     enabled: !!clientId,
   });
 }
+
+// ---------- SEO Briefs ----------
+export function useBriefs(clientId: string) {
+  return useQuery({
+    queryKey: ["briefs", clientId],
+    queryFn: () => api.getBriefs(clientId),
+    enabled: !!clientId,
+  });
+}
+
+export function useGenerateBrief(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (keyword: string) => api.generateBrief(clientId, keyword),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["briefs", clientId] }),
+  });
+}
