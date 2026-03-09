@@ -31,8 +31,8 @@ export default function ClientList() {
       </div>
 
       {/* Summary KPIs */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="border-l-4 border-l-primary hover-lift">
+      <StaggerContainer className="grid gap-4 sm:grid-cols-3">
+        <StaggerItem><Card className="border-l-4 border-l-primary hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
               <Building2 className="h-5 w-5 text-primary" />
