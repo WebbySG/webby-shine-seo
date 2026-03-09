@@ -32,6 +32,8 @@ app.use("/api/audit", auditRouter);
 app.use("/api/clients", opportunitiesRouter);
 app.use("/api/clients", internalLinksRouter);
 app.use("/api/clients", contentPlanRouter);
+app.use("/api/clients", briefsRouter);
+app.use("/api/briefs", briefsRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
