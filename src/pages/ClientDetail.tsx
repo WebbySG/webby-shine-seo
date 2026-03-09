@@ -321,7 +321,122 @@ export default function ClientDetail() {
           </div>
         </TabsContent>
 
-        <TabsContent value="issues">
+        <TabsContent value="briefs">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground">SEO Content Briefs</h3>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={generateBrief.isPending}
+                onClick={() => {
+                  const keyword = prompt("Enter keyword to generate a brief for:");
+                  if (keyword) handleGenerateBrief(keyword);
+                }}
+              >
+                <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                {generateBrief.isPending ? "Generating…" : "Generate Brief"}
+              </Button>
+            </div>
+
+            {briefs.length === 0 && <p className="text-sm text-muted-foreground">No briefs generated yet. Click "Generate Brief" to create one.</p>}
+
+            {briefs.map((brief) => {
+              const isExpanded = expandedBrief === brief.id;
+              return (
+                <Card key={brief.id}>
+                  <CardContent className="p-0">
+                    <button
+                      className="w-full p-4 flex items-center justify-between text-left hover:bg-muted/30 transition-colors"
+                      onClick={() => setExpandedBrief(isExpanded ? null : brief.id)}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <BookOpen className="h-4 w-4 text-primary shrink-0" />
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm truncate">{brief.title}</p>
+                          <p className="text-xs text-muted-foreground">Keyword: {brief.keyword}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge variant="outline" className="text-xs">{brief.status}</Badge>
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </div>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-4 pb-4 space-y-4 border-t pt-4">
+                        {/* Meta */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Meta Description</p>
+                          <p className="text-sm bg-muted/30 p-2 rounded">{brief.meta_description}</p>
+                        </div>
+
+                        {/* Headings */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Content Structure</p>
+                          <div className="space-y-1">
+                            {brief.headings.map((h, i) => (
+                              <div
+                                key={i}
+                                className="text-sm flex items-center gap-2"
+                                style={{ paddingLeft: h.level === "H1" ? 0 : h.level === "H2" ? 12 : 24 }}
+                              >
+                                <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0">{h.level}</Badge>
+                                <span>{h.text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* FAQ */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">FAQ Questions</p>
+                          <div className="space-y-2">
+                            {brief.faq.map((f, i) => (
+                              <div key={i} className="bg-muted/30 p-2 rounded">
+                                <p className="text-sm font-medium">{f.question}</p>
+                                <p className="text-xs text-muted-foreground mt-1">{f.answer}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Entities */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Target Entities</p>
+                          <div className="flex flex-wrap gap-1">
+                            {brief.entities.map((e, i) => (
+                              <Badge key={i} variant="secondary" className="text-xs">{e}</Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Internal Links */}
+                        {brief.internal_links.length > 0 && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Suggested Internal Links</p>
+                            <div className="space-y-1">
+                              {brief.internal_links.map((l, i) => (
+                                <div key={i} className="text-xs flex items-center gap-2 text-muted-foreground">
+                                  <span className="font-mono truncate max-w-[200px]">{l.from}</span>
+                                  <span>→</span>
+                                  <span className="font-mono truncate max-w-[200px]">{l.to}</span>
+                                  <span className="text-primary">"{l.anchor}"</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+
           <div className="space-y-2">
             {openIssues.length === 0 && <p className="text-sm text-muted-foreground">No open issues.</p>}
             {openIssues.map((issue) => (
