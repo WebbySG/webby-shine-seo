@@ -436,7 +436,7 @@ export default function ClientDetail() {
           </div>
         </TabsContent>
 
-
+        <TabsContent value="issues">
           <div className="space-y-2">
             {openIssues.length === 0 && <p className="text-sm text-muted-foreground">No open issues.</p>}
             {openIssues.map((issue) => (
