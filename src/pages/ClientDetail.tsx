@@ -57,6 +57,8 @@ export default function ClientDetail() {
   const { data: apiAuditIssues } = useAuditIssues(id!);
   const { data: apiInternalLinks } = useInternalLinks(id!);
   const { data: apiContentPlan } = useContentPlan(id!);
+  const { data: apiBriefs } = useBriefs(id!);
+  const generateBrief = useGenerateBrief(id!);
 
   const dummyClient = dummyClients.find((c) => c.id === id);
   const client = apiClient ?? dummyClient;
