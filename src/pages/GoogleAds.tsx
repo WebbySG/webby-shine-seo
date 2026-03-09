@@ -298,6 +298,6 @@ export default function GoogleAds() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageTransition>
   );
 }

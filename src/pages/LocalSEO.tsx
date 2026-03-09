@@ -365,6 +365,6 @@ export default function LocalSEO() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageTransition>
   );
 }

@@ -187,6 +187,6 @@ export default function Rankings() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageTransition>
   );
 }

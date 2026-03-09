@@ -399,6 +399,6 @@ export default function CommandCenter() {
           </TabsContent>
         </Tabs>
       )}
-    </div>
+    </PageTransition>
   );
 }

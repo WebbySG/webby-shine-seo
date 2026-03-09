@@ -260,6 +260,6 @@ export default function CreativeAssets() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageTransition>
   );
 }
