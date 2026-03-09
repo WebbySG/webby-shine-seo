@@ -146,3 +146,36 @@ export function useApproveArticle(clientId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
   });
 }
+
+export function usePublishArticle(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ articleId, scheduleDate }: { articleId: string; scheduleDate?: string }) =>
+      api.publishArticle(articleId, scheduleDate),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
+  });
+}
+
+// ---------- CMS Connections ----------
+export function useCmsConnection(clientId: string) {
+  return useQuery({
+    queryKey: ["cms", clientId],
+    queryFn: () => api.getCmsConnection(clientId),
+    enabled: !!clientId,
+  });
+}
+
+export function useSaveCmsConnection(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { site_url: string; username: string; application_password: string }) =>
+      api.saveCmsConnection(clientId, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["cms", clientId] }),
+  });
+}
+
+export function useTestCmsConnection(clientId: string) {
+  return useMutation({
+    mutationFn: () => api.testCmsConnection(clientId),
+  });
+}
