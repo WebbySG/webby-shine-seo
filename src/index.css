@@ -8,75 +8,75 @@
   :root {
     /* ===== MODERN COLOR SYSTEM ===== */
     /* Base colors */
-    --background: 248 250 252;
-    --foreground: 15 23 42;
-    --card: 255 255 255;
-    --card-foreground: 15 23 42;
-    --popover: 255 255 255;
-    --popover-foreground: 15 23 42;
-    --primary: 99 102 241;
-    --primary-foreground: 248 250 252;
-    --secondary: 241 245 249;
-    --secondary-foreground: 15 23 42;
-    --muted: 241 245 249;
-    --muted-foreground: 100 116 139;
-    --accent: 241 245 249;
-    --accent-foreground: 15 23 42;
-    --destructive: 239 68 68;
-    --destructive-foreground: 248 250 252;
-    --border: 226 232 240;
-    --input: 226 232 240;
-    --ring: 99 102 241;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 239 84% 67%;
     --radius: 0.5rem;
 
     /* ===== MODULE-SPECIFIC COLORS ===== */
-    /* SEO - Blue/Indigo */
-    --seo-primary: 59 130 246;
-    --seo-secondary: 147 197 253;
-    --seo-background: 239 246 255;
-    --seo-border: 191 219 254;
+    /* SEO - Blue */
+    --seo-primary: 217 91% 60%;
+    --seo-secondary: 213 93% 78%;
+    --seo-background: 214 100% 97%;
+    --seo-border: 213 94% 87%;
     
     /* Content - Violet */
-    --content-primary: 139 92 246;
-    --content-secondary: 196 181 253;
-    --content-background: 245 243 255;
-    --content-border: 221 214 254;
+    --content-primary: 263 70% 66%;
+    --content-secondary: 253 80% 85%;
+    --content-background: 252 100% 98%;
+    --content-border: 253 82% 92%;
     
-    /* Social - Pink/Orange Gradient */
-    --social-primary: 236 72 153;
-    --social-secondary: 251 146 60;
-    --social-background: 255 241 242;
-    --social-border: 252 165 165;
+    /* Social - Pink/Orange */
+    --social-primary: 330 81% 60%;
+    --social-secondary: 27 95% 61%;
+    --social-background: 350 100% 97%;
+    --social-border: 0 69% 82%;
     
     /* Video - Red */
-    --video-primary: 239 68 68;
-    --video-secondary: 252 165 165;
-    --video-background: 254 242 242;
-    --video-border: 254 202 202;
+    --video-primary: 0 84% 60%;
+    --video-secondary: 0 69% 82%;
+    --video-background: 0 86% 97%;
+    --video-border: 0 93% 90%;
     
     /* GBP/Local - Green */
-    --gbp-primary: 34 197 94;
-    --gbp-secondary: 134 239 172;
-    --gbp-background: 240 253 244;
-    --gbp-border: 187 247 208;
+    --gbp-primary: 142 71% 45%;
+    --gbp-secondary: 142 77% 73%;
+    --gbp-background: 138 76% 97%;
+    --gbp-border: 142 77% 85%;
     
-    /* Ads - Amber/Yellow */
-    --ads-primary: 245 158 11;
-    --ads-secondary: 252 211 77;
-    --ads-background: 255 251 235;
-    --ads-border: 254 230 138;
+    /* Ads - Amber */
+    --ads-primary: 38 92% 50%;
+    --ads-secondary: 45 96% 65%;
+    --ads-background: 48 100% 96%;
+    --ads-border: 48 97% 77%;
     
-    /* CRM - Teal/Cyan */
-    --crm-primary: 20 184 166;
-    --crm-secondary: 153 246 228;
-    --crm-background: 240 253 250;
-    --crm-border: 178 245 234;
+    /* CRM - Teal */
+    --crm-primary: 168 76% 42%;
+    --crm-secondary: 170 85% 78%;
+    --crm-background: 166 76% 97%;
+    --crm-border: 170 80% 83%;
     
-    /* Analytics - Purple/Indigo Mix */
-    --analytics-primary: 129 140 248;
-    --analytics-secondary: 199 210 254;
-    --analytics-background: 238 242 255;
-    --analytics-border: 199 210 254;
+    /* Analytics - Indigo */
+    --analytics-primary: 235 82% 76%;
+    --analytics-secondary: 231 91% 89%;
+    --analytics-background: 226 100% 97%;
+    --analytics-border: 231 91% 89%;
 
     /* ===== ENHANCED DESIGN TOKENS ===== */
     /* Gradients */
@@ -94,65 +94,65 @@
     --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.05), 0 1px 2px 0 hsl(var(--primary) / 0.15);
     
     /* Status Colors */
-    --status-success: 34 197 94;
-    --status-success-bg: 240 253 244;
-    --status-warning: 245 158 11;
-    --status-warning-bg: 255 251 235;
-    --status-error: 239 68 68;
-    --status-error-bg: 254 242 242;
-    --status-info: 59 130 246;
-    --status-info-bg: 239 246 255;
+    --status-success: 142 71% 45%;
+    --status-success-bg: 138 76% 97%;
+    --status-warning: 38 92% 50%;
+    --status-warning-bg: 48 100% 96%;
+    --status-error: 0 84% 60%;
+    --status-error-bg: 0 86% 97%;
+    --status-info: 217 91% 60%;
+    --status-info-bg: 214 100% 97%;
 
-    --sidebar-background: 255 255 255;
-    --sidebar-foreground: 15 23 42;
-    --sidebar-primary: 99 102 241;
-    --sidebar-primary-foreground: 248 250 252;
-    --sidebar-accent: 241 245 249;
-    --sidebar-accent-foreground: 15 23 42;
-    --sidebar-border: 226 232 240;
-    --sidebar-ring: 99 102 241;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 239 84% 67%;
   }
 
   .dark {
     /* Dark mode variables */
-    --background: 15 23 42;
-    --foreground: 248 250 252;
-    --card: 30 41 59;
-    --card-foreground: 248 250 252;
-    --popover: 30 41 59;
-    --popover-foreground: 248 250 252;
-    --primary: 129 140 248;
-    --primary-foreground: 15 23 42;
-    --secondary: 30 41 59;
-    --secondary-foreground: 248 250 252;
-    --muted: 30 41 59;
-    --muted-foreground: 148 163 184;
-    --accent: 30 41 59;
-    --accent-foreground: 248 250 252;
-    --destructive: 248 113 113;
-    --destructive-foreground: 15 23 42;
-    --border: 51 65 85;
-    --input: 51 65 85;
-    --ring: 129 140 248;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 98%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 235 82% 76%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 71%;
+    --destructive-foreground: 222 47% 11%;
+    --border: 217 19% 27%;
+    --input: 217 19% 27%;
+    --ring: 235 82% 76%;
 
     /* Module colors adjusted for dark mode */
-    --seo-primary: 96 165 250;
-    --content-primary: 167 139 250;
-    --social-primary: 244 114 182;
-    --video-primary: 248 113 113;
-    --gbp-primary: 74 222 128;
-    --ads-primary: 251 191 36;
-    --crm-primary: 45 212 191;
-    --analytics-primary: 165 180 252;
+    --seo-primary: 213 94% 68%;
+    --content-primary: 258 77% 76%;
+    --social-primary: 330 86% 70%;
+    --video-primary: 0 72% 71%;
+    --gbp-primary: 142 69% 58%;
+    --ads-primary: 45 93% 56%;
+    --crm-primary: 172 66% 50%;
+    --analytics-primary: 235 91% 82%;
 
-    --sidebar-background: 30 41 59;
-    --sidebar-foreground: 248 250 252;
-    --sidebar-primary: 129 140 248;
-    --sidebar-primary-foreground: 15 23 42;
-    --sidebar-accent: 51 65 85;
-    --sidebar-accent-foreground: 248 250 252;
-    --sidebar-border: 51 65 85;
-    --sidebar-ring: 129 140 248;
+    --sidebar-background: 217 33% 17%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 235 82% 76%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 19% 27%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 19% 27%;
+    --sidebar-ring: 235 82% 76%;
   }
 }
 
