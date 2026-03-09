@@ -12,6 +12,7 @@ import Audit from "@/pages/Audit";
 import Opportunities from "@/pages/Opportunities";
 import Analytics from "@/pages/Analytics";
 import LocalSEO from "@/pages/LocalSEO";
+import CreativeAssets from "@/pages/CreativeAssets";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
