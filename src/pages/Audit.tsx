@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -35,7 +36,7 @@ export default function Audit() {
   const infoCount = issues.filter((i) => i.severity === "info" && i.status !== "done").length;
 
   return (
-    <div className="space-y-6">
+    <PageTransition className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Technical Audit</h1>
@@ -50,8 +51,8 @@ export default function Audit() {
       </div>
 
       {/* KPI Cards with accent borders */}
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Card className="border-l-4 border-l-primary hover-lift">
+      <StaggerContainer className="grid gap-4 sm:grid-cols-4">
+        <StaggerItem><Card className="border-l-4 border-l-primary hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
               <Shield className="h-5 w-5 text-primary" />
@@ -61,8 +62,8 @@ export default function Audit() {
               <p className="text-2xl font-bold mt-0.5">{issues.length}</p>
             </div>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-destructive hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-destructive hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-destructive/10">
               <AlertCircle className="h-5 w-5 text-destructive" />
@@ -72,8 +73,8 @@ export default function Audit() {
               <p className="text-2xl font-bold mt-0.5">{critCount}</p>
             </div>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-amber-500 hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-amber-500 hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-amber-500/10">
               <AlertTriangle className="h-5 w-5 text-amber-500" />
@@ -83,8 +84,8 @@ export default function Audit() {
               <p className="text-2xl font-bold mt-0.5">{warnCount}</p>
             </div>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-green-500 hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-green-500 hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-green-500/10">
               <CheckCircle2 className="h-5 w-5 text-green-500" />
@@ -94,8 +95,8 @@ export default function Audit() {
               <p className="text-2xl font-bold mt-0.5">{statusGroups.done.length}</p>
             </div>
           </CardContent>
-        </Card>
-      </div>
+        </Card></StaggerItem>
+      </StaggerContainer>
 
       <Tabs defaultValue="open">
         <TabsList className="bg-muted/50 border">
@@ -156,6 +157,6 @@ export default function Audit() {
           </TabsContent>
         ))}
       </Tabs>
-    </div>
+    </PageTransition>
   );
 }

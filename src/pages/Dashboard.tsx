@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,7 +29,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-8">
+    <PageTransition className="space-y-8">
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
@@ -47,9 +48,10 @@ export default function Dashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <StaggerContainer className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (
-          <Card key={s.label} className={`hover-lift border-l-4 ${s.border} overflow-hidden`}>
+          <StaggerItem key={s.label}>
+          <Card className={`hover-lift border-l-4 ${s.border} overflow-hidden`}>
             <CardContent className="p-5 relative">
               <div className={`absolute inset-0 bg-gradient-to-br ${s.color} pointer-events-none`} />
               <div className="relative flex items-start justify-between">
@@ -63,8 +65,9 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
       {/* Gainers & Losers */}
       <div className="grid gap-6 lg:grid-cols-2">
@@ -175,6 +178,6 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageTransition>
   );
 }

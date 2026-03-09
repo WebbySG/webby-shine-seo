@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ export default function ClientList() {
   const totalKeywords = clients.reduce((a, c) => a + c.keywords_count, 0);
 
   return (
-    <div className="space-y-6">
+    <PageTransition className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Clients</h1>
@@ -30,8 +31,8 @@ export default function ClientList() {
       </div>
 
       {/* Summary KPIs */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="border-l-4 border-l-primary hover-lift">
+      <StaggerContainer className="grid gap-4 sm:grid-cols-3">
+        <StaggerItem><Card className="border-l-4 border-l-primary hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
               <Building2 className="h-5 w-5 text-primary" />
@@ -41,8 +42,8 @@ export default function ClientList() {
               <p className="text-2xl font-bold">{clients.length}</p>
             </div>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-blue-500 hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-blue-500 hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-500/10">
               <Key className="h-5 w-5 text-blue-500" />
@@ -52,8 +53,8 @@ export default function ClientList() {
               <p className="text-2xl font-bold">{totalKeywords}</p>
             </div>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-green-500 hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-green-500 hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-green-500/10">
               <Activity className="h-5 w-5 text-green-500" />
@@ -63,8 +64,8 @@ export default function ClientList() {
               <p className="text-2xl font-bold">{avgHealth}%</p>
             </div>
           </CardContent>
-        </Card>
-      </div>
+        </Card></StaggerItem>
+      </StaggerContainer>
 
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -126,6 +127,6 @@ export default function ClientList() {
           })}
         </div>
       )}
-    </div>
+    </PageTransition>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -43,7 +44,7 @@ export default function Opportunities() {
   const highPriorityCount = opportunities.filter(o => o.priority === "high").length;
 
   return (
-    <div className="space-y-6">
+    <PageTransition className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Opportunities</h1>
@@ -58,12 +59,13 @@ export default function Opportunities() {
       </div>
 
       {/* Summary cards with accent borders */}
-      <div className="grid gap-4 sm:grid-cols-4">
+      <StaggerContainer className="grid gap-4 sm:grid-cols-4">
         {(["near_win", "content_gap", "page_expansion", "technical_fix"] as const).map((type) => {
           const meta = TYPE_META[type];
           const Icon = meta.icon;
           return (
-            <Card key={type} className={`${meta.borderClass} border-l-4 hover-lift`}>
+            <StaggerItem key={type}>
+            <Card className={`${meta.borderClass} border-l-4 hover-lift`}>
               <CardContent className="p-4 flex items-center gap-3">
                 <div className={`p-2 rounded-lg ${meta.bgClass}`}>
                   <Icon className={`h-5 w-5 ${meta.colorClass}`} />
@@ -74,9 +76,10 @@ export default function Opportunities() {
                 </div>
               </CardContent>
             </Card>
+            </StaggerItem>
           );
         })}
-      </div>
+      </StaggerContainer>
 
       {/* Near Wins section */}
       {countByType("near_win") > 0 && (
@@ -152,6 +155,6 @@ export default function Opportunities() {
           })}
         </CardContent>
       </Card>
-    </div>
+    </PageTransition>
   );
 }

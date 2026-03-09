@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageTransition } from "@/components/motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +56,7 @@ export default function LocalSEO() {
   const score = profile?.completeness?.score ?? 0;
 
   return (
-    <div className="space-y-8">
+    <PageTransition className="space-y-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Local SEO</h1>
@@ -364,6 +365,6 @@ export default function LocalSEO() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageTransition>
   );
 }

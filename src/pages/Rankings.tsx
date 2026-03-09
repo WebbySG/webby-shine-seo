@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -52,7 +53,7 @@ export default function Rankings() {
   const page1Count = rawKws.filter(r => (r.current_position ?? 100) <= 10).length;
 
   return (
-    <div className="space-y-8">
+    <PageTransition className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Keyword Rankings</h1>
@@ -67,32 +68,32 @@ export default function Rankings() {
       </div>
 
       {/* KPI Row */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Card className="border-l-4 border-l-seo-primary hover-lift">
+      <StaggerContainer className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <StaggerItem><Card className="border-l-4 border-l-seo-primary hover-lift">
           <CardContent className="p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Total Keywords</p>
             <p className="text-2xl font-bold mt-1 text-foreground">{rawKws.length}</p>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-seo-primary hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-seo-primary hover-lift">
           <CardContent className="p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Avg Position</p>
             <p className="text-2xl font-bold mt-1 text-foreground">{avgPos}</p>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-emerald-500 hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-emerald-500 hover-lift">
           <CardContent className="p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Page 1</p>
             <p className="text-2xl font-bold mt-1 text-emerald-600">{page1Count}</p>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-amber-500 hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-amber-500 hover-lift">
           <CardContent className="p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Improved</p>
             <p className="text-2xl font-bold mt-1 text-foreground">{gainers.length + rawKws.filter(r => (r.change ?? 0) > 0).length}</p>
           </CardContent>
-        </Card>
-      </div>
+        </Card></StaggerItem>
+      </StaggerContainer>
 
       {/* Gainers & Losers */}
       <div className="grid gap-6 lg:grid-cols-2">
@@ -186,6 +187,6 @@ export default function Rankings() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageTransition>
   );
 }

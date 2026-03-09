@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -83,7 +84,7 @@ export default function GoogleAds() {
   ];
 
   return (
-    <div className="space-y-8">
+    <PageTransition className="space-y-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Google Ads</h1>
@@ -101,16 +102,18 @@ export default function GoogleAds() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+      <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         {kpiCards.map((kpi) => (
-          <Card key={kpi.label} className={`hover-lift border-l-4 ${kpi.color}`}>
+          <StaggerItem key={kpi.label}>
+          <Card className={`hover-lift border-l-4 ${kpi.color}`}>
             <CardContent className="p-4">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{kpi.label}</p>
               <p className="text-xl font-bold text-foreground mt-1">{kpi.value}</p>
             </CardContent>
           </Card>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
       <Tabs defaultValue="recommendations" className="space-y-6">
         <TabsList className="bg-muted/50 border flex-wrap h-auto gap-1">
@@ -295,6 +298,6 @@ export default function GoogleAds() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageTransition>
   );
 }
