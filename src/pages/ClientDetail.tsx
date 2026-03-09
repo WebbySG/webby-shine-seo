@@ -317,6 +317,7 @@ export default function ClientDetail() {
           <TabsTrigger value="articles">Articles ({articles.length})</TabsTrigger>
           <TabsTrigger value="social">Social Posts</TabsTrigger>
           <TabsTrigger value="videos">Videos ({videos.length})</TabsTrigger>
+          <TabsTrigger value="jobs">Jobs ({jobs.filter(j => j.publish_status !== "published" && j.publish_status !== "cancelled").length})</TabsTrigger>
           <TabsTrigger value="issues">Issues ({openIssues.length})</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
