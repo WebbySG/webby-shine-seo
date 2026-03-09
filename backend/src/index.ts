@@ -18,6 +18,7 @@ import publishingRouter from "./routes/publishing.js";
 import aiRouter from "./routes/ai.js";
 import analyticsRouter from "./routes/analytics.js";
 import gbpRouter from "./routes/gbp.js";
+import creativeRouter from "./routes/creative.js";
 
 dotenv.config();
 
@@ -56,6 +57,8 @@ app.use("/api/analytics", analyticsRouter);
 app.use("/api/clients", analyticsRouter);
 app.use("/api/gbp", gbpRouter);
 app.use("/api/clients", gbpRouter);
+app.use("/api/creative", creativeRouter);
+app.use("/api/clients", creativeRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
