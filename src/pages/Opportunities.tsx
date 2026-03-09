@@ -76,9 +76,10 @@ export default function Opportunities() {
                 </div>
               </CardContent>
             </Card>
+            </StaggerItem>
           );
         })}
-      </div>
+      </StaggerContainer>
 
       {/* Near Wins section */}
       {countByType("near_win") > 0 && (
