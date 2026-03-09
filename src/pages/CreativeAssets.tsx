@@ -178,7 +178,7 @@ export default function CreativeAssets() {
   const reviewQueue = allAssets?.filter((a: any) => a.status === "review") || [];
 
   return (
-    <div className="space-y-8">
+    <PageTransition className="space-y-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Creative Assets</h1>
