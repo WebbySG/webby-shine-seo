@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Outlet, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const PAGE_TITLES: Record<string, { label: string; module?: string }> = {
   "/": { label: "Dashboard" },
@@ -50,10 +51,11 @@ export function AppLayout() {
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <span className="text-[10px] font-mono text-muted-foreground/60 uppercase tracking-widest">
                 SEO Operating System
               </span>
+              <ThemeToggle />
             </div>
           </header>
           <main className="flex-1 overflow-auto p-6 lg:p-8">

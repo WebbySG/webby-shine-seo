@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { AppLayout } from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import ClientList from "@/pages/ClientList";
@@ -21,31 +22,33 @@ import NotFound from "@/pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/command-center" element={<CommandCenter />} />
-            <Route path="/clients" element={<ClientList />} />
-            <Route path="/clients/:id" element={<ClientDetail />} />
-            <Route path="/rankings" element={<Rankings />} />
-            <Route path="/audit" element={<Audit />} />
-            <Route path="/opportunities" element={<Opportunities />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/local-seo" element={<LocalSEO />} />
-            <Route path="/creative" element={<CreativeAssets />} />
-            <Route path="/google-ads" element={<GoogleAds />} />
-            <Route path="/crm" element={<CRM />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/command-center" element={<CommandCenter />} />
+              <Route path="/clients" element={<ClientList />} />
+              <Route path="/clients/:id" element={<ClientDetail />} />
+              <Route path="/rankings" element={<Rankings />} />
+              <Route path="/audit" element={<Audit />} />
+              <Route path="/opportunities" element={<Opportunities />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/local-seo" element={<LocalSEO />} />
+              <Route path="/creative" element={<CreativeAssets />} />
+              <Route path="/google-ads" element={<GoogleAds />} />
+              <Route path="/crm" element={<CRM />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
