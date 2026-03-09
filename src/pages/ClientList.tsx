@@ -42,8 +42,8 @@ export default function ClientList() {
               <p className="text-2xl font-bold">{clients.length}</p>
             </div>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-blue-500 hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-blue-500 hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-500/10">
               <Key className="h-5 w-5 text-blue-500" />
