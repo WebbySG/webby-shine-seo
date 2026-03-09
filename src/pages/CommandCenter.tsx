@@ -388,7 +388,7 @@ export default function CommandCenter() {
           {/* Quick Wins Tab */}
           <TabsContent value="quickwins" className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
-              <Zap className="h-5 w-5 text-yellow-500" />
+              <Zap className="h-5 w-5 text-amber-500" />
               <h2 className="text-xl font-semibold">Quick Wins</h2>
               <span className="text-muted-foreground">— Low effort, high impact actions</span>
             </div>
