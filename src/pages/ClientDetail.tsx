@@ -75,6 +75,43 @@ function buildDummyBriefs(): SeoBrief[] {
   ];
 }
 
+function buildDummyArticles(): SeoArticle[] {
+  return [
+    {
+      id: "a1",
+      brief_id: "b1",
+      title: "Renovation Singapore: Complete Guide (2026)",
+      meta_description: "Learn everything about renovation singapore. Our comprehensive 2026 guide covers costs, tips, and expert advice.",
+      content: `# Renovation Singapore: Complete Guide (2026)
+
+Looking for comprehensive information about **renovation singapore**? You've come to the right place. In this 2026 guide, we cover everything you need to know.
+
+## What Is Renovation Singapore?
+
+When it comes to renovation in Singapore, there are several important aspects to consider.
+
+## Why Renovation Singapore Matters
+
+Understanding the importance of renovation helps you make informed decisions.
+
+## Frequently Asked Questions
+
+### How much does renovation singapore cost?
+
+Costs vary depending on scope, materials, and provider.
+
+## Conclusion
+
+We hope this comprehensive guide to **renovation singapore** has been helpful.`,
+      status: "draft",
+      target_keyword: "renovation singapore",
+      slug: "/renovation-singapore",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  ];
+}
+
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
   const [expandedBrief, setExpandedBrief] = useState<string | null>(null);
