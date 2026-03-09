@@ -524,6 +524,6 @@ export default function CRM() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageTransition>
   );
 }

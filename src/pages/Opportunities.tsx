@@ -155,6 +155,6 @@ export default function Opportunities() {
           })}
         </CardContent>
       </Card>
-    </div>
+    </PageTransition>
   );
 }

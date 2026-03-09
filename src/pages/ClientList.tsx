@@ -127,6 +127,6 @@ export default function ClientList() {
           })}
         </div>
       )}
-    </div>
+    </PageTransition>
   );
 }
