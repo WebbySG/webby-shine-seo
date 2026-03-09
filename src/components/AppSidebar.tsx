@@ -38,6 +38,7 @@ const navItems = [
   { title: "Local SEO", url: "/local-seo", icon: MapPin },
   { title: "Creative", url: "/creative", icon: Paintbrush },
   { title: "Google Ads", url: "/google-ads", icon: DollarSign },
+  { title: "CRM", url: "/crm", icon: Handshake },
 ];
 
 export function AppSidebar() {

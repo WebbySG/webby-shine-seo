@@ -39,6 +39,7 @@ const App = () => (
             <Route path="/local-seo" element={<LocalSEO />} />
             <Route path="/creative" element={<CreativeAssets />} />
             <Route path="/google-ads" element={<GoogleAds />} />
+            <Route path="/crm" element={<CRM />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
