@@ -62,8 +62,8 @@ export default function Audit() {
               <p className="text-2xl font-bold mt-0.5">{issues.length}</p>
             </div>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-destructive hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-destructive hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-destructive/10">
               <AlertCircle className="h-5 w-5 text-destructive" />
