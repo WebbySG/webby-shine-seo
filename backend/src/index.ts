@@ -17,6 +17,7 @@ import videosRouter from "./routes/videos.js";
 import publishingRouter from "./routes/publishing.js";
 import aiRouter from "./routes/ai.js";
 import analyticsRouter from "./routes/analytics.js";
+import gbpRouter from "./routes/gbp.js";
 
 dotenv.config();
 
