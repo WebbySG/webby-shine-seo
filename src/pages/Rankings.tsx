@@ -92,8 +92,8 @@ export default function Rankings() {
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Improved</p>
             <p className="text-2xl font-bold mt-1 text-foreground">{gainers.length + rawKws.filter(r => (r.change ?? 0) > 0).length}</p>
           </CardContent>
-        </Card>
-      </div>
+        </Card></StaggerItem>
+      </StaggerContainer>
 
       {/* Gainers & Losers */}
       <div className="grid gap-6 lg:grid-cols-2">
