@@ -462,3 +462,46 @@ export function useUpdateLocalInsightStatus(clientId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["local-seo-insights", clientId] }),
   });
 }
+
+// ---------- Creative Assets ----------
+export function useCreativeAssets(clientId: string, sourceType?: string) {
+  return useQuery({ queryKey: ["creative-assets", clientId, sourceType], queryFn: () => api.getCreativeAssets(clientId, sourceType), enabled: !!clientId });
+}
+export function useGenerateCreative(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Parameters<typeof api.generateCreativeAsset>[0]) => api.generateCreativeAsset(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }),
+  });
+}
+export function useApproveCreativeAsset(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.approveCreativeAsset(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }),
+  });
+}
+export function useRegenerateCreativeAsset(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ assetId, prompt }: { assetId: string; prompt?: string }) => api.regenerateCreativeAsset(assetId, prompt),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }),
+  });
+}
+export function useDeleteCreativeAsset(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.deleteCreativeAsset(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }),
+  });
+}
+export function useBrandProfile(clientId: string) {
+  return useQuery({ queryKey: ["brand-profile", clientId], queryFn: () => api.getBrandProfile(clientId), enabled: !!clientId });
+}
+export function useSaveBrandProfile(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Parameters<typeof api.saveBrandProfile>[0]) => api.saveBrandProfile(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["brand-profile", clientId] }),
+  });
+}

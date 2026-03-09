@@ -57,6 +57,8 @@ app.use("/api/analytics", analyticsRouter);
 app.use("/api/clients", analyticsRouter);
 app.use("/api/gbp", gbpRouter);
 app.use("/api/clients", gbpRouter);
+app.use("/api/creative", creativeRouter);
+app.use("/api/clients", creativeRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });

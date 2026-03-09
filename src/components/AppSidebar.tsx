@@ -32,6 +32,7 @@ const navItems = [
   { title: "Opportunities", url: "/opportunities", icon: Lightbulb },
   { title: "Analytics", url: "/analytics", icon: TrendingUp },
   { title: "Local SEO", url: "/local-seo", icon: MapPin },
+  { title: "Creative", url: "/creative", icon: Paintbrush },
 ];
 
 export function AppSidebar() {

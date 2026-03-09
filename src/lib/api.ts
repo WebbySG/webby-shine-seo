@@ -588,3 +588,44 @@ export const approveQnaAnswer = (qnaId: string) =>
 
 export const updateLocalInsightStatus = (insightId: string, status: string) =>
   request<LocalSeoInsight>(`/gbp/insights/${insightId}`, { method: "PATCH", body: JSON.stringify({ status }) });
+
+// ---------- Creative Assets ----------
+export interface CreativeAsset {
+  id: string; client_id: string; asset_type: string; source_type: string; source_id: string;
+  platform: string | null; title: string | null; prompt: string | null; aspect_ratio: string;
+  style_preset: string; provider: string | null; file_url: string | null; thumbnail_url: string | null;
+  status: string; metadata_json: any; created_at: string; updated_at: string;
+  variants?: any[];
+}
+
+export interface BrandProfile {
+  id: string; client_id: string; brand_name: string | null; primary_color: string | null;
+  secondary_color: string | null; font_style: string | null; tone: string | null;
+  logo_url: string | null; image_style_notes: string | null;
+}
+
+export const getCreativeAssets = (clientId: string, sourceType?: string) =>
+  request<CreativeAsset[]>(`/clients/${clientId}/creative-assets${sourceType ? `?source_type=${sourceType}` : ""}`);
+
+export const getCreativeAsset = (id: string) =>
+  request<CreativeAsset>(`/creative/${id}`);
+
+export const generateCreativeAsset = (data: {
+  client_id: string; source_type: string; source_id: string; asset_type: string;
+  platform?: string; style_preset?: string; aspect_ratio?: string; variant_count?: number; custom_prompt?: string;
+}) => request<CreativeAsset>(`/creative/generate`, { method: "POST", body: JSON.stringify(data) });
+
+export const approveCreativeAsset = (id: string) =>
+  request<CreativeAsset>(`/creative/${id}/approve`, { method: "POST" });
+
+export const regenerateCreativeAsset = (id: string, prompt?: string) =>
+  request<CreativeAsset>(`/creative/${id}/regenerate`, { method: "POST", body: JSON.stringify({ prompt }) });
+
+export const deleteCreativeAsset = (id: string) =>
+  request<{ deleted: boolean }>(`/creative/${id}/delete`, { method: "POST" });
+
+export const getBrandProfile = (clientId: string) =>
+  request<BrandProfile | null>(`/creative/brand/${clientId}`);
+
+export const saveBrandProfile = (data: { client_id: string; brand_name?: string; primary_color?: string; secondary_color?: string; font_style?: string; tone?: string; logo_url?: string; image_style_notes?: string }) =>
+  request<BrandProfile>(`/creative/brand`, { method: "POST", body: JSON.stringify(data) });
