@@ -9,6 +9,7 @@ import auditRouter from "./routes/audit.js";
 import opportunitiesRouter from "./routes/opportunities.js";
 import internalLinksRouter from "./routes/internal-links.js";
 import contentPlanRouter from "./routes/content-plan.js";
+import briefsRouter from "./routes/briefs.js";
 
 dotenv.config();
 
