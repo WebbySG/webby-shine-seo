@@ -29,7 +29,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-8">
+    <PageTransition className="space-y-8">
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
