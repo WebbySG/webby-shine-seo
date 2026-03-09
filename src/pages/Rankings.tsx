@@ -74,8 +74,8 @@ export default function Rankings() {
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Total Keywords</p>
             <p className="text-2xl font-bold mt-1 text-foreground">{rawKws.length}</p>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-seo-primary hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-seo-primary hover-lift">
           <CardContent className="p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Avg Position</p>
             <p className="text-2xl font-bold mt-1 text-foreground">{avgPos}</p>
