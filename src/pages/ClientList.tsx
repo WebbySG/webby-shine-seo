@@ -64,8 +64,8 @@ export default function ClientList() {
               <p className="text-2xl font-bold">{avgHealth}%</p>
             </div>
           </CardContent>
-        </Card>
-      </div>
+        </Card></StaggerItem>
+      </StaggerContainer>
 
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
