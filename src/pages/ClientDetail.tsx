@@ -47,6 +47,32 @@ function buildDummyContentPlan(): ContentPlanCluster[] {
   ];
 }
 
+function buildDummyBriefs(): SeoBrief[] {
+  return [
+    {
+      id: "b1", keyword: "renovation singapore", title: "Renovation Singapore: Complete Guide (2026)",
+      meta_description: "Learn everything about renovation singapore. Our comprehensive 2026 guide covers costs, tips, and expert advice.",
+      headings: [
+        { level: "H1", text: "Renovation Singapore: Complete Guide (2026)" },
+        { level: "H2", text: "What Is Renovation Singapore?" },
+        { level: "H2", text: "Why Renovation Singapore Matters" },
+        { level: "H3", text: "Key Benefits" },
+        { level: "H2", text: "How to Choose the Best Renovation Singapore" },
+        { level: "H2", text: "Frequently Asked Questions" },
+      ],
+      faq: [
+        { question: "How much does renovation singapore cost?", answer: "Costs vary depending on scope, materials, and provider." },
+        { question: "How long does renovation singapore take?", answer: "Typical timelines range from a few weeks to several months." },
+      ],
+      entities: ["renovation", "singapore", "cost", "guide", "tips"],
+      internal_links: [
+        { from: "https://renovo.sg/services", to: "https://renovo.sg/kitchen", anchor: "kitchen renovation singapore" },
+      ],
+      status: "draft", created_at: new Date().toISOString(),
+    },
+  ];
+}
+
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
   const [expandedBrief, setExpandedBrief] = useState<string | null>(null);
