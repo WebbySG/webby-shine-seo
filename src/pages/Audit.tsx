@@ -95,8 +95,8 @@ export default function Audit() {
               <p className="text-2xl font-bold mt-0.5">{statusGroups.done.length}</p>
             </div>
           </CardContent>
-        </Card>
-      </div>
+        </Card></StaggerItem>
+      </StaggerContainer>
 
       <Tabs defaultValue="open">
         <TabsList className="bg-muted/50 border">
