@@ -68,8 +68,8 @@ export default function Rankings() {
       </div>
 
       {/* KPI Row */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Card className="border-l-4 border-l-seo-primary hover-lift">
+      <StaggerContainer className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <StaggerItem><Card className="border-l-4 border-l-seo-primary hover-lift">
           <CardContent className="p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Total Keywords</p>
             <p className="text-2xl font-bold mt-1 text-foreground">{rawKws.length}</p>
