@@ -137,13 +137,54 @@
 
     /* Module colors adjusted for dark mode */
     --seo-primary: 213 94% 68%;
+    --seo-secondary: 213 80% 50%;
+    --seo-background: 213 50% 15%;
+    --seo-border: 213 50% 25%;
+    
     --content-primary: 258 77% 76%;
+    --content-secondary: 258 60% 55%;
+    --content-background: 258 40% 15%;
+    --content-border: 258 40% 25%;
+    
     --social-primary: 330 86% 70%;
+    --social-secondary: 27 80% 55%;
+    --social-background: 330 40% 15%;
+    --social-border: 330 40% 25%;
+    
     --video-primary: 0 72% 71%;
+    --video-secondary: 0 60% 55%;
+    --video-background: 0 40% 15%;
+    --video-border: 0 40% 25%;
+    
     --gbp-primary: 142 69% 58%;
+    --gbp-secondary: 142 55% 45%;
+    --gbp-background: 142 40% 12%;
+    --gbp-border: 142 35% 22%;
+    
     --ads-primary: 45 93% 56%;
+    --ads-secondary: 45 75% 45%;
+    --ads-background: 45 40% 12%;
+    --ads-border: 45 35% 22%;
+    
     --crm-primary: 172 66% 50%;
+    --crm-secondary: 172 55% 40%;
+    --crm-background: 172 40% 12%;
+    --crm-border: 172 35% 22%;
+    
     --analytics-primary: 235 91% 82%;
+    --analytics-secondary: 235 70% 60%;
+    --analytics-background: 235 40% 15%;
+    --analytics-border: 235 35% 25%;
+
+    /* Status colors for dark mode */
+    --status-success: 142 69% 58%;
+    --status-success-bg: 142 40% 12%;
+    --status-warning: 45 93% 56%;
+    --status-warning-bg: 45 40% 12%;
+    --status-error: 0 72% 71%;
+    --status-error-bg: 0 40% 15%;
+    --status-info: 213 94% 68%;
+    --status-info-bg: 213 50% 15%;
 
     --sidebar-background: 217 33% 17%;
     --sidebar-foreground: 210 40% 98%;
