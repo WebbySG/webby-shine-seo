@@ -53,8 +53,8 @@ export default function ClientList() {
               <p className="text-2xl font-bold">{totalKeywords}</p>
             </div>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-green-500 hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-green-500 hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-green-500/10">
               <Activity className="h-5 w-5 text-green-500" />
