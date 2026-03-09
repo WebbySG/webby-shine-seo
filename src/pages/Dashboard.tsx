@@ -65,8 +65,9 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
       {/* Gainers & Losers */}
       <div className="grid gap-6 lg:grid-cols-2">
