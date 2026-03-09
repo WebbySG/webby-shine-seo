@@ -111,8 +111,9 @@ export default function GoogleAds() {
               <p className="text-xl font-bold text-foreground mt-1">{kpi.value}</p>
             </CardContent>
           </Card>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
       <Tabs defaultValue="recommendations" className="space-y-6">
         <TabsList className="bg-muted/50 border flex-wrap h-auto gap-1">
