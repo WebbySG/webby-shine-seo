@@ -119,8 +119,9 @@ export default function Analytics() {
                   <p className="text-2xl font-bold text-foreground">{m.value}</p>
                 </CardContent>
               </Card>
+              </StaggerItem>
             ))}
-          </div>
+           </StaggerContainer>
 
           <Tabs defaultValue="insights" className="space-y-6">
             <TabsList className="bg-muted/50 border">
