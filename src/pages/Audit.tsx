@@ -36,7 +36,7 @@ export default function Audit() {
   const infoCount = issues.filter((i) => i.severity === "info" && i.status !== "done").length;
 
   return (
-    <div className="space-y-6">
+    <PageTransition className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Technical Audit</h1>
