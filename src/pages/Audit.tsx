@@ -51,8 +51,8 @@ export default function Audit() {
       </div>
 
       {/* KPI Cards with accent borders */}
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Card className="border-l-4 border-l-primary hover-lift">
+      <StaggerContainer className="grid gap-4 sm:grid-cols-4">
+        <StaggerItem><Card className="border-l-4 border-l-primary hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
               <Shield className="h-5 w-5 text-primary" />
