@@ -206,6 +206,40 @@ export default function ClientDetail() {
     });
   };
 
+  const handlePublish = (articleId: string) => {
+    if (!cmsConnection) {
+      toast.error("Please configure WordPress connection first in Settings tab");
+      return;
+    }
+    publishArticle.mutate({ articleId }, {
+      onSuccess: (data) => {
+        toast.success(`Published to WordPress! View at ${data.wordpress.url}`);
+      },
+      onError: (err: any) => toast.error(err.message || "Failed to publish"),
+    });
+  };
+
+  const handleSaveCms = () => {
+    if (!cmsForm.site_url || !cmsForm.username || !cmsForm.application_password) {
+      toast.error("All fields are required");
+      return;
+    }
+    saveCmsConnection.mutate(cmsForm, {
+      onSuccess: () => {
+        toast.success("WordPress connection saved!");
+        setCmsForm({ site_url: "", username: "", application_password: "" });
+      },
+      onError: () => toast.error("Failed to save connection"),
+    });
+  };
+
+  const handleTestCms = () => {
+    testCmsConnection.mutate(undefined, {
+      onSuccess: () => toast.success("Connection successful!"),
+      onError: (err: any) => toast.error(err.message || "Connection failed"),
+    });
+  };
+
   if (!client) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
