@@ -728,10 +728,30 @@ export default function ClientDetail() {
                             </Button>
                           )}
                           {article.status === "approved" && (
-                            <Button size="sm" onClick={() => handlePublish(article.id)} disabled={publishArticle.isPending}>
-                              <Upload className="h-3.5 w-3.5 mr-1" />
-                              {publishArticle.isPending ? "Publishing…" : "Publish to WordPress"}
-                            </Button>
+                            <>
+                              <Button size="sm" onClick={() => handlePublish(article.id)} disabled={publishArticle.isPending}>
+                                <Upload className="h-3.5 w-3.5 mr-1" />
+                                {publishArticle.isPending ? "Publishing…" : "Publish Now"}
+                              </Button>
+                              <Button size="sm" variant="secondary" onClick={() => {
+                                if (!scheduleDateTime) {
+                                  toast.error("Set a schedule date/time first");
+                                  return;
+                                }
+                                scheduleJob.mutate({
+                                  asset_type: "article",
+                                  asset_id: article.id,
+                                  platform: "wordpress",
+                                  job_type: "publish",
+                                  scheduled_time: new Date(scheduleDateTime).toISOString(),
+                                }, {
+                                  onSuccess: () => toast.success("Article scheduled for publishing!"),
+                                  onError: () => toast.error("Failed to schedule"),
+                                });
+                              }} disabled={scheduleJob.isPending}>
+                                <Clock className="h-3.5 w-3.5 mr-1" />Schedule
+                              </Button>
+                            </>
                           )}
                         </div>
                       </>
