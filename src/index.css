@@ -6,93 +6,153 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 220 25% 10%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
-
-    --primary: 230 75% 57%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 15% 92%;
-    --secondary-foreground: 220 25% 10%;
-
-    --muted: 220 15% 94%;
-    --muted-foreground: 220 10% 46%;
-
-    --accent: 220 15% 92%;
-    --accent-foreground: 220 25% 10%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
-    --ring: 230 75% 57%;
-
+    /* ===== MODERN COLOR SYSTEM ===== */
+    /* Base colors */
+    --background: 248 250 252;
+    --foreground: 15 23 42;
+    --card: 255 255 255;
+    --card-foreground: 15 23 42;
+    --popover: 255 255 255;
+    --popover-foreground: 15 23 42;
+    --primary: 99 102 241;
+    --primary-foreground: 248 250 252;
+    --secondary: 241 245 249;
+    --secondary-foreground: 15 23 42;
+    --muted: 241 245 249;
+    --muted-foreground: 100 116 139;
+    --accent: 241 245 249;
+    --accent-foreground: 15 23 42;
+    --destructive: 239 68 68;
+    --destructive-foreground: 248 250 252;
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 99 102 241;
     --radius: 0.5rem;
 
-    --success: 152 60% 40%;
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+    /* ===== MODULE-SPECIFIC COLORS ===== */
+    /* SEO - Blue/Indigo */
+    --seo-primary: 59 130 246;
+    --seo-secondary: 147 197 253;
+    --seo-background: 239 246 255;
+    --seo-border: 191 219 254;
+    
+    /* Content - Violet */
+    --content-primary: 139 92 246;
+    --content-secondary: 196 181 253;
+    --content-background: 245 243 255;
+    --content-border: 221 214 254;
+    
+    /* Social - Pink/Orange Gradient */
+    --social-primary: 236 72 153;
+    --social-secondary: 251 146 60;
+    --social-background: 255 241 242;
+    --social-border: 252 165 165;
+    
+    /* Video - Red */
+    --video-primary: 239 68 68;
+    --video-secondary: 252 165 165;
+    --video-background: 254 242 242;
+    --video-border: 254 202 202;
+    
+    /* GBP/Local - Green */
+    --gbp-primary: 34 197 94;
+    --gbp-secondary: 134 239 172;
+    --gbp-background: 240 253 244;
+    --gbp-border: 187 247 208;
+    
+    /* Ads - Amber/Yellow */
+    --ads-primary: 245 158 11;
+    --ads-secondary: 252 211 77;
+    --ads-background: 255 251 235;
+    --ads-border: 254 230 138;
+    
+    /* CRM - Teal/Cyan */
+    --crm-primary: 20 184 166;
+    --crm-secondary: 153 246 228;
+    --crm-background: 240 253 250;
+    --crm-border: 178 245 234;
+    
+    /* Analytics - Purple/Indigo Mix */
+    --analytics-primary: 129 140 248;
+    --analytics-secondary: 199 210 254;
+    --analytics-background: 238 242 255;
+    --analytics-border: 199 210 254;
 
-    --sidebar-background: 225 25% 12%;
-    --sidebar-foreground: 220 15% 85%;
-    --sidebar-primary: 230 75% 62%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 225 20% 18%;
-    --sidebar-accent-foreground: 220 15% 90%;
-    --sidebar-border: 225 20% 20%;
-    --sidebar-ring: 230 75% 57%;
+    /* ===== ENHANCED DESIGN TOKENS ===== */
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+    --gradient-seo: linear-gradient(135deg, hsl(var(--seo-primary)), hsl(var(--seo-secondary)));
+    --gradient-content: linear-gradient(135deg, hsl(var(--content-primary)), hsl(var(--content-secondary)));
+    --gradient-social: linear-gradient(135deg, hsl(var(--social-primary)), hsl(var(--social-secondary)));
+    --gradient-crm: linear-gradient(135deg, hsl(var(--crm-primary)), hsl(var(--crm-secondary)));
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.05), 0 1px 2px 0 hsl(var(--primary) / 0.15);
+    
+    /* Status Colors */
+    --status-success: 34 197 94;
+    --status-success-bg: 240 253 244;
+    --status-warning: 245 158 11;
+    --status-warning-bg: 255 251 235;
+    --status-error: 239 68 68;
+    --status-error-bg: 254 242 242;
+    --status-info: 59 130 246;
+    --status-info-bg: 239 246 255;
+
+    --sidebar-background: 255 255 255;
+    --sidebar-foreground: 15 23 42;
+    --sidebar-primary: 99 102 241;
+    --sidebar-primary-foreground: 248 250 252;
+    --sidebar-accent: 241 245 249;
+    --sidebar-accent-foreground: 15 23 42;
+    --sidebar-border: 226 232 240;
+    --sidebar-ring: 99 102 241;
   }
 
   .dark {
-    --background: 225 25% 8%;
-    --foreground: 220 15% 92%;
+    /* Dark mode variables */
+    --background: 15 23 42;
+    --foreground: 248 250 252;
+    --card: 30 41 59;
+    --card-foreground: 248 250 252;
+    --popover: 30 41 59;
+    --popover-foreground: 248 250 252;
+    --primary: 129 140 248;
+    --primary-foreground: 15 23 42;
+    --secondary: 30 41 59;
+    --secondary-foreground: 248 250 252;
+    --muted: 30 41 59;
+    --muted-foreground: 148 163 184;
+    --accent: 30 41 59;
+    --accent-foreground: 248 250 252;
+    --destructive: 248 113 113;
+    --destructive-foreground: 15 23 42;
+    --border: 51 65 85;
+    --input: 51 65 85;
+    --ring: 129 140 248;
 
-    --card: 225 22% 11%;
-    --card-foreground: 220 15% 92%;
+    /* Module colors adjusted for dark mode */
+    --seo-primary: 96 165 250;
+    --content-primary: 167 139 250;
+    --social-primary: 244 114 182;
+    --video-primary: 248 113 113;
+    --gbp-primary: 74 222 128;
+    --ads-primary: 251 191 36;
+    --crm-primary: 45 212 191;
+    --analytics-primary: 165 180 252;
 
-    --popover: 225 22% 11%;
-    --popover-foreground: 220 15% 92%;
-
-    --primary: 230 75% 62%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 225 18% 16%;
-    --secondary-foreground: 220 15% 92%;
-
-    --muted: 225 18% 16%;
-    --muted-foreground: 220 10% 55%;
-
-    --accent: 225 18% 16%;
-    --accent-foreground: 220 15% 92%;
-
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 225 18% 18%;
-    --input: 225 18% 18%;
-    --ring: 230 75% 62%;
-
-    --success: 152 55% 45%;
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 55%;
-    --warning-foreground: 0 0% 100%;
-
-    --sidebar-background: 225 28% 7%;
-    --sidebar-foreground: 220 15% 80%;
-    --sidebar-primary: 230 75% 62%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 225 22% 13%;
-    --sidebar-accent-foreground: 220 15% 90%;
-    --sidebar-border: 225 22% 12%;
-    --sidebar-ring: 230 75% 62%;
+    --sidebar-background: 30 41 59;
+    --sidebar-foreground: 248 250 252;
+    --sidebar-primary: 129 140 248;
+    --sidebar-primary-foreground: 15 23 42;
+    --sidebar-accent: 51 65 85;
+    --sidebar-accent-foreground: 248 250 252;
+    --sidebar-border: 51 65 85;
+    --sidebar-ring: 129 140 248;
   }
 }
 
@@ -100,13 +160,152 @@
   * {
     @apply border-border;
   }
-
+  
   body {
-    @apply bg-background text-foreground font-sans;
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-feature-settings: "cv03", "cv04", "cv11";
   }
 
   code, .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
+
+  /* ===== IMPROVED TYPOGRAPHY ===== */
+  h1 {
+    @apply text-3xl font-bold tracking-tight;
+    letter-spacing: -0.025em;
+  }
+  
+  h2 {
+    @apply text-2xl font-semibold tracking-tight;
+    letter-spacing: -0.015em;
+  }
+  
+  h3 {
+    @apply text-xl font-semibold tracking-tight;
+    letter-spacing: -0.01em;
+  }
+  
+  h4 {
+    @apply text-lg font-medium tracking-tight;
+  }
+
+  /* ===== ENHANCED COMPONENT STYLES ===== */
+  .card-modern {
+    @apply bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl shadow-md;
+  }
+  
+  .card-premium {
+    @apply bg-gradient-to-br from-card to-card/90 border border-border/50 rounded-xl shadow-lg;
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+  }
+  
+  .badge-modern {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border;
+  }
+  
+  .button-premium {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200;
+    @apply bg-gradient-to-r from-primary to-primary/90 text-primary-foreground;
+    @apply hover:shadow-lg hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  /* ===== MODULE-SPECIFIC UTILITY CLASSES ===== */
+  .seo-card {
+    @apply bg-gradient-to-br from-blue-50 to-indigo-50/50 border-seo-border/30 text-blue-900;
+  }
+  
+  .content-card {
+    @apply bg-gradient-to-br from-violet-50 to-purple-50/50 border-content-border/30 text-violet-900;
+  }
+  
+  .social-card {
+    @apply bg-gradient-to-br from-pink-50 to-orange-50/50 border-social-border/30 text-pink-900;
+  }
+  
+  .video-card {
+    @apply bg-gradient-to-br from-red-50 to-rose-50/50 border-video-border/30 text-red-900;
+  }
+  
+  .gbp-card {
+    @apply bg-gradient-to-br from-green-50 to-emerald-50/50 border-gbp-border/30 text-green-900;
+  }
+  
+  .ads-card {
+    @apply bg-gradient-to-br from-amber-50 to-yellow-50/50 border-ads-border/30 text-amber-900;
+  }
+  
+  .crm-card {
+    @apply bg-gradient-to-br from-teal-50 to-cyan-50/50 border-crm-border/30 text-teal-900;
+  }
+  
+  .analytics-card {
+    @apply bg-gradient-to-br from-indigo-50 to-purple-50/50 border-analytics-border/30 text-indigo-900;
+  }
+
+  /* ===== MODERN STATUS INDICATORS ===== */
+  .status-new {
+    @apply bg-status-info-bg text-blue-700 border-blue-200;
+  }
+  
+  .status-active {
+    @apply bg-status-success-bg text-green-700 border-green-200;
+  }
+  
+  .status-warning {
+    @apply bg-status-warning-bg text-amber-700 border-amber-200;
+  }
+  
+  .status-error {
+    @apply bg-status-error-bg text-red-700 border-red-200;
+  }
+
+  /* ===== ENHANCED INTERACTIONS ===== */
+  .hover-lift {
+    @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
+  }
+  
+  .hover-glow {
+    @apply transition-all duration-200 hover:shadow-glow;
+  }
+  
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+
+  /* ===== SKELETON LOADING ===== */
+  .skeleton {
+    @apply bg-muted animate-pulse rounded;
+  }
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* ===== CHART THEMING ===== */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: hsl(var(--border));
+  opacity: 0.5;
+}
+
+.recharts-tooltip-wrapper {
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-lg) !important;
 }
