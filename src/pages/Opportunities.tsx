@@ -3,43 +3,74 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { useClients, useKeywords } from "@/hooks/use-api";
-import { clients as dummyClients, getOpportunities } from "@/data/dummy";
-import { Target, TrendingUp, TrendingDown, Lightbulb } from "lucide-react";
+import { useClients, useOpportunities } from "@/hooks/use-api";
+import { clients as dummyClients, getOpportunities as getDummyOpportunities, getClientRankings } from "@/data/dummy";
+import { Target, FileSearch, Layers, Wrench, Lightbulb } from "lucide-react";
+import type { Opportunity } from "@/lib/api";
+
+const TYPE_META: Record<Opportunity["type"], { label: string; icon: typeof Target; colorClass: string }> = {
+  near_win: { label: "Near Win", icon: Target, colorClass: "text-warning" },
+  content_gap: { label: "Content Gap", icon: FileSearch, colorClass: "text-primary" },
+  page_expansion: { label: "Page Expansion", icon: Layers, colorClass: "text-accent-foreground" },
+  technical_fix: { label: "Technical Fix", icon: Wrench, colorClass: "text-destructive" },
+};
+
+function buildDummyOpportunities(clientId: string): Opportunity[] {
+  const kws = getClientRankings(clientId);
+  const opps: Opportunity[] = [];
+
+  for (const r of kws) {
+    if (r.current_position >= 11 && r.current_position <= 20) {
+      opps.push({
+        type: "near_win",
+        keyword: r.keyword,
+        current_position: r.current_position,
+        last_position: r.last_position,
+        change: r.change,
+        target_page: r.ranking_url,
+        recommended_action: `Push from #${r.current_position} to page 1. Optimize on-page content, strengthen internal links, and build topical authority.`,
+        priority: r.current_position <= 15 ? "high" : "medium",
+      });
+    }
+  }
+
+  // Dummy content gap
+  opps.push({
+    type: "content_gap",
+    keyword: "interior design trends 2026",
+    current_position: null,
+    last_position: null,
+    change: null,
+    target_page: null,
+    recommended_action: "Competitor renocraft.sg ranks #4. Create a dedicated page targeting this keyword.",
+    priority: "high",
+  });
+
+  // Dummy technical fix
+  opps.push({
+    type: "technical_fix",
+    keyword: "renovation singapore",
+    current_position: 12,
+    last_position: null,
+    change: null,
+    target_page: "https://renovo.sg/services",
+    recommended_action: "WARNING: Missing Meta Description — No meta description found. Add a compelling meta description under 160 characters.",
+    priority: "medium",
+  });
+
+  opps.sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.priority] ?? 2) - ({ high: 0, medium: 1, low: 2 }[b.priority] ?? 2));
+  return opps;
+}
 
 export default function Opportunities() {
   const { data: apiClients } = useClients();
   const clients = apiClients ?? dummyClients;
   const [clientId, setClientId] = useState(clients[0]?.id ?? "");
-  const { data: apiKeywords } = useKeywords(clientId);
+  const { data: apiOpportunities, isLoading } = useOpportunities(clientId);
 
-  // Compute opportunities from API or dummy
-  const kws = apiKeywords ?? getOpportunities(clientId).nearWins.concat(
-    getOpportunities(clientId).improving,
-    getOpportunities(clientId).dropping
-  );
+  const opportunities: Opportunity[] = apiOpportunities ?? buildDummyOpportunities(clientId);
 
-  const nearWins = kws.filter((r) => (r.current_position ?? 100) >= 11 && (r.current_position ?? 100) <= 20);
-  const improving = [...kws].filter((r) => (r.change ?? 0) > 0).sort((a, b) => (b.change ?? 0) - (a.change ?? 0));
-  const dropping = [...kws].filter((r) => (r.change ?? 0) < 0).sort((a, b) => (a.change ?? 0) - (b.change ?? 0));
-
-  const suggestions = [
-    ...nearWins.map((r) => ({
-      keyword: r.keyword,
-      action: `Push from #${r.current_position} to page 1. Optimize on-page content and build internal links.`,
-      priority: "high" as const,
-    })),
-    ...improving.slice(0, 3).map((r) => ({
-      keyword: r.keyword,
-      action: `Momentum detected (+${r.change}). Double down with fresh content and backlinks.`,
-      priority: "medium" as const,
-    })),
-    ...dropping.slice(0, 2).map((r) => ({
-      keyword: r.keyword,
-      action: `Dropped ${Math.abs(r.change ?? 0)} positions. Review content freshness and competitor activity.`,
-      priority: "high" as const,
-    })),
-  ];
+  const countByType = (type: Opportunity["type"]) => opportunities.filter((o) => o.type === type).length;
 
   return (
     <div className="space-y-6">
@@ -56,44 +87,77 @@ export default function Opportunities() {
         </Select>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card><CardContent className="p-4 flex items-center gap-3"><Target className="h-8 w-8 text-warning" /><div><p className="text-xs text-muted-foreground uppercase tracking-wide">Near Wins</p><p className="text-2xl font-bold">{nearWins.length}</p></div></CardContent></Card>
-        <Card><CardContent className="p-4 flex items-center gap-3"><TrendingUp className="h-8 w-8 text-success" /><div><p className="text-xs text-muted-foreground uppercase tracking-wide">Improving</p><p className="text-2xl font-bold">{improving.length}</p></div></CardContent></Card>
-        <Card><CardContent className="p-4 flex items-center gap-3"><TrendingDown className="h-8 w-8 text-destructive" /><div><p className="text-xs text-muted-foreground uppercase tracking-wide">Dropping</p><p className="text-2xl font-bold">{dropping.length}</p></div></CardContent></Card>
+      {/* Summary cards */}
+      <div className="grid gap-4 sm:grid-cols-4">
+        {(["near_win", "content_gap", "page_expansion", "technical_fix"] as const).map((type) => {
+          const meta = TYPE_META[type];
+          const Icon = meta.icon;
+          return (
+            <Card key={type}>
+              <CardContent className="p-4 flex items-center gap-3">
+                <Icon className={`h-8 w-8 ${meta.colorClass}`} />
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{meta.label}</p>
+                  <p className="text-2xl font-bold">{countByType(type)}</p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
-      <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Target className="h-4 w-4 text-warning" />Near Wins — Positions 11–20</CardTitle></CardHeader>
-        <CardContent>
-          {nearWins.length === 0 && <p className="text-sm text-muted-foreground">No keywords in striking distance.</p>}
-          {nearWins.map((r) => (
-            <div key={r.id} className="flex items-center justify-between py-2 border-b last:border-0">
-              <div>
-                <p className="text-sm font-medium">{r.keyword}</p>
-                <p className="text-xs text-muted-foreground font-mono">{r.ranking_url ?? ""}</p>
+      {/* Near Wins section */}
+      {countByType("near_win") > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Target className="h-4 w-4 text-warning" />Near Wins — Positions 11–20
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {opportunities.filter((o) => o.type === "near_win").map((o, i) => (
+              <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
+                <div>
+                  <p className="text-sm font-medium">{o.keyword}</p>
+                  <p className="text-xs text-muted-foreground font-mono">{o.target_page ?? ""}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-sm">#{o.current_position}</span>
+                  {o.change != null && <RankChangeIndicator change={o.change} />}
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="font-mono text-sm">#{r.current_position}</span>
-                <RankChangeIndicator change={r.change ?? 0} />
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
+      {/* All recommendations */}
       <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Lightbulb className="h-4 w-4 text-primary" />Weekly Action Suggestions</CardTitle></CardHeader>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Lightbulb className="h-4 w-4 text-primary" />All Recommendations
+          </CardTitle>
+        </CardHeader>
         <CardContent className="space-y-3">
-          {suggestions.length === 0 && <p className="text-sm text-muted-foreground">No suggestions this week.</p>}
-          {suggestions.map((s, i) => (
-            <div key={i} className="p-3 rounded-md border bg-muted/20">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm font-semibold">{s.keyword}</span>
-                <Badge variant={s.priority === "high" ? "destructive" : "secondary"} className="text-xs">{s.priority}</Badge>
+          {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+          {!isLoading && opportunities.length === 0 && <p className="text-sm text-muted-foreground">No opportunities found this week.</p>}
+          {opportunities.map((o, i) => {
+            const meta = TYPE_META[o.type];
+            const Icon = meta.icon;
+            return (
+              <div key={i} className="p-3 rounded-md border bg-muted/20">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <Icon className={`h-3.5 w-3.5 ${meta.colorClass}`} />
+                  <Badge variant="outline" className="text-xs">{meta.label}</Badge>
+                  <span className="text-sm font-semibold">{o.keyword}</span>
+                  {o.current_position && <span className="text-xs font-mono text-muted-foreground">#{o.current_position}</span>}
+                  <Badge variant={o.priority === "high" ? "destructive" : o.priority === "medium" ? "secondary" : "outline"} className="text-xs ml-auto">{o.priority}</Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">{o.recommended_action}</p>
+                {o.target_page && <p className="text-xs font-mono text-muted-foreground mt-1">{o.target_page}</p>}
               </div>
-              <p className="text-xs text-muted-foreground">{s.action}</p>
-            </div>
-          ))}
+            );
+          })}
         </CardContent>
       </Card>
     </div>
