@@ -1188,6 +1188,8 @@ export default function ClientDetail() {
             })}
           </div>
         </TabsContent>
+
+        <TabsContent value="jobs">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
