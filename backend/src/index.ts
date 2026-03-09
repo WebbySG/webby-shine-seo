@@ -20,6 +20,10 @@ app.use("/api/clients", clientsRouter);
 app.use("/api/clients", keywordsRouter);
 app.use("/api/clients", competitorsRouter);
 app.use("/api/rankings", rankingsRouter);
+app.use("/api/clients/:id/rankings", (req, res, next) => {
+  req.params.id = req.params.id;
+  next();
+}, rankingsRouter);
 app.use("/api/audit", auditRouter);
 
 app.get("/api/health", (_req, res) => {
