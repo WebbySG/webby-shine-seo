@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief, useArticles, useGenerateArticle, useUpdateArticle, useApproveArticle, usePublishArticle, useCmsConnection, useSaveCmsConnection, useTestCmsConnection, useSocialPosts, useGenerateSocialPosts, useUpdateSocialPost, useApproveSocialPost, useVideos, useGenerateVideo, useUpdateVideo, useApproveVideo, usePublishingJobs, useScheduleJob, useRetryJob, useCancelJob } from "@/hooks/use-api";
 import { clients as dummyClients, getClientRankings, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit, Settings, Upload, Loader2, Share2, MessageSquare, Video, Play, User, Clock, RotateCcw, Ban, Calendar as CalendarIcon, ListTodo, Key, AlertTriangle, Activity, BarChart3 } from "lucide-react";
+import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit, Settings, Upload, Loader2, Share2, MessageSquare, Video, Play, User, Users2, Clock, RotateCcw, Ban, Calendar as CalendarIcon, ListTodo, Key, AlertTriangle, AlertCircle, Info, Activity, BarChart3 } from "lucide-react";
 import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief, SeoArticle, CmsConnection, SocialPost, VideoAsset, PublishingJob } from "@/lib/api";
 import { toast } from "sonner";
 
