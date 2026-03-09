@@ -121,6 +121,7 @@ export default function ClientDetail() {
   const [expandedBrief, setExpandedBrief] = useState<string | null>(null);
   const [editingArticle, setEditingArticle] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{ title: string; meta_description: string; content: string; slug: string }>({ title: "", meta_description: "", content: "", slug: "" });
+  const [cmsForm, setCmsForm] = useState<{ site_url: string; username: string; application_password: string }>({ site_url: "", username: "", application_password: "" });
 
   const { data: apiClient } = useClient(id!);
   const { data: apiKeywords } = useKeywords(id!);
@@ -130,10 +131,16 @@ export default function ClientDetail() {
   const { data: apiContentPlan } = useContentPlan(id!);
   const { data: apiBriefs } = useBriefs(id!);
   const { data: apiArticles } = useArticles(id!);
+  const { data: apiCmsConnection } = useCmsConnection(id!);
   const generateBrief = useGenerateBrief(id!);
   const generateArticle = useGenerateArticle(id!);
   const updateArticle = useUpdateArticle(id!);
   const approveArticle = useApproveArticle(id!);
+  const publishArticle = usePublishArticle(id!);
+  const saveCmsConnection = useSaveCmsConnection(id!);
+  const testCmsConnection = useTestCmsConnection(id!);
+
+  const cmsConnection: CmsConnection | null = apiCmsConnection ?? null;
 
   const dummyClient = dummyClients.find((c) => c.id === id);
   const client = apiClient ?? dummyClient;
