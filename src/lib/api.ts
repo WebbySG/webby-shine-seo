@@ -199,3 +199,41 @@ export const updateBriefStatus = (clientId: string, briefId: string, status: str
     method: "PATCH",
     body: JSON.stringify({ status }),
   });
+
+// ---------- SEO Articles ----------
+export interface SeoArticle {
+  id: string;
+  brief_id: string | null;
+  title: string;
+  meta_description: string;
+  content: string;
+  status: "draft" | "review" | "approved" | "published";
+  target_keyword: string;
+  slug: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export const getArticles = (clientId: string) =>
+  request<SeoArticle[]>(`/clients/${clientId}/articles`);
+
+export const generateArticle = (clientId: string, briefId: string) =>
+  request<SeoArticle>(`/articles/generate`, {
+    method: "POST",
+    body: JSON.stringify({ client_id: clientId, brief_id: briefId }),
+  });
+
+export const updateArticle = (articleId: string, data: { title?: string; meta_description?: string; content?: string; slug?: string }) =>
+  request<SeoArticle>(`/articles/${articleId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+
+export const approveArticle = (articleId: string) =>
+  request<SeoArticle>(`/articles/${articleId}/approve`, { method: "POST" });
+
+export const updateArticleStatus = (articleId: string, status: string) =>
+  request<SeoArticle>(`/articles/${articleId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
