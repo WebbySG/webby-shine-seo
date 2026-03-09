@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief, useArticles, useGenerateArticle, useUpdateArticle, useApproveArticle, usePublishArticle, useCmsConnection, useSaveCmsConnection, useTestCmsConnection, useSocialPosts, useGenerateSocialPosts, useUpdateSocialPost, useApproveSocialPost } from "@/hooks/use-api";
+import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief, useArticles, useGenerateArticle, useUpdateArticle, useApproveArticle, usePublishArticle, useCmsConnection, useSaveCmsConnection, useTestCmsConnection, useSocialPosts, useGenerateSocialPosts, useUpdateSocialPost, useApproveSocialPost, useVideos, useGenerateVideo, useUpdateVideo, useApproveVideo } from "@/hooks/use-api";
 import { clients as dummyClients, getClientRankings, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
 import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit, Settings, Upload, Loader2, Share2, MessageSquare } from "lucide-react";
