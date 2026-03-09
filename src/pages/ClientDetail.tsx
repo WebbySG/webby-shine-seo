@@ -149,6 +149,8 @@ export default function ClientDetail() {
 
   const socialPosts: SocialPost[] = apiSocialPosts ?? [];
 
+  const cmsConnection: CmsConnection | null = apiCmsConnection ?? null;
+
   const dummyClient = dummyClients.find((c) => c.id === id);
   const client = apiClient ?? dummyClient;
 
