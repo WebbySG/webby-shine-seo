@@ -275,3 +275,33 @@ export const deleteCmsConnection = (clientId: string) =>
 
 export const testCmsConnection = (clientId: string) =>
   request<{ success: boolean; message: string }>(`/clients/${clientId}/cms/test`, { method: "POST" });
+
+// ---------- Social Posts ----------
+export interface SocialPost {
+  id: string;
+  client_id: string;
+  article_id: string;
+  platform: "facebook" | "instagram" | "linkedin" | "twitter" | "tiktok";
+  content: string;
+  status: "draft" | "approved" | "scheduled" | "published";
+  scheduled_time: string | null;
+  created_at: string;
+}
+
+export const getSocialPosts = (articleId: string) =>
+  request<SocialPost[]>(`/articles/${articleId}/social-posts`);
+
+export const generateSocialPosts = (clientId: string, articleId: string) =>
+  request<SocialPost[]>(`/social/generate`, {
+    method: "POST",
+    body: JSON.stringify({ client_id: clientId, article_id: articleId }),
+  });
+
+export const updateSocialPost = (postId: string, data: { content?: string; scheduled_time?: string }) =>
+  request<SocialPost>(`/social/${postId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+
+export const approveSocialPost = (postId: string) =>
+  request<SocialPost>(`/social/${postId}/approve`, { method: "POST" });
