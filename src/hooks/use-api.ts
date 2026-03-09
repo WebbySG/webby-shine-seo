@@ -112,3 +112,37 @@ export function useGenerateBrief(clientId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["briefs", clientId] }),
   });
 }
+
+// ---------- SEO Articles ----------
+export function useArticles(clientId: string) {
+  return useQuery({
+    queryKey: ["articles", clientId],
+    queryFn: () => api.getArticles(clientId),
+    enabled: !!clientId,
+  });
+}
+
+export function useGenerateArticle(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (briefId: string) => api.generateArticle(clientId, briefId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
+  });
+}
+
+export function useUpdateArticle(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ articleId, data }: { articleId: string; data: { title?: string; meta_description?: string; content?: string; slug?: string } }) =>
+      api.updateArticle(articleId, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
+  });
+}
+
+export function useApproveArticle(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (articleId: string) => api.approveArticle(articleId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
+  });
+}
