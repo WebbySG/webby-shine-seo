@@ -305,3 +305,53 @@ export const updateSocialPost = (postId: string, data: { content?: string; sched
 
 export const approveSocialPost = (postId: string) =>
   request<SocialPost>(`/social/${postId}/approve`, { method: "POST" });
+
+// ---------- Video Assets ----------
+export interface VideoSceneBreakdown {
+  scene_number: number;
+  duration: string;
+  visual: string;
+  voiceover: string;
+}
+
+export interface VideoAsset {
+  id: string;
+  client_id: string;
+  article_id: string | null;
+  social_post_id: string | null;
+  platform: "tiktok" | "instagram_reels" | "facebook_reels" | "youtube_shorts";
+  video_script: string;
+  scene_breakdown: VideoSceneBreakdown[];
+  caption_text: string;
+  avatar_type: string;
+  voice_type: string;
+  video_url: string | null;
+  thumbnail_url: string | null;
+  status: "draft" | "rendering" | "review" | "approved" | "published";
+  created_at: string;
+}
+
+export const getVideos = (clientId: string) =>
+  request<VideoAsset[]>(`/clients/${clientId}/videos`);
+
+export const generateVideo = (data: {
+  client_id: string;
+  article_id?: string;
+  social_post_id?: string;
+  platform: string;
+  avatar_type?: string;
+  voice_type?: string;
+}) =>
+  request<VideoAsset>(`/videos/generate`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const updateVideo = (videoId: string, data: { video_script?: string; caption_text?: string; avatar_type?: string; voice_type?: string }) =>
+  request<VideoAsset>(`/videos/${videoId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+
+export const approveVideo = (videoId: string) =>
+  request<VideoAsset>(`/videos/${videoId}/approve`, { method: "POST" });

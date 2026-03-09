@@ -13,6 +13,7 @@ import briefsRouter from "./routes/briefs.js";
 import articlesRouter from "./routes/articles.js";
 import cmsRouter from "./routes/cms.js";
 import socialRouter from "./routes/social.js";
+import videosRouter from "./routes/videos.js";
 
 dotenv.config();
 
@@ -42,6 +43,8 @@ app.use("/api/articles", articlesRouter);
 app.use("/api/clients", cmsRouter);
 app.use("/api/articles", socialRouter);
 app.use("/api/social", socialRouter);
+app.use("/api/clients", videosRouter);
+app.use("/api/videos", videosRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
