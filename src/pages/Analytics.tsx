@@ -105,9 +105,10 @@ export default function Analytics() {
       ) : (
         <>
           {/* KPI Cards */}
-          <div className="grid gap-4 sm:grid-cols-5">
+           <StaggerContainer className="grid gap-4 sm:grid-cols-5">
             {kpiCards.map((m) => (
-              <Card key={m.label} className={`hover-lift border-l-4 ${m.color}`}>
+              <StaggerItem key={m.label}>
+              <Card className={`hover-lift border-l-4 ${m.color}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
