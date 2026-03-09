@@ -14,6 +14,7 @@ import Analytics from "@/pages/Analytics";
 import LocalSEO from "@/pages/LocalSEO";
 import CreativeAssets from "@/pages/CreativeAssets";
 import GoogleAds from "@/pages/GoogleAds";
+import CommandCenter from "@/pages/CommandCenter";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/command-center" element={<CommandCenter />} />
             <Route path="/clients" element={<ClientList />} />
             <Route path="/clients/:id" element={<ClientDetail />} />
             <Route path="/rankings" element={<Rankings />} />

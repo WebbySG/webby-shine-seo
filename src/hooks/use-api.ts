@@ -561,3 +561,72 @@ export function useSyncAds() {
     },
   });
 }
+
+// ---------- Command Center ----------
+export function useCommandCenterSummary(clientId: string) {
+  return useQuery({ queryKey: ["command-center", clientId], queryFn: () => api.getCommandCenterSummary(clientId), enabled: !!clientId });
+}
+export function useMarketingPriorities(clientId: string, status?: string) {
+  return useQuery({ queryKey: ["marketing-priorities", clientId, status], queryFn: () => api.getMarketingPriorities(clientId, status), enabled: !!clientId });
+}
+export function useCrossChannelRecommendations(clientId: string, status?: string) {
+  return useQuery({ queryKey: ["cross-channel-recs", clientId, status], queryFn: () => api.getCrossChannelRecommendations(clientId, status), enabled: !!clientId });
+}
+export function useWeeklyActionPlans(clientId: string) {
+  return useQuery({ queryKey: ["weekly-plans", clientId], queryFn: () => api.getWeeklyActionPlans(clientId), enabled: !!clientId });
+}
+export function useMarketingGoals(clientId: string) {
+  return useQuery({ queryKey: ["marketing-goals", clientId], queryFn: () => api.getMarketingGoals(clientId), enabled: !!clientId });
+}
+export function useQuickWins(clientId: string) {
+  return useQuery({ queryKey: ["quick-wins", clientId], queryFn: () => api.getQuickWins(clientId), enabled: !!clientId });
+}
+export function useRecomputePriorities() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (clientId: string) => api.recomputePriorities(clientId),
+    onSuccess: (_d, clientId) => {
+      qc.invalidateQueries({ queryKey: ["marketing-priorities", clientId] });
+      qc.invalidateQueries({ queryKey: ["command-center", clientId] });
+      qc.invalidateQueries({ queryKey: ["quick-wins", clientId] });
+    },
+  });
+}
+export function useGenerateCrossChannelRecs() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (clientId: string) => api.generateCrossChannelRecommendations(clientId),
+    onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["cross-channel-recs", clientId] }),
+  });
+}
+export function useGenerateWeeklyPlan() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (clientId: string) => api.generateWeeklyPlan(clientId),
+    onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["weekly-plans", clientId] }),
+  });
+}
+export function useUpdatePriorityStatus(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ priorityId, status }: { priorityId: string; status: string }) => api.updateMarketingPriority(priorityId, status),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["marketing-priorities", clientId] });
+      qc.invalidateQueries({ queryKey: ["command-center", clientId] });
+    },
+  });
+}
+export function useUpdateRecommendationStatus(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ recId, status }: { recId: string; status: string }) => api.updateCrossChannelRecommendation(recId, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["cross-channel-recs", clientId] }),
+  });
+}
+export function useUpdateWeeklyItemStatus(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ itemId, status }: { itemId: string; status: string }) => api.updateWeeklyItem(itemId, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["weekly-plans", clientId] }),
+  });
+}
