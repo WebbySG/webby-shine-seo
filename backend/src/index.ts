@@ -6,6 +6,7 @@ import keywordsRouter from "./routes/keywords.js";
 import competitorsRouter from "./routes/competitors.js";
 import rankingsRouter from "./routes/rankings.js";
 import auditRouter from "./routes/audit.js";
+import opportunitiesRouter from "./routes/opportunities.js";
 
 dotenv.config();
 
