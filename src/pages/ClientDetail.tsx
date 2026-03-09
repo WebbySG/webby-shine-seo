@@ -151,6 +151,11 @@ export default function ClientDetail() {
   const approveSocialPost = useApproveSocialPost(selectedArticleForSocial || "");
 
   const socialPosts: SocialPost[] = apiSocialPosts ?? [];
+  const { data: apiVideos } = useVideos(id!);
+  const generateVideo = useGenerateVideo(id!);
+  const updateVideoMut = useUpdateVideo(id!);
+  const approveVideo = useApproveVideo(id!);
+  const videos: VideoAsset[] = apiVideos ?? [];
 
   const cmsConnection: CmsConnection | null = apiCmsConnection ?? null;
 
