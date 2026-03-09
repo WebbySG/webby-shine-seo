@@ -56,7 +56,7 @@ export default function LocalSEO() {
   const score = profile?.completeness?.score ?? 0;
 
   return (
-    <div className="space-y-8">
+    <PageTransition className="space-y-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Local SEO</h1>
