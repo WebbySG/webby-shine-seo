@@ -128,6 +128,7 @@ export default function ClientDetail() {
   const [editingVideo, setEditingVideo] = useState<string | null>(null);
   const [videoEditForm, setVideoEditForm] = useState<{ video_script: string; caption_text: string; avatar_type: string; voice_type: string }>({ video_script: "", caption_text: "", avatar_type: "professional", voice_type: "friendly" });
   const [videoGenForm, setVideoGenForm] = useState<{ source: "article" | "social"; sourceId: string; platform: string; avatar_type: string; voice_type: string }>({ source: "article", sourceId: "", platform: "tiktok", avatar_type: "professional", voice_type: "friendly" });
+  const [scheduleDateTime, setScheduleDateTime] = useState("");
 
   const { data: apiClient } = useClient(id!);
   const { data: apiKeywords } = useKeywords(id!);
