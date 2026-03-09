@@ -8,6 +8,7 @@ import {
   TrendingUp,
   MapPin,
   Paintbrush,
+  DollarSign,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -33,6 +34,7 @@ const navItems = [
   { title: "Analytics", url: "/analytics", icon: TrendingUp },
   { title: "Local SEO", url: "/local-seo", icon: MapPin },
   { title: "Creative", url: "/creative", icon: Paintbrush },
+  { title: "Google Ads", url: "/google-ads", icon: DollarSign },
 ];
 
 export function AppSidebar() {

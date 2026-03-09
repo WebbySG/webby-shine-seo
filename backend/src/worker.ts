@@ -870,7 +870,29 @@ async function syncGbpData() {
 }
 
 // ====================================================================
-// 8. COMBINED DAILY JOB
+// 8. ADS SYNC
+// ====================================================================
+async function syncAdsData() {
+  console.log(`[${new Date().toISOString()}] 💰 Ads sync started`);
+  try {
+    const { rows: conns } = await pool.query(`SELECT * FROM google_ads_connections WHERE status = 'connected'`);
+    for (const conn of conns) {
+      try {
+        const { generateAdsInsights } = await import("./services/ads/googleAdsService.js");
+        const count = await generateAdsInsights(conn.client_id);
+        console.log(`  ✓ Ads insights for client ${conn.client_id}: ${count}`);
+      } catch (err: any) {
+        console.error(`  ✗ Ads sync error for client ${conn.client_id}:`, err.message);
+      }
+    }
+    console.log(`[${new Date().toISOString()}] ✅ Ads sync completed`);
+  } catch (error) {
+    console.error("Fatal error in ads sync:", error);
+  }
+}
+
+// ====================================================================
+// 9. COMBINED DAILY JOB
 // ====================================================================
 async function dailyJob() {
   await fetchRankings();
@@ -879,26 +901,24 @@ async function dailyJob() {
   await generateContentPlan();
   await syncAnalyticsData();
   await syncGbpData();
+  await syncAdsData();
 }
 
 // Run daily at 02:00 SGT
-cron.schedule("0 2 * * *", dailyJob, {
-  timezone: "Asia/Singapore",
-});
+cron.schedule("0 2 * * *", dailyJob, { timezone: "Asia/Singapore" });
 
 // Process publishing jobs every minute
 cron.schedule("* * * * *", processPublishingJobs);
 
 // Analytics sync daily at 04:00 SGT
-cron.schedule("0 4 * * *", syncAnalyticsData, {
-  timezone: "Asia/Singapore",
-});
+cron.schedule("0 4 * * *", syncAnalyticsData, { timezone: "Asia/Singapore" });
 
 // GBP sync daily at 05:00 SGT
-cron.schedule("0 5 * * *", syncGbpData, {
-  timezone: "Asia/Singapore",
-});
+cron.schedule("0 5 * * *", syncGbpData, { timezone: "Asia/Singapore" });
 
-console.log("🕐 Cron worker started — daily SEO jobs at 02:00 SGT, analytics at 04:00 SGT, GBP at 05:00 SGT, publishing jobs every minute");
+// Ads sync daily at 06:00 SGT
+cron.schedule("0 6 * * *", syncAdsData, { timezone: "Asia/Singapore" });
 
-export { fetchRankings, generateOpportunities, generateInternalLinks, generateContentPlan, processPublishingJobs, syncAnalyticsData, syncGbpData };
+console.log("🕐 Cron worker started — daily at 02:00 SGT, analytics 04:00, GBP 05:00, Ads 06:00, publishing every minute");
+
+export { fetchRankings, generateOpportunities, generateInternalLinks, generateContentPlan, processPublishingJobs, syncAnalyticsData, syncGbpData, syncAdsData };

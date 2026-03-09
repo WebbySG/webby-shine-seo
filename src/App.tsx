@@ -13,6 +13,7 @@ import Opportunities from "@/pages/Opportunities";
 import Analytics from "@/pages/Analytics";
 import LocalSEO from "@/pages/LocalSEO";
 import CreativeAssets from "@/pages/CreativeAssets";
+import GoogleAds from "@/pages/GoogleAds";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/local-seo" element={<LocalSEO />} />
             <Route path="/creative" element={<CreativeAssets />} />
+            <Route path="/google-ads" element={<GoogleAds />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
