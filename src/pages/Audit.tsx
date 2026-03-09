@@ -73,8 +73,8 @@ export default function Audit() {
               <p className="text-2xl font-bold mt-0.5">{critCount}</p>
             </div>
           </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-amber-500 hover-lift">
+        </Card></StaggerItem>
+        <StaggerItem><Card className="border-l-4 border-l-amber-500 hover-lift">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-amber-500/10">
               <AlertTriangle className="h-5 w-5 text-amber-500" />
