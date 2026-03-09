@@ -78,3 +78,18 @@ export const createCompetitor = (clientId: string, data: { domain: string; label
 // ---------- Audit ----------
 export const getAuditIssues = (clientId: string) =>
   request<AuditIssue[]>(`/audit/issues?client_id=${clientId}`);
+
+// ---------- Opportunities ----------
+export interface Opportunity {
+  type: "near_win" | "content_gap" | "page_expansion" | "technical_fix";
+  keyword: string;
+  current_position: number | null;
+  last_position: number | null;
+  change: number | null;
+  target_page: string | null;
+  recommended_action: string;
+  priority: "high" | "medium" | "low";
+}
+
+export const getOpportunities = (clientId: string) =>
+  request<Opportunity[]>(`/clients/${clientId}/opportunities`);

@@ -26,6 +26,7 @@ app.use("/api/clients/:id/rankings", (req, res, next) => {
   next();
 }, rankingsRouter);
 app.use("/api/audit", auditRouter);
+app.use("/api/clients", opportunitiesRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
