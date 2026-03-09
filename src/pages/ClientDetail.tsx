@@ -78,6 +78,8 @@ function buildDummyBriefs(): SeoBrief[] {
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
   const [expandedBrief, setExpandedBrief] = useState<string | null>(null);
+  const [editingArticle, setEditingArticle] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<{ title: string; meta_description: string; content: string; slug: string }>({ title: "", meta_description: "", content: "", slug: "" });
 
   const { data: apiClient } = useClient(id!);
   const { data: apiKeywords } = useKeywords(id!);
@@ -86,7 +88,11 @@ export default function ClientDetail() {
   const { data: apiInternalLinks } = useInternalLinks(id!);
   const { data: apiContentPlan } = useContentPlan(id!);
   const { data: apiBriefs } = useBriefs(id!);
+  const { data: apiArticles } = useArticles(id!);
   const generateBrief = useGenerateBrief(id!);
+  const generateArticle = useGenerateArticle(id!);
+  const updateArticle = useUpdateArticle(id!);
+  const approveArticle = useApproveArticle(id!);
 
   const dummyClient = dummyClients.find((c) => c.id === id);
   const client = apiClient ?? dummyClient;
@@ -109,11 +115,46 @@ export default function ClientDetail() {
   const contentTotal = apiContentPlan?.total ?? contentClusters.reduce((acc, c) => acc + c.suggestions.length, 0);
 
   const briefs: SeoBrief[] = apiBriefs ?? buildDummyBriefs();
+  const articles: SeoArticle[] = apiArticles ?? buildDummyArticles();
 
   const handleGenerateBrief = (keyword: string) => {
     generateBrief.mutate(keyword, {
       onSuccess: () => toast.success(`Brief generated for "${keyword}"`),
       onError: () => toast.error("Failed to generate brief"),
+    });
+  };
+
+  const handleGenerateArticle = (briefId: string) => {
+    generateArticle.mutate(briefId, {
+      onSuccess: () => toast.success("Article generated!"),
+      onError: () => toast.error("Failed to generate article"),
+    });
+  };
+
+  const startEditing = (article: SeoArticle) => {
+    setEditingArticle(article.id);
+    setEditForm({
+      title: article.title,
+      meta_description: article.meta_description,
+      content: article.content,
+      slug: article.slug || "",
+    });
+  };
+
+  const saveArticle = (articleId: string) => {
+    updateArticle.mutate({ articleId, data: editForm }, {
+      onSuccess: () => {
+        toast.success("Article saved");
+        setEditingArticle(null);
+      },
+      onError: () => toast.error("Failed to save article"),
+    });
+  };
+
+  const handleApprove = (articleId: string) => {
+    approveArticle.mutate(articleId, {
+      onSuccess: () => toast.success("Article approved!"),
+      onError: () => toast.error("Failed to approve article"),
     });
   };
 
