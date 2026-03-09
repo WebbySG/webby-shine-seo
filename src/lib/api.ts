@@ -154,3 +154,48 @@ export const updateContentSuggestionStatus = (clientId: string, suggestionId: st
     method: "PATCH",
     body: JSON.stringify({ status }),
   });
+
+// ---------- SEO Briefs ----------
+export interface SeoBriefHeading {
+  level: string;
+  text: string;
+}
+
+export interface SeoBriefFaq {
+  question: string;
+  answer: string;
+}
+
+export interface SeoBriefLink {
+  from: string;
+  to: string;
+  anchor: string;
+}
+
+export interface SeoBrief {
+  id: string;
+  keyword: string;
+  title: string;
+  meta_description: string;
+  headings: SeoBriefHeading[];
+  faq: SeoBriefFaq[];
+  entities: string[];
+  internal_links: SeoBriefLink[];
+  status: "draft" | "approved" | "published";
+  created_at: string;
+}
+
+export const getBriefs = (clientId: string) =>
+  request<SeoBrief[]>(`/clients/${clientId}/briefs`);
+
+export const generateBrief = (clientId: string, keyword: string) =>
+  request<SeoBrief>(`/briefs/generate`, {
+    method: "POST",
+    body: JSON.stringify({ client_id: clientId, keyword }),
+  });
+
+export const updateBriefStatus = (clientId: string, briefId: string, status: string) =>
+  request<SeoBrief>(`/clients/${clientId}/briefs/${briefId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });

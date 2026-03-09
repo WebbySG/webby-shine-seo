@@ -1,13 +1,15 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan } from "@/hooks/use-api";
+import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief } from "@/hooks/use-api";
 import { clients as dummyClients, getClientRankings, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree } from "lucide-react";
-import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster } from "@/lib/api";
+import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief } from "@/lib/api";
+import { toast } from "sonner";
 
 const PRIORITY_BADGE: Record<string, "destructive" | "secondary" | "outline"> = {
   high: "destructive",
@@ -45,8 +47,35 @@ function buildDummyContentPlan(): ContentPlanCluster[] {
   ];
 }
 
+function buildDummyBriefs(): SeoBrief[] {
+  return [
+    {
+      id: "b1", keyword: "renovation singapore", title: "Renovation Singapore: Complete Guide (2026)",
+      meta_description: "Learn everything about renovation singapore. Our comprehensive 2026 guide covers costs, tips, and expert advice.",
+      headings: [
+        { level: "H1", text: "Renovation Singapore: Complete Guide (2026)" },
+        { level: "H2", text: "What Is Renovation Singapore?" },
+        { level: "H2", text: "Why Renovation Singapore Matters" },
+        { level: "H3", text: "Key Benefits" },
+        { level: "H2", text: "How to Choose the Best Renovation Singapore" },
+        { level: "H2", text: "Frequently Asked Questions" },
+      ],
+      faq: [
+        { question: "How much does renovation singapore cost?", answer: "Costs vary depending on scope, materials, and provider." },
+        { question: "How long does renovation singapore take?", answer: "Typical timelines range from a few weeks to several months." },
+      ],
+      entities: ["renovation", "singapore", "cost", "guide", "tips"],
+      internal_links: [
+        { from: "https://renovo.sg/services", to: "https://renovo.sg/kitchen", anchor: "kitchen renovation singapore" },
+      ],
+      status: "draft", created_at: new Date().toISOString(),
+    },
+  ];
+}
+
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
+  const [expandedBrief, setExpandedBrief] = useState<string | null>(null);
 
   const { data: apiClient } = useClient(id!);
   const { data: apiKeywords } = useKeywords(id!);
@@ -54,6 +83,8 @@ export default function ClientDetail() {
   const { data: apiAuditIssues } = useAuditIssues(id!);
   const { data: apiInternalLinks } = useInternalLinks(id!);
   const { data: apiContentPlan } = useContentPlan(id!);
+  const { data: apiBriefs } = useBriefs(id!);
+  const generateBrief = useGenerateBrief(id!);
 
   const dummyClient = dummyClients.find((c) => c.id === id);
   const client = apiClient ?? dummyClient;
@@ -74,6 +105,15 @@ export default function ClientDetail() {
   const internalLinks: InternalLinkSuggestion[] = apiInternalLinks ?? buildDummyInternalLinks();
   const contentClusters: ContentPlanCluster[] = apiContentPlan?.clusters ?? buildDummyContentPlan();
   const contentTotal = apiContentPlan?.total ?? contentClusters.reduce((acc, c) => acc + c.suggestions.length, 0);
+
+  const briefs: SeoBrief[] = apiBriefs ?? buildDummyBriefs();
+
+  const handleGenerateBrief = (keyword: string) => {
+    generateBrief.mutate(keyword, {
+      onSuccess: () => toast.success(`Brief generated for "${keyword}"`),
+      onError: () => toast.error("Failed to generate brief"),
+    });
+  };
 
   if (!client) {
     return (
@@ -125,6 +165,7 @@ export default function ClientDetail() {
           <TabsTrigger value="competitors">Competitors</TabsTrigger>
           <TabsTrigger value="internal-links">Internal Links ({pendingLinks.length})</TabsTrigger>
           <TabsTrigger value="content-plan">Content Plan ({contentTotal})</TabsTrigger>
+          <TabsTrigger value="briefs">Briefs ({briefs.length})</TabsTrigger>
           <TabsTrigger value="issues">Issues ({openIssues.length})</TabsTrigger>
         </TabsList>
 
@@ -277,6 +318,121 @@ export default function ClientDetail() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="briefs">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground">SEO Content Briefs</h3>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={generateBrief.isPending}
+                onClick={() => {
+                  const keyword = prompt("Enter keyword to generate a brief for:");
+                  if (keyword) handleGenerateBrief(keyword);
+                }}
+              >
+                <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                {generateBrief.isPending ? "Generating…" : "Generate Brief"}
+              </Button>
+            </div>
+
+            {briefs.length === 0 && <p className="text-sm text-muted-foreground">No briefs generated yet. Click "Generate Brief" to create one.</p>}
+
+            {briefs.map((brief) => {
+              const isExpanded = expandedBrief === brief.id;
+              return (
+                <Card key={brief.id}>
+                  <CardContent className="p-0">
+                    <button
+                      className="w-full p-4 flex items-center justify-between text-left hover:bg-muted/30 transition-colors"
+                      onClick={() => setExpandedBrief(isExpanded ? null : brief.id)}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <BookOpen className="h-4 w-4 text-primary shrink-0" />
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm truncate">{brief.title}</p>
+                          <p className="text-xs text-muted-foreground">Keyword: {brief.keyword}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge variant="outline" className="text-xs">{brief.status}</Badge>
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </div>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-4 pb-4 space-y-4 border-t pt-4">
+                        {/* Meta */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Meta Description</p>
+                          <p className="text-sm bg-muted/30 p-2 rounded">{brief.meta_description}</p>
+                        </div>
+
+                        {/* Headings */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Content Structure</p>
+                          <div className="space-y-1">
+                            {brief.headings.map((h, i) => (
+                              <div
+                                key={i}
+                                className="text-sm flex items-center gap-2"
+                                style={{ paddingLeft: h.level === "H1" ? 0 : h.level === "H2" ? 12 : 24 }}
+                              >
+                                <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0">{h.level}</Badge>
+                                <span>{h.text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* FAQ */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">FAQ Questions</p>
+                          <div className="space-y-2">
+                            {brief.faq.map((f, i) => (
+                              <div key={i} className="bg-muted/30 p-2 rounded">
+                                <p className="text-sm font-medium">{f.question}</p>
+                                <p className="text-xs text-muted-foreground mt-1">{f.answer}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Entities */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Target Entities</p>
+                          <div className="flex flex-wrap gap-1">
+                            {brief.entities.map((e, i) => (
+                              <Badge key={i} variant="secondary" className="text-xs">{e}</Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Internal Links */}
+                        {brief.internal_links.length > 0 && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Suggested Internal Links</p>
+                            <div className="space-y-1">
+                              {brief.internal_links.map((l, i) => (
+                                <div key={i} className="text-xs flex items-center gap-2 text-muted-foreground">
+                                  <span className="font-mono truncate max-w-[200px]">{l.from}</span>
+                                  <span>→</span>
+                                  <span className="font-mono truncate max-w-[200px]">{l.to}</span>
+                                  <span className="text-primary">"{l.anchor}"</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </TabsContent>
 
