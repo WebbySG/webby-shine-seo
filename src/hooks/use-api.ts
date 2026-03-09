@@ -248,3 +248,73 @@ export function useApproveVideo(clientId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }),
   });
 }
+
+// ---------- Publishing Jobs ----------
+export function usePublishingJobs(clientId: string) {
+  return useQuery({
+    queryKey: ["publishing-jobs", clientId],
+    queryFn: () => api.getPublishingJobs(clientId),
+    enabled: !!clientId,
+    refetchInterval: 15000, // poll every 15s for job status updates
+  });
+}
+
+export function useScheduleJob(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<Parameters<typeof api.schedulePublishingJob>[0], "client_id">) =>
+      api.schedulePublishingJob({ ...data, client_id: clientId }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }),
+  });
+}
+
+export function useRetryJob(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (jobId: string) => api.retryPublishingJob(jobId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }),
+  });
+}
+
+export function useCancelJob(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (jobId: string) => api.cancelPublishingJob(jobId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }),
+  });
+}
+
+export function useRescheduleJob(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ jobId, scheduledTime }: { jobId: string; scheduledTime: string }) =>
+      api.reschedulePublishingJob(jobId, scheduledTime),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }),
+  });
+}
+
+// ---------- AI Generation (uses AI provider abstraction) ----------
+export function useAiGenerateArticle(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (briefId: string) => api.aiGenerateArticle(clientId, briefId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
+  });
+}
+
+export function useAiGenerateSocial(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (articleId: string) => api.aiGenerateSocial(clientId, articleId),
+    onSuccess: (_data, articleId) => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }),
+  });
+}
+
+export function useAiGenerateVideo(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<Parameters<typeof api.aiGenerateVideo>[0], "client_id">) =>
+      api.aiGenerateVideo({ ...data, client_id: clientId }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }),
+  });
+}

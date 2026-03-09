@@ -7,11 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief, useArticles, useGenerateArticle, useUpdateArticle, useApproveArticle, usePublishArticle, useCmsConnection, useSaveCmsConnection, useTestCmsConnection, useSocialPosts, useGenerateSocialPosts, useUpdateSocialPost, useApproveSocialPost, useVideos, useGenerateVideo, useUpdateVideo, useApproveVideo } from "@/hooks/use-api";
+import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief, useArticles, useGenerateArticle, useUpdateArticle, useApproveArticle, usePublishArticle, useCmsConnection, useSaveCmsConnection, useTestCmsConnection, useSocialPosts, useGenerateSocialPosts, useUpdateSocialPost, useApproveSocialPost, useVideos, useGenerateVideo, useUpdateVideo, useApproveVideo, usePublishingJobs, useScheduleJob, useRetryJob, useCancelJob } from "@/hooks/use-api";
 import { clients as dummyClients, getClientRankings, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit, Settings, Upload, Loader2, Share2, MessageSquare, Video, Play, User } from "lucide-react";
-import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief, SeoArticle, CmsConnection, SocialPost, VideoAsset } from "@/lib/api";
+import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit, Settings, Upload, Loader2, Share2, MessageSquare, Video, Play, User, Clock, RotateCcw, Ban, Calendar as CalendarIcon, ListTodo } from "lucide-react";
+import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief, SeoArticle, CmsConnection, SocialPost, VideoAsset, PublishingJob } from "@/lib/api";
 import { toast } from "sonner";
 
 const PRIORITY_BADGE: Record<string, "destructive" | "secondary" | "outline"> = {
@@ -128,6 +128,7 @@ export default function ClientDetail() {
   const [editingVideo, setEditingVideo] = useState<string | null>(null);
   const [videoEditForm, setVideoEditForm] = useState<{ video_script: string; caption_text: string; avatar_type: string; voice_type: string }>({ video_script: "", caption_text: "", avatar_type: "professional", voice_type: "friendly" });
   const [videoGenForm, setVideoGenForm] = useState<{ source: "article" | "social"; sourceId: string; platform: string; avatar_type: string; voice_type: string }>({ source: "article", sourceId: "", platform: "tiktok", avatar_type: "professional", voice_type: "friendly" });
+  const [scheduleDateTime, setScheduleDateTime] = useState("");
 
   const { data: apiClient } = useClient(id!);
   const { data: apiKeywords } = useKeywords(id!);
@@ -156,6 +157,11 @@ export default function ClientDetail() {
   const updateVideoMut = useUpdateVideo(id!);
   const approveVideo = useApproveVideo(id!);
   const videos: VideoAsset[] = apiVideos ?? [];
+  const { data: apiJobs } = usePublishingJobs(id!);
+  const scheduleJob = useScheduleJob(id!);
+  const retryJob = useRetryJob(id!);
+  const cancelJob = useCancelJob(id!);
+  const jobs: PublishingJob[] = apiJobs ?? [];
 
   const cmsConnection: CmsConnection | null = apiCmsConnection ?? null;
 
@@ -311,6 +317,7 @@ export default function ClientDetail() {
           <TabsTrigger value="articles">Articles ({articles.length})</TabsTrigger>
           <TabsTrigger value="social">Social Posts</TabsTrigger>
           <TabsTrigger value="videos">Videos ({videos.length})</TabsTrigger>
+          <TabsTrigger value="jobs">Jobs ({jobs.filter(j => j.publish_status !== "published" && j.publish_status !== "cancelled").length})</TabsTrigger>
           <TabsTrigger value="issues">Issues ({openIssues.length})</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
@@ -721,10 +728,30 @@ export default function ClientDetail() {
                             </Button>
                           )}
                           {article.status === "approved" && (
-                            <Button size="sm" onClick={() => handlePublish(article.id)} disabled={publishArticle.isPending}>
-                              <Upload className="h-3.5 w-3.5 mr-1" />
-                              {publishArticle.isPending ? "Publishing…" : "Publish to WordPress"}
-                            </Button>
+                            <>
+                              <Button size="sm" onClick={() => handlePublish(article.id)} disabled={publishArticle.isPending}>
+                                <Upload className="h-3.5 w-3.5 mr-1" />
+                                {publishArticle.isPending ? "Publishing…" : "Publish Now"}
+                              </Button>
+                              <Button size="sm" variant="secondary" onClick={() => {
+                                if (!scheduleDateTime) {
+                                  toast.error("Set a schedule date/time first");
+                                  return;
+                                }
+                                scheduleJob.mutate({
+                                  asset_type: "article",
+                                  asset_id: article.id,
+                                  platform: "wordpress",
+                                  job_type: "publish",
+                                  scheduled_time: new Date(scheduleDateTime).toISOString(),
+                                }, {
+                                  onSuccess: () => toast.success("Article scheduled for publishing!"),
+                                  onError: () => toast.error("Failed to schedule"),
+                                });
+                              }} disabled={scheduleJob.isPending}>
+                                <Clock className="h-3.5 w-3.5 mr-1" />Schedule
+                              </Button>
+                            </>
                           )}
                         </div>
                       </>
@@ -851,6 +878,22 @@ export default function ClientDetail() {
                               });
                             }} disabled={approveSocialPost.isPending}>
                               <Check className="h-3.5 w-3.5 mr-1" />Approve
+                            </Button>
+                          )}
+                          {post.status === "approved" && (
+                            <Button size="sm" variant="secondary" onClick={() => {
+                              scheduleJob.mutate({
+                                asset_type: "social_post",
+                                asset_id: post.id,
+                                platform: post.platform,
+                                job_type: "publish",
+                                scheduled_time: scheduleDateTime ? new Date(scheduleDateTime).toISOString() : undefined,
+                              }, {
+                                onSuccess: () => toast.success(scheduleDateTime ? "Social post scheduled!" : "Social post queued for publishing!"),
+                                onError: () => toast.error("Failed to schedule"),
+                              });
+                            }} disabled={scheduleJob.isPending}>
+                              <Clock className="h-3.5 w-3.5 mr-1" />{scheduleDateTime ? "Schedule" : "Queue Publish"}
                             </Button>
                           )}
                         </div>
@@ -1120,9 +1163,128 @@ export default function ClientDetail() {
                               <Check className="h-3.5 w-3.5 mr-1" />Approve
                             </Button>
                           )}
+                          {video.status === "approved" && (
+                            <Button size="sm" variant="secondary" onClick={() => {
+                              scheduleJob.mutate({
+                                asset_type: "video_asset",
+                                asset_id: video.id,
+                                platform: video.platform,
+                                job_type: "render",
+                                scheduled_time: scheduleDateTime ? new Date(scheduleDateTime).toISOString() : undefined,
+                              }, {
+                                onSuccess: () => toast.success("Video render job queued!"),
+                                onError: () => toast.error("Failed to queue render"),
+                              });
+                            }} disabled={scheduleJob.isPending}>
+                              <Play className="h-3.5 w-3.5 mr-1" />Queue Render
+                            </Button>
+                          )}
                         </div>
                       </>
                     )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="jobs">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <ListTodo className="h-4 w-4" />Publishing Queue & Scheduled Jobs
+              </h3>
+              <div className="flex items-center gap-2">
+                <Label className="text-xs text-muted-foreground">Schedule for:</Label>
+                <Input
+                  type="datetime-local"
+                  value={scheduleDateTime}
+                  onChange={(e) => setScheduleDateTime(e.target.value)}
+                  className="w-auto text-xs h-8"
+                />
+              </div>
+            </div>
+
+            {jobs.length === 0 && (
+              <p className="text-sm text-muted-foreground">No publishing jobs yet. Schedule articles, social posts, or video renders from their respective tabs.</p>
+            )}
+
+            {jobs.map((job) => {
+              const statusColors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+                queued: "outline",
+                scheduled: "secondary",
+                processing: "secondary",
+                published: "default",
+                failed: "destructive",
+                cancelled: "outline",
+              };
+              const statusIcons: Record<string, string> = {
+                queued: "⏳",
+                scheduled: "📅",
+                processing: "⚙️",
+                published: "✅",
+                failed: "❌",
+                cancelled: "🚫",
+              };
+              return (
+                <Card key={job.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span>{statusIcons[job.publish_status] || "📋"}</span>
+                          <span className="text-sm font-medium capitalize">{job.asset_type.replace("_", " ")}</span>
+                          <span className="text-xs text-muted-foreground">→</span>
+                          <span className="text-sm capitalize">{job.platform}</span>
+                          <Badge variant="outline" className="text-[10px]">{job.job_type}</Badge>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          {job.scheduled_time && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {new Date(job.scheduled_time).toLocaleString()}
+                            </span>
+                          )}
+                          {job.provider && <span>Provider: {job.provider}</span>}
+                          {job.retry_count > 0 && <span>Retries: {job.retry_count}</span>}
+                          <span className="font-mono">{job.id.slice(0, 8)}</span>
+                        </div>
+                        {job.error_message && (
+                          <p className="text-xs text-destructive mt-1">{job.error_message}</p>
+                        )}
+                        {job.published_url && (
+                          <a href={job.published_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
+                            {job.published_url} <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={statusColors[job.publish_status] || "outline"} className="text-xs">
+                          {job.publish_status}
+                        </Badge>
+                        {job.publish_status === "failed" && (
+                          <Button size="sm" variant="outline" onClick={() => {
+                            retryJob.mutate(job.id, {
+                              onSuccess: () => toast.success("Job retried!"),
+                              onError: () => toast.error("Failed to retry"),
+                            });
+                          }} disabled={retryJob.isPending}>
+                            <RotateCcw className="h-3.5 w-3.5 mr-1" />Retry
+                          </Button>
+                        )}
+                        {(job.publish_status === "queued" || job.publish_status === "scheduled") && (
+                          <Button size="sm" variant="outline" onClick={() => {
+                            cancelJob.mutate(job.id, {
+                              onSuccess: () => toast.success("Job cancelled"),
+                              onError: () => toast.error("Failed to cancel"),
+                            });
+                          }} disabled={cancelJob.isPending}>
+                            <Ban className="h-3.5 w-3.5 mr-1" />Cancel
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               );
