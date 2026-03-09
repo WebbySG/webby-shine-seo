@@ -165,6 +165,7 @@ export default function ClientDetail() {
           <TabsTrigger value="competitors">Competitors</TabsTrigger>
           <TabsTrigger value="internal-links">Internal Links ({pendingLinks.length})</TabsTrigger>
           <TabsTrigger value="content-plan">Content Plan ({contentTotal})</TabsTrigger>
+          <TabsTrigger value="briefs">Briefs ({briefs.length})</TabsTrigger>
           <TabsTrigger value="issues">Issues ({openIssues.length})</TabsTrigger>
         </TabsList>
 
