@@ -53,7 +53,7 @@ export default function Rankings() {
   const page1Count = rawKws.filter(r => (r.current_position ?? 100) <= 10).length;
 
   return (
-    <div className="space-y-8">
+    <PageTransition className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Keyword Rankings</h1>
