@@ -355,3 +355,76 @@ export const updateVideo = (videoId: string, data: { video_script?: string; capt
 
 export const approveVideo = (videoId: string) =>
   request<VideoAsset>(`/videos/${videoId}/approve`, { method: "POST" });
+
+// ---------- Publishing Jobs ----------
+export interface PublishingJob {
+  id: string;
+  client_id: string;
+  asset_type: "article" | "social_post" | "video_asset";
+  asset_id: string;
+  platform: string;
+  scheduled_time: string | null;
+  job_type: "publish" | "render" | "schedule";
+  publish_status: "queued" | "scheduled" | "processing" | "published" | "failed" | "cancelled";
+  provider: string | null;
+  external_post_id: string | null;
+  published_url: string | null;
+  error_message: string | null;
+  retry_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export const getPublishingJobs = (clientId: string) =>
+  request<PublishingJob[]>(`/clients/${clientId}/publishing-jobs`);
+
+export const schedulePublishingJob = (data: {
+  client_id: string;
+  asset_type: string;
+  asset_id: string;
+  platform: string;
+  job_type: string;
+  scheduled_time?: string;
+}) =>
+  request<PublishingJob>(`/publishing/schedule`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const retryPublishingJob = (jobId: string) =>
+  request<PublishingJob>(`/publishing/${jobId}/retry`, { method: "POST" });
+
+export const cancelPublishingJob = (jobId: string) =>
+  request<PublishingJob>(`/publishing/${jobId}/cancel`, { method: "POST" });
+
+export const reschedulePublishingJob = (jobId: string, scheduledTime: string) =>
+  request<PublishingJob>(`/publishing/${jobId}/reschedule`, {
+    method: "PUT",
+    body: JSON.stringify({ scheduled_time: scheduledTime }),
+  });
+
+// ---------- AI Generation Endpoints ----------
+export const aiGenerateArticle = (clientId: string, briefId: string) =>
+  request<SeoArticle>(`/ai/articles/generate`, {
+    method: "POST",
+    body: JSON.stringify({ client_id: clientId, brief_id: briefId }),
+  });
+
+export const aiGenerateSocial = (clientId: string, articleId: string) =>
+  request<SocialPost[]>(`/ai/social/generate`, {
+    method: "POST",
+    body: JSON.stringify({ client_id: clientId, article_id: articleId }),
+  });
+
+export const aiGenerateVideo = (data: {
+  client_id: string;
+  article_id?: string;
+  social_post_id?: string;
+  platform: string;
+  avatar_type?: string;
+  voice_type?: string;
+}) =>
+  request<VideoAsset>(`/ai/videos/generate`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
