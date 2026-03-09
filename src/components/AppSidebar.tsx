@@ -9,6 +9,7 @@ import {
   MapPin,
   Paintbrush,
   DollarSign,
+  Command,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -27,6 +28,7 @@ import {
 
 const navItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Command Center", url: "/command-center", icon: Command },
   { title: "Clients", url: "/clients", icon: Users },
   { title: "Rankings", url: "/rankings", icon: BarChart3 },
   { title: "Audit", url: "/audit", icon: Shield },

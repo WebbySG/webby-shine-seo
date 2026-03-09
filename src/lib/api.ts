@@ -664,3 +664,110 @@ export const generateAdCopy = (data: { clientId: string; targetKeyword: string; 
 export const approveAdCopy = (id: string) => request<AdsCopyDraft>(`/ads/copy/${id}/approve`, { method: "POST" });
 export const updateAdsRecommendation = (id: string, status: string) => request<AdsRecommendation>(`/ads/recommendations/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
 export const syncAds = (clientId: string) => request<any>(`/ads/sync`, { method: "POST", body: JSON.stringify({ client_id: clientId }) });
+
+// ---------- Command Center ----------
+export interface CommandCenterSummary {
+  totalPriorities: number;
+  highPriorityCount: number;
+  quickWinsCount: number;
+  repurposeCount: number;
+  decliningAssetsCount: number;
+  nearPage1Count: number;
+  gbpIssuesCount: number;
+  adsOpportunitiesCount: number;
+  weeklyTasksDue: number;
+  weeklyTasksCompleted: number;
+  topGrowthChannels: { channel: string; score: number }[];
+  topUnderperformingChannels: { channel: string; score: number }[];
+}
+
+export interface MarketingPriority {
+  id: string;
+  client_id: string;
+  priority_type: string;
+  source_module: string;
+  source_id: string | null;
+  title: string;
+  description: string | null;
+  recommended_action: string | null;
+  priority_score: number;
+  impact_score: number;
+  effort_score: number;
+  confidence_score: number;
+  status: string;
+  due_date: string | null;
+  created_at: string;
+}
+
+export interface CrossChannelRecommendation {
+  id: string;
+  client_id: string;
+  recommendation_type: string;
+  source_asset_type: string | null;
+  source_asset_id: string | null;
+  target_channel: string | null;
+  title: string;
+  description: string | null;
+  recommended_action: string | null;
+  priority: string;
+  status: string;
+  metadata_json: any;
+  created_at: string;
+}
+
+export interface WeeklyActionPlan {
+  id: string;
+  client_id: string;
+  week_start: string;
+  summary: string | null;
+  top_goal: string | null;
+  status: string;
+  created_at: string;
+}
+
+export interface MarketingGoal {
+  id: string;
+  client_id: string;
+  goal_type: string;
+  goal_name: string;
+  target_value: number | null;
+  timeframe: string | null;
+  status: string;
+  created_at: string;
+}
+
+export const getCommandCenterSummary = (clientId: string) =>
+  request<CommandCenterSummary>(`/clients/${clientId}/command-center`);
+
+export const getMarketingPriorities = (clientId: string, status?: string) =>
+  request<MarketingPriority[]>(`/clients/${clientId}/marketing-priorities${status ? `?status=${status}` : ""}`);
+
+export const updateMarketingPriority = (priorityId: string, status: string) =>
+  request<MarketingPriority>(`/command/priorities/${priorityId}`, { method: "PUT", body: JSON.stringify({ status }) });
+
+export const recomputePriorities = (clientId: string) =>
+  request<{ success: boolean; priorities_generated: number }>(`/clients/${clientId}/priorities/recompute`, { method: "POST" });
+
+export const getCrossChannelRecommendations = (clientId: string, status?: string) =>
+  request<CrossChannelRecommendation[]>(`/clients/${clientId}/cross-channel-recommendations${status ? `?status=${status}` : ""}`);
+
+export const updateCrossChannelRecommendation = (recId: string, status: string) =>
+  request<CrossChannelRecommendation>(`/command/recommendations/${recId}`, { method: "PUT", body: JSON.stringify({ status }) });
+
+export const generateCrossChannelRecommendations = (clientId: string) =>
+  request<{ success: boolean; recommendations_generated: number }>(`/clients/${clientId}/recommendations/generate`, { method: "POST" });
+
+export const getWeeklyActionPlans = (clientId: string) =>
+  request<WeeklyActionPlan[]>(`/clients/${clientId}/weekly-action-plans`);
+
+export const generateWeeklyPlan = (clientId: string) =>
+  request<WeeklyActionPlan>(`/clients/${clientId}/weekly-action-plan/generate`, { method: "POST" });
+
+export const updateWeeklyItem = (itemId: string, status: string) =>
+  request<any>(`/command/items/${itemId}`, { method: "PUT", body: JSON.stringify({ status }) });
+
+export const getMarketingGoals = (clientId: string) =>
+  request<MarketingGoal[]>(`/clients/${clientId}/marketing-goals`);
+
+export const getQuickWins = (clientId: string) =>
+  request<MarketingPriority[]>(`/clients/${clientId}/quick-wins`);
