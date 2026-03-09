@@ -15,6 +15,7 @@ import LocalSEO from "@/pages/LocalSEO";
 import CreativeAssets from "@/pages/CreativeAssets";
 import GoogleAds from "@/pages/GoogleAds";
 import CommandCenter from "@/pages/CommandCenter";
+import CRM from "@/pages/CRM";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
