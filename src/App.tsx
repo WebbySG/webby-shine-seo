@@ -15,6 +15,7 @@ import LocalSEO from "@/pages/LocalSEO";
 import CreativeAssets from "@/pages/CreativeAssets";
 import GoogleAds from "@/pages/GoogleAds";
 import CommandCenter from "@/pages/CommandCenter";
+import CRM from "@/pages/CRM";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/local-seo" element={<LocalSEO />} />
             <Route path="/creative" element={<CreativeAssets />} />
             <Route path="/google-ads" element={<GoogleAds />} />
+            <Route path="/crm" element={<CRM />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
