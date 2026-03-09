@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief, useArticles, useGenerateArticle, useUpdateArticle, useApproveArticle } from "@/hooks/use-api";
+import { Label } from "@/components/ui/label";
+import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief, useArticles, useGenerateArticle, useUpdateArticle, useApproveArticle, usePublishArticle, useCmsConnection, useSaveCmsConnection, useTestCmsConnection } from "@/hooks/use-api";
 import { clients as dummyClients, getClientRankings, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit } from "lucide-react";
-import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief, SeoArticle } from "@/lib/api";
+import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit, Settings, Upload, Loader2 } from "lucide-react";
+import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief, SeoArticle, CmsConnection } from "@/lib/api";
 import { toast } from "sonner";
 
 const PRIORITY_BADGE: Record<string, "destructive" | "secondary" | "outline"> = {
@@ -106,6 +107,9 @@ We hope this comprehensive guide to **renovation singapore** has been helpful.`,
       status: "draft",
       target_keyword: "renovation singapore",
       slug: "/renovation-singapore",
+      publish_date: null,
+      cms_post_id: null,
+      cms_post_url: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
@@ -117,6 +121,7 @@ export default function ClientDetail() {
   const [expandedBrief, setExpandedBrief] = useState<string | null>(null);
   const [editingArticle, setEditingArticle] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{ title: string; meta_description: string; content: string; slug: string }>({ title: "", meta_description: "", content: "", slug: "" });
+  const [cmsForm, setCmsForm] = useState<{ site_url: string; username: string; application_password: string }>({ site_url: "", username: "", application_password: "" });
 
   const { data: apiClient } = useClient(id!);
   const { data: apiKeywords } = useKeywords(id!);
@@ -126,10 +131,16 @@ export default function ClientDetail() {
   const { data: apiContentPlan } = useContentPlan(id!);
   const { data: apiBriefs } = useBriefs(id!);
   const { data: apiArticles } = useArticles(id!);
+  const { data: apiCmsConnection } = useCmsConnection(id!);
   const generateBrief = useGenerateBrief(id!);
   const generateArticle = useGenerateArticle(id!);
   const updateArticle = useUpdateArticle(id!);
   const approveArticle = useApproveArticle(id!);
+  const publishArticle = usePublishArticle(id!);
+  const saveCmsConnection = useSaveCmsConnection(id!);
+  const testCmsConnection = useTestCmsConnection(id!);
+
+  const cmsConnection: CmsConnection | null = apiCmsConnection ?? null;
 
   const dummyClient = dummyClients.find((c) => c.id === id);
   const client = apiClient ?? dummyClient;
@@ -195,6 +206,40 @@ export default function ClientDetail() {
     });
   };
 
+  const handlePublish = (articleId: string) => {
+    if (!cmsConnection) {
+      toast.error("Please configure WordPress connection first in Settings tab");
+      return;
+    }
+    publishArticle.mutate({ articleId }, {
+      onSuccess: (data) => {
+        toast.success(`Published to WordPress! View at ${data.wordpress.url}`);
+      },
+      onError: (err: any) => toast.error(err.message || "Failed to publish"),
+    });
+  };
+
+  const handleSaveCms = () => {
+    if (!cmsForm.site_url || !cmsForm.username || !cmsForm.application_password) {
+      toast.error("All fields are required");
+      return;
+    }
+    saveCmsConnection.mutate(cmsForm, {
+      onSuccess: () => {
+        toast.success("WordPress connection saved!");
+        setCmsForm({ site_url: "", username: "", application_password: "" });
+      },
+      onError: () => toast.error("Failed to save connection"),
+    });
+  };
+
+  const handleTestCms = () => {
+    testCmsConnection.mutate(undefined, {
+      onSuccess: () => toast.success("Connection successful!"),
+      onError: (err: any) => toast.error(err.message || "Connection failed"),
+    });
+  };
+
   if (!client) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -248,6 +293,7 @@ export default function ClientDetail() {
           <TabsTrigger value="briefs">Briefs ({briefs.length})</TabsTrigger>
           <TabsTrigger value="articles">Articles ({articles.length})</TabsTrigger>
           <TabsTrigger value="issues">Issues ({openIssues.length})</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="rankings">
@@ -636,6 +682,15 @@ export default function ClientDetail() {
                           </pre>
                         </details>
 
+                        {article.cms_post_url && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>Published:</span>
+                            <a href={article.cms_post_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                              {article.cms_post_url} <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </div>
+                        )}
+
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline" onClick={() => startEditing(article)}>
                             <Pencil className="h-3.5 w-3.5 mr-1" />Edit
@@ -644,6 +699,12 @@ export default function ClientDetail() {
                             <Button size="sm" onClick={() => handleApprove(article.id)} disabled={approveArticle.isPending}>
                               <Check className="h-3.5 w-3.5 mr-1" />
                               {approveArticle.isPending ? "Approving…" : "Approve"}
+                            </Button>
+                          )}
+                          {article.status === "approved" && (
+                            <Button size="sm" onClick={() => handlePublish(article.id)} disabled={publishArticle.isPending}>
+                              <Upload className="h-3.5 w-3.5 mr-1" />
+                              {publishArticle.isPending ? "Publishing…" : "Publish to WordPress"}
                             </Button>
                           )}
                         </div>
@@ -674,6 +735,81 @@ export default function ClientDetail() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="settings">
+          <div className="space-y-6 max-w-xl">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Settings className="h-4 w-4" />WordPress Connection
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {cmsConnection ? (
+                  <div className="space-y-3">
+                    <div className="p-3 bg-muted/30 rounded-md">
+                      <p className="text-sm font-medium">{cmsConnection.site_url}</p>
+                      <p className="text-xs text-muted-foreground">User: {cmsConnection.username}</p>
+                      <p className="text-xs text-muted-foreground">Connected: {new Date(cmsConnection.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={handleTestCms} disabled={testCmsConnection.isPending}>
+                        {testCmsConnection.isPending ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : null}
+                        Test Connection
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Connect your WordPress site to enable automatic article publishing. You'll need an Application Password.
+                    </p>
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="wp-url" className="text-xs">Site URL</Label>
+                        <Input
+                          id="wp-url"
+                          placeholder="https://yoursite.com"
+                          value={cmsForm.site_url}
+                          onChange={(e) => setCmsForm((f) => ({ ...f, site_url: e.target.value }))}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="wp-user" className="text-xs">Username</Label>
+                        <Input
+                          id="wp-user"
+                          placeholder="admin"
+                          value={cmsForm.username}
+                          onChange={(e) => setCmsForm((f) => ({ ...f, username: e.target.value }))}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="wp-pass" className="text-xs">Application Password</Label>
+                        <Input
+                          id="wp-pass"
+                          type="password"
+                          placeholder="xxxx xxxx xxxx xxxx xxxx xxxx"
+                          value={cmsForm.application_password}
+                          onChange={(e) => setCmsForm((f) => ({ ...f, application_password: e.target.value }))}
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Generate at WordPress Dashboard → Users → Profile → Application Passwords
+                        </p>
+                      </div>
+                    </div>
+                    <Button onClick={handleSaveCms} disabled={saveCmsConnection.isPending}>
+                      {saveCmsConnection.isPending ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : null}
+                      Save Connection
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>

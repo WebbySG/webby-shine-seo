@@ -210,6 +210,9 @@ export interface SeoArticle {
   status: "draft" | "review" | "approved" | "published";
   target_keyword: string;
   slug: string | null;
+  publish_date: string | null;
+  cms_post_id: string | null;
+  cms_post_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -237,3 +240,38 @@ export const updateArticleStatus = (articleId: string, status: string) =>
     method: "PATCH",
     body: JSON.stringify({ status }),
   });
+
+export interface PublishResult {
+  article: SeoArticle;
+  wordpress: { id: number; url: string; status: string };
+}
+
+export const publishArticle = (articleId: string, scheduleDate?: string) =>
+  request<PublishResult>(`/articles/${articleId}/publish`, {
+    method: "POST",
+    body: JSON.stringify({ schedule_date: scheduleDate }),
+  });
+
+// ---------- CMS Connections ----------
+export interface CmsConnection {
+  id: string;
+  cms_type: "wordpress";
+  site_url: string;
+  username: string;
+  created_at: string;
+}
+
+export const getCmsConnection = (clientId: string) =>
+  request<CmsConnection | null>(`/clients/${clientId}/cms`);
+
+export const saveCmsConnection = (clientId: string, data: { site_url: string; username: string; application_password: string }) =>
+  request<CmsConnection>(`/clients/${clientId}/cms`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const deleteCmsConnection = (clientId: string) =>
+  request<{ deleted: boolean }>(`/clients/${clientId}/cms`, { method: "DELETE" });
+
+export const testCmsConnection = (clientId: string) =>
+  request<{ success: boolean; message: string }>(`/clients/${clientId}/cms/test`, { method: "POST" });

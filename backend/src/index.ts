@@ -11,6 +11,7 @@ import internalLinksRouter from "./routes/internal-links.js";
 import contentPlanRouter from "./routes/content-plan.js";
 import briefsRouter from "./routes/briefs.js";
 import articlesRouter from "./routes/articles.js";
+import cmsRouter from "./routes/cms.js";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use("/api/clients", briefsRouter);
 app.use("/api/briefs", briefsRouter);
 app.use("/api/clients", articlesRouter);
 app.use("/api/articles", articlesRouter);
+app.use("/api/clients", cmsRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });

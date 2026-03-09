@@ -130,7 +130,142 @@ router.patch("/:articleId/status", async (req, res) => {
   }
 });
 
-/** Template-based article generator — produces structured markdown from brief data */
+// POST /api/articles/:articleId/publish — publish to WordPress
+router.post("/:articleId/publish", async (req, res) => {
+  const { schedule_date } = req.body; // optional ISO date string
+
+  try {
+    // Get article
+    const { rows: articleRows } = await pool.query(
+      `SELECT a.*, c.client_id FROM seo_articles a
+       JOIN clients c ON c.id = a.client_id
+       WHERE a.id = $1`,
+      [req.params.articleId]
+    );
+    if (articleRows.length === 0) {
+      return res.status(404).json({ error: "Article not found" });
+    }
+
+    const article = articleRows[0];
+    if (article.status !== "approved") {
+      return res.status(400).json({ error: "Article must be approved before publishing" });
+    }
+
+    // Get CMS connection
+    const { rows: cmsRows } = await pool.query(
+      `SELECT site_url, username, application_password FROM cms_connections WHERE client_id = $1 AND cms_type = 'wordpress'`,
+      [article.client_id]
+    );
+    if (cmsRows.length === 0) {
+      return res.status(400).json({ error: "No WordPress connection configured for this client" });
+    }
+
+    const { site_url, username, application_password } = cmsRows[0];
+    const wpUrl = `${site_url.replace(/\/$/, "")}/wp-json/wp/v2/posts`;
+
+    // Convert markdown to HTML (basic conversion)
+    const htmlContent = markdownToHtml(article.content);
+
+    // Prepare WordPress post data
+    const postData: any = {
+      title: article.title,
+      content: htmlContent,
+      slug: article.slug?.replace(/^\//, "") || "",
+      status: schedule_date ? "future" : "publish",
+      excerpt: article.meta_description,
+    };
+
+    if (schedule_date) {
+      postData.date = schedule_date;
+    }
+
+    // Publish to WordPress
+    const response = await fetch(wpUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${Buffer.from(`${username}:${application_password}`).toString("base64")}`,
+      },
+      body: JSON.stringify(postData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("WordPress publish error:", errorText);
+      return res.status(400).json({ error: `WordPress publish failed: ${response.status}`, details: errorText });
+    }
+
+    const wpPost = await response.json();
+
+    // Update article with WordPress post info
+    const { rows: updatedRows } = await pool.query(
+      `UPDATE seo_articles
+       SET status = 'published',
+           cms_post_id = $1,
+           cms_post_url = $2,
+           publish_date = $3,
+           updated_at = now()
+       WHERE id = $4
+       RETURNING *`,
+      [
+        String(wpPost.id),
+        wpPost.link,
+        schedule_date || new Date().toISOString(),
+        req.params.articleId,
+      ]
+    );
+
+    res.json({
+      article: updatedRows[0],
+      wordpress: {
+        id: wpPost.id,
+        url: wpPost.link,
+        status: wpPost.status,
+      },
+    });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to publish article", details: err.message });
+  }
+});
+
+/** Basic markdown to HTML converter for WordPress */
+function markdownToHtml(markdown: string): string {
+  let html = markdown;
+
+  // Headers
+  html = html.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+  html = html.replace(/^## (.+)$/gm, "<h2>$1</h2>");
+  html = html.replace(/^# (.+)$/gm, "<h1>$1</h1>");
+
+  // Bold and italic
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+
+  // Links
+  html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+
+  // Horizontal rules
+  html = html.replace(/^---$/gm, "<hr>");
+
+  // Lists
+  html = html.replace(/^- (.+)$/gm, "<li>$1</li>");
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>\n${match}</ul>\n`);
+
+  // Paragraphs (wrap non-tag lines)
+  const lines = html.split("\n");
+  const wrappedLines = lines.map((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return "";
+    if (trimmed.startsWith("<")) return line;
+    if (trimmed.startsWith("<!--")) return line;
+    return `<p>${trimmed}</p>`;
+  });
+
+  return wrappedLines.filter(Boolean).join("\n");
+}
+
+
 function generateArticleContent(
   keyword: string,
   title: string,
