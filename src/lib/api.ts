@@ -81,15 +81,22 @@ export const getAuditIssues = (clientId: string) =>
 
 // ---------- Opportunities ----------
 export interface Opportunity {
+  id: string;
   type: "near_win" | "content_gap" | "page_expansion" | "technical_fix";
-  keyword: string;
+  keyword: string | null;
+  target_url: string | null;
   current_position: number | null;
-  last_position: number | null;
-  change: number | null;
-  target_page: string | null;
   recommended_action: string;
   priority: "high" | "medium" | "low";
+  status: "open" | "in_progress" | "done" | "dismissed";
+  created_at: string;
 }
 
 export const getOpportunities = (clientId: string) =>
   request<Opportunity[]>(`/clients/${clientId}/opportunities`);
+
+export const updateOpportunityStatus = (clientId: string, oppId: string, status: string) =>
+  request<Opportunity>(`/clients/${clientId}/opportunities/${oppId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
