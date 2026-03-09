@@ -157,6 +157,11 @@ export default function ClientDetail() {
   const updateVideoMut = useUpdateVideo(id!);
   const approveVideo = useApproveVideo(id!);
   const videos: VideoAsset[] = apiVideos ?? [];
+  const { data: apiJobs } = usePublishingJobs(id!);
+  const scheduleJob = useScheduleJob(id!);
+  const retryJob = useRetryJob(id!);
+  const cancelJob = useCancelJob(id!);
+  const jobs: PublishingJob[] = apiJobs ?? [];
 
   const cmsConnection: CmsConnection | null = apiCmsConnection ?? null;
 
