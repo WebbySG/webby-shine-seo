@@ -1057,7 +1057,16 @@ cron.schedule("0 7 * * *", recomputeCommandCenter, { timezone: "Asia/Singapore" 
 // Weekly plan generation every Monday at 08:00 SGT
 cron.schedule("0 8 * * 1", generateWeeklyPlans, { timezone: "Asia/Singapore" });
 
-console.log("🕐 Cron worker started — daily at 02:00 SGT, analytics 04:00, GBP 05:00, Ads 06:00, Command 07:00, Weekly plans Monday 08:00, publishing every minute");
+// CRM attribution recompute daily at 03:00 SGT
+cron.schedule("0 3 * * *", recomputeAttribution, { timezone: "Asia/Singapore" });
+
+// CRM insight recompute daily at 03:30 SGT
+cron.schedule("30 3 * * *", recomputeCrmInsights, { timezone: "Asia/Singapore" });
+
+// Activity reminders daily at 09:00 SGT
+cron.schedule("0 9 * * *", sendActivityReminders, { timezone: "Asia/Singapore" });
+
+console.log("🕐 Cron worker started — daily at 02:00 SGT, attribution 03:00, CRM insights 03:30, analytics 04:00, GBP 05:00, Ads 06:00, Command 07:00, Weekly plans Monday 08:00, activity reminders 09:00, publishing every minute");
 
 export {
   fetchRankings,
@@ -1070,4 +1079,7 @@ export {
   syncAdsData,
   recomputeCommandCenter,
   generateWeeklyPlans,
+  recomputeAttribution,
+  recomputeCrmInsights,
+  sendActivityReminders,
 };
