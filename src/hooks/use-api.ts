@@ -5,691 +5,266 @@ import * as api from "@/lib/api";
 export function useClients() {
   return useQuery({ queryKey: ["clients"], queryFn: api.getClients });
 }
-
 export function useClient(id: string) {
   return useQuery({ queryKey: ["clients", id], queryFn: () => api.getClient(id), enabled: !!id });
 }
-
 export function useCreateClient() {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: { name: string; domain: string }) => api.createClient(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["clients"] }),
-  });
+  return useMutation({ mutationFn: (data: { name: string; domain: string }) => api.createClient(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["clients"] }) });
 }
-
 export function useDeleteClient() {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.deleteClient(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["clients"] }),
-  });
+  return useMutation({ mutationFn: (id: string) => api.deleteClient(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["clients"] }) });
 }
 
 // ---------- Keywords ----------
 export function useKeywords(clientId: string) {
-  return useQuery({
-    queryKey: ["keywords", clientId],
-    queryFn: () => api.getKeywords(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["keywords", clientId], queryFn: () => api.getKeywords(clientId), enabled: !!clientId });
 }
-
 export function useCreateKeyword(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: { keyword: string }) => api.createKeyword(clientId, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["keywords", clientId] }),
-  });
+  return useMutation({ mutationFn: (data: { keyword: string }) => api.createKeyword(clientId, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["keywords", clientId] }) });
 }
 
 // ---------- Competitors ----------
 export function useCompetitors(clientId: string) {
-  return useQuery({
-    queryKey: ["competitors", clientId],
-    queryFn: () => api.getCompetitors(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["competitors", clientId], queryFn: () => api.getCompetitors(clientId), enabled: !!clientId });
 }
-
 export function useCreateCompetitor(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: { domain: string; label?: string }) => api.createCompetitor(clientId, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["competitors", clientId] }),
-  });
+  return useMutation({ mutationFn: (data: { domain: string; label?: string }) => api.createCompetitor(clientId, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["competitors", clientId] }) });
 }
 
 // ---------- Audit ----------
 export function useAuditIssues(clientId: string) {
-  return useQuery({
-    queryKey: ["audit-issues", clientId],
-    queryFn: () => api.getAuditIssues(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["audit-issues", clientId], queryFn: () => api.getAuditIssues(clientId), enabled: !!clientId });
 }
 
 // ---------- Opportunities ----------
 export function useOpportunities(clientId: string) {
-  return useQuery({
-    queryKey: ["opportunities", clientId],
-    queryFn: () => api.getOpportunities(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["opportunities", clientId], queryFn: () => api.getOpportunities(clientId), enabled: !!clientId });
 }
 
 // ---------- Internal Links ----------
 export function useInternalLinks(clientId: string) {
-  return useQuery({
-    queryKey: ["internal-links", clientId],
-    queryFn: () => api.getInternalLinks(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["internal-links", clientId], queryFn: () => api.getInternalLinks(clientId), enabled: !!clientId });
 }
 
 // ---------- Content Plan ----------
 export function useContentPlan(clientId: string) {
-  return useQuery({
-    queryKey: ["content-plan", clientId],
-    queryFn: () => api.getContentPlan(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["content-plan", clientId], queryFn: () => api.getContentPlan(clientId), enabled: !!clientId });
 }
 
 // ---------- SEO Briefs ----------
 export function useBriefs(clientId: string) {
-  return useQuery({
-    queryKey: ["briefs", clientId],
-    queryFn: () => api.getBriefs(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["briefs", clientId], queryFn: () => api.getBriefs(clientId), enabled: !!clientId });
 }
-
 export function useGenerateBrief(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (keyword: string) => api.generateBrief(clientId, keyword),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["briefs", clientId] }),
-  });
+  return useMutation({ mutationFn: (keyword: string) => api.generateBrief(clientId, keyword), onSuccess: () => qc.invalidateQueries({ queryKey: ["briefs", clientId] }) });
 }
 
 // ---------- SEO Articles ----------
 export function useArticles(clientId: string) {
-  return useQuery({
-    queryKey: ["articles", clientId],
-    queryFn: () => api.getArticles(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["articles", clientId], queryFn: () => api.getArticles(clientId), enabled: !!clientId });
 }
-
 export function useGenerateArticle(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (briefId: string) => api.generateArticle(clientId, briefId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
-  });
+  return useMutation({ mutationFn: (briefId: string) => api.generateArticle(clientId, briefId), onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }) });
 }
-
 export function useUpdateArticle(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ articleId, data }: { articleId: string; data: { title?: string; meta_description?: string; content?: string; slug?: string } }) =>
-      api.updateArticle(articleId, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
-  });
+  return useMutation({ mutationFn: ({ articleId, data }: { articleId: string; data: { title?: string; meta_description?: string; content?: string; slug?: string } }) => api.updateArticle(articleId, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }) });
 }
-
 export function useApproveArticle(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (articleId: string) => api.approveArticle(articleId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
-  });
+  return useMutation({ mutationFn: (articleId: string) => api.approveArticle(articleId), onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }) });
 }
-
 export function usePublishArticle(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ articleId, scheduleDate }: { articleId: string; scheduleDate?: string }) =>
-      api.publishArticle(articleId, scheduleDate),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
-  });
+  return useMutation({ mutationFn: ({ articleId, scheduleDate }: { articleId: string; scheduleDate?: string }) => api.publishArticle(articleId, scheduleDate), onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }) });
 }
 
 // ---------- CMS Connections ----------
 export function useCmsConnection(clientId: string) {
-  return useQuery({
-    queryKey: ["cms", clientId],
-    queryFn: () => api.getCmsConnection(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["cms", clientId], queryFn: () => api.getCmsConnection(clientId), enabled: !!clientId });
 }
-
 export function useSaveCmsConnection(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: { site_url: string; username: string; application_password: string }) =>
-      api.saveCmsConnection(clientId, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["cms", clientId] }),
-  });
+  return useMutation({ mutationFn: (data: { site_url: string; username: string; application_password: string }) => api.saveCmsConnection(clientId, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["cms", clientId] }) });
 }
-
 export function useTestCmsConnection(clientId: string) {
-  return useMutation({
-    mutationFn: () => api.testCmsConnection(clientId),
-  });
+  return useMutation({ mutationFn: () => api.testCmsConnection(clientId) });
 }
 
 // ---------- Social Posts ----------
 export function useSocialPosts(articleId: string) {
-  return useQuery({
-    queryKey: ["social-posts", articleId],
-    queryFn: () => api.getSocialPosts(articleId),
-    enabled: !!articleId,
-  });
+  return useQuery({ queryKey: ["social-posts", articleId], queryFn: () => api.getSocialPosts(articleId), enabled: !!articleId });
 }
-
 export function useGenerateSocialPosts(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (articleId: string) => api.generateSocialPosts(clientId, articleId),
-    onSuccess: (_data, articleId) => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }),
-  });
+  return useMutation({ mutationFn: (articleId: string) => api.generateSocialPosts(clientId, articleId), onSuccess: (_data, articleId) => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }) });
 }
-
 export function useUpdateSocialPost(articleId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ postId, data }: { postId: string; data: { content?: string; scheduled_time?: string } }) =>
-      api.updateSocialPost(postId, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }),
-  });
+  return useMutation({ mutationFn: ({ postId, data }: { postId: string; data: { content?: string; scheduled_time?: string } }) => api.updateSocialPost(postId, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }) });
 }
-
 export function useApproveSocialPost(articleId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (postId: string) => api.approveSocialPost(postId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }),
-  });
+  return useMutation({ mutationFn: (postId: string) => api.approveSocialPost(postId), onSuccess: () => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }) });
 }
 
 // ---------- Video Assets ----------
 export function useVideos(clientId: string) {
-  return useQuery({
-    queryKey: ["videos", clientId],
-    queryFn: () => api.getVideos(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["videos", clientId], queryFn: () => api.getVideos(clientId), enabled: !!clientId });
 }
-
 export function useGenerateVideo(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Omit<Parameters<typeof api.generateVideo>[0], "client_id">) =>
-      api.generateVideo({ ...data, client_id: clientId }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }),
-  });
+  return useMutation({ mutationFn: (data: Omit<Parameters<typeof api.generateVideo>[0], "client_id">) => api.generateVideo({ ...data, client_id: clientId }), onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }) });
 }
-
 export function useUpdateVideo(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ videoId, data }: { videoId: string; data: { video_script?: string; caption_text?: string; avatar_type?: string; voice_type?: string } }) =>
-      api.updateVideo(videoId, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }),
-  });
+  return useMutation({ mutationFn: ({ videoId, data }: { videoId: string; data: { video_script?: string; caption_text?: string; avatar_type?: string; voice_type?: string } }) => api.updateVideo(videoId, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }) });
 }
-
 export function useApproveVideo(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (videoId: string) => api.approveVideo(videoId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }),
-  });
+  return useMutation({ mutationFn: (videoId: string) => api.approveVideo(videoId), onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }) });
 }
 
 // ---------- Publishing Jobs ----------
 export function usePublishingJobs(clientId: string) {
-  return useQuery({
-    queryKey: ["publishing-jobs", clientId],
-    queryFn: () => api.getPublishingJobs(clientId),
-    enabled: !!clientId,
-    refetchInterval: 15000, // poll every 15s for job status updates
-  });
+  return useQuery({ queryKey: ["publishing-jobs", clientId], queryFn: () => api.getPublishingJobs(clientId), enabled: !!clientId, refetchInterval: 15000 });
 }
-
 export function useScheduleJob(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Omit<Parameters<typeof api.schedulePublishingJob>[0], "client_id">) =>
-      api.schedulePublishingJob({ ...data, client_id: clientId }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }),
-  });
+  return useMutation({ mutationFn: (data: Omit<Parameters<typeof api.schedulePublishingJob>[0], "client_id">) => api.schedulePublishingJob({ ...data, client_id: clientId }), onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }) });
 }
-
 export function useRetryJob(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (jobId: string) => api.retryPublishingJob(jobId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }),
-  });
+  return useMutation({ mutationFn: (jobId: string) => api.retryPublishingJob(jobId), onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }) });
 }
-
 export function useCancelJob(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (jobId: string) => api.cancelPublishingJob(jobId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }),
-  });
+  return useMutation({ mutationFn: (jobId: string) => api.cancelPublishingJob(jobId), onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }) });
 }
-
 export function useRescheduleJob(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ jobId, scheduledTime }: { jobId: string; scheduledTime: string }) =>
-      api.reschedulePublishingJob(jobId, scheduledTime),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }),
-  });
+  return useMutation({ mutationFn: ({ jobId, scheduledTime }: { jobId: string; scheduledTime: string }) => api.reschedulePublishingJob(jobId, scheduledTime), onSuccess: () => qc.invalidateQueries({ queryKey: ["publishing-jobs", clientId] }) });
 }
 
-// ---------- AI Generation (uses AI provider abstraction) ----------
+// ---------- AI Generation ----------
 export function useAiGenerateArticle(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (briefId: string) => api.aiGenerateArticle(clientId, briefId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }),
-  });
+  return useMutation({ mutationFn: (briefId: string) => api.aiGenerateArticle(clientId, briefId), onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", clientId] }) });
 }
-
 export function useAiGenerateSocial(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (articleId: string) => api.aiGenerateSocial(clientId, articleId),
-    onSuccess: (_data, articleId) => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }),
-  });
+  return useMutation({ mutationFn: (articleId: string) => api.aiGenerateSocial(clientId, articleId), onSuccess: (_data, articleId) => qc.invalidateQueries({ queryKey: ["social-posts", articleId] }) });
 }
-
 export function useAiGenerateVideo(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Omit<Parameters<typeof api.aiGenerateVideo>[0], "client_id">) =>
-      api.aiGenerateVideo({ ...data, client_id: clientId }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }),
-  });
+  return useMutation({ mutationFn: (data: Omit<Parameters<typeof api.aiGenerateVideo>[0], "client_id">) => api.aiGenerateVideo({ ...data, client_id: clientId }), onSuccess: () => qc.invalidateQueries({ queryKey: ["videos", clientId] }) });
 }
 
 // ---------- Analytics ----------
 export function useAnalyticsConnections(clientId: string) {
-  return useQuery({
-    queryKey: ["analytics-connections", clientId],
-    queryFn: () => api.getAnalyticsConnections(clientId),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["analytics-connections", clientId], queryFn: () => api.getAnalyticsConnections(clientId), enabled: !!clientId });
 }
-
 export function useSyncAnalytics() {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (clientId: string) => api.syncAnalytics(clientId),
-    onSuccess: (_data, clientId) => {
-      qc.invalidateQueries({ queryKey: ["performance-insights", clientId] });
-      qc.invalidateQueries({ queryKey: ["performance-summary", clientId] });
-    },
-  });
+  return useMutation({ mutationFn: (clientId: string) => api.syncAnalytics(clientId), onSuccess: (_data, clientId) => { qc.invalidateQueries({ queryKey: ["performance-insights", clientId] }); qc.invalidateQueries({ queryKey: ["performance-summary", clientId] }); } });
 }
-
 export function usePerformanceSummary(clientId: string, days?: number) {
-  return useQuery({
-    queryKey: ["performance-summary", clientId, days],
-    queryFn: () => api.getPerformanceSummary(clientId, days),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["performance-summary", clientId, days], queryFn: () => api.getPerformanceSummary(clientId, days), enabled: !!clientId });
 }
-
 export function usePagePerformance(clientId: string, days?: number) {
-  return useQuery({
-    queryKey: ["page-performance", clientId, days],
-    queryFn: () => api.getPagePerformance(clientId, days),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["page-performance", clientId, days], queryFn: () => api.getPagePerformance(clientId, days), enabled: !!clientId });
 }
-
 export function useKeywordPerformance(clientId: string, days?: number) {
-  return useQuery({
-    queryKey: ["keyword-performance", clientId, days],
-    queryFn: () => api.getKeywordPerformance(clientId, days),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["keyword-performance", clientId, days], queryFn: () => api.getKeywordPerformance(clientId, days), enabled: !!clientId });
 }
-
 export function useAssetPerformance(clientId: string, days?: number, assetType?: string) {
-  return useQuery({
-    queryKey: ["asset-performance", clientId, days, assetType],
-    queryFn: () => api.getAssetPerformance(clientId, days, assetType),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["asset-performance", clientId, days, assetType], queryFn: () => api.getAssetPerformance(clientId, days, assetType), enabled: !!clientId });
 }
-
 export function usePerformanceInsights(clientId: string, status?: string) {
-  return useQuery({
-    queryKey: ["performance-insights", clientId, status],
-    queryFn: () => api.getPerformanceInsights(clientId, status),
-    enabled: !!clientId,
-  });
+  return useQuery({ queryKey: ["performance-insights", clientId, status], queryFn: () => api.getPerformanceInsights(clientId, status), enabled: !!clientId });
 }
-
 export function useUpdateInsightStatus(clientId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ insightId, status }: { insightId: string; status: string }) =>
-      api.updateInsightStatus(insightId, status),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["performance-insights", clientId] }),
-  });
+  return useMutation({ mutationFn: ({ insightId, status }: { insightId: string; status: string }) => api.updateInsightStatus(insightId, status), onSuccess: () => qc.invalidateQueries({ queryKey: ["performance-insights", clientId] }) });
 }
 
 // ---------- GBP / Local SEO ----------
-export function useGbpConnection(clientId: string) {
-  return useQuery({ queryKey: ["gbp-connection", clientId], queryFn: () => api.getGbpConnection(clientId), enabled: !!clientId });
-}
-export function useGbpProfile(clientId: string) {
-  return useQuery({ queryKey: ["gbp-profile", clientId], queryFn: () => api.getGbpProfile(clientId), enabled: !!clientId });
-}
-export function useGbpPosts(clientId: string) {
-  return useQuery({ queryKey: ["gbp-posts", clientId], queryFn: () => api.getGbpPosts(clientId), enabled: !!clientId });
-}
-export function useGbpReviews(clientId: string) {
-  return useQuery({ queryKey: ["gbp-reviews", clientId], queryFn: () => api.getGbpReviews(clientId), enabled: !!clientId });
-}
-export function useGbpQna(clientId: string) {
-  return useQuery({ queryKey: ["gbp-qna", clientId], queryFn: () => api.getGbpQna(clientId), enabled: !!clientId });
-}
-export function useLocalSeoInsights(clientId: string) {
-  return useQuery({ queryKey: ["local-seo-insights", clientId], queryFn: () => api.getLocalSeoInsights(clientId), enabled: !!clientId });
-}
+export function useGbpConnection(clientId: string) { return useQuery({ queryKey: ["gbp-connection", clientId], queryFn: () => api.getGbpConnection(clientId), enabled: !!clientId }); }
+export function useGbpProfile(clientId: string) { return useQuery({ queryKey: ["gbp-profile", clientId], queryFn: () => api.getGbpProfile(clientId), enabled: !!clientId }); }
+export function useGbpPosts(clientId: string) { return useQuery({ queryKey: ["gbp-posts", clientId], queryFn: () => api.getGbpPosts(clientId), enabled: !!clientId }); }
+export function useGbpReviews(clientId: string) { return useQuery({ queryKey: ["gbp-reviews", clientId], queryFn: () => api.getGbpReviews(clientId), enabled: !!clientId }); }
+export function useGbpQna(clientId: string) { return useQuery({ queryKey: ["gbp-qna", clientId], queryFn: () => api.getGbpQna(clientId), enabled: !!clientId }); }
+export function useLocalSeoInsights(clientId: string) { return useQuery({ queryKey: ["local-seo-insights", clientId], queryFn: () => api.getLocalSeoInsights(clientId), enabled: !!clientId }); }
 export function useSyncGbp() {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (clientId: string) => api.syncGbp(clientId),
-    onSuccess: (_data, clientId) => {
-      qc.invalidateQueries({ queryKey: ["gbp-profile", clientId] });
-      qc.invalidateQueries({ queryKey: ["gbp-reviews", clientId] });
-      qc.invalidateQueries({ queryKey: ["gbp-qna", clientId] });
-      qc.invalidateQueries({ queryKey: ["local-seo-insights", clientId] });
-    },
-  });
+  return useMutation({ mutationFn: (clientId: string) => api.syncGbp(clientId), onSuccess: (_data, clientId) => { qc.invalidateQueries({ queryKey: ["gbp-profile", clientId] }); qc.invalidateQueries({ queryKey: ["gbp-reviews", clientId] }); qc.invalidateQueries({ queryKey: ["gbp-qna", clientId] }); qc.invalidateQueries({ queryKey: ["local-seo-insights", clientId] }); } });
 }
-export function useApproveGbpPost(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (postId: string) => api.approveGbpPost(postId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-posts", clientId] }),
-  });
-}
-export function useGenerateReviewResponse(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (reviewId: string) => api.generateReviewResponse(reviewId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-reviews", clientId] }),
-  });
-}
-export function useApproveReviewResponse(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (reviewId: string) => api.approveReviewResponse(reviewId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-reviews", clientId] }),
-  });
-}
-export function useGenerateQnaAnswer(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (qnaId: string) => api.generateQnaAnswer(qnaId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-qna", clientId] }),
-  });
-}
-export function useApproveQnaAnswer(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (qnaId: string) => api.approveQnaAnswer(qnaId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-qna", clientId] }),
-  });
-}
-export function useUpdateLocalInsightStatus(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ insightId, status }: { insightId: string; status: string }) =>
-      api.updateLocalInsightStatus(insightId, status),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["local-seo-insights", clientId] }),
-  });
-}
+export function useApproveGbpPost(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (postId: string) => api.approveGbpPost(postId), onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-posts", clientId] }) }); }
+export function useGenerateReviewResponse(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (reviewId: string) => api.generateReviewResponse(reviewId), onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-reviews", clientId] }) }); }
+export function useApproveReviewResponse(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (reviewId: string) => api.approveReviewResponse(reviewId), onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-reviews", clientId] }) }); }
+export function useGenerateQnaAnswer(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (qnaId: string) => api.generateQnaAnswer(qnaId), onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-qna", clientId] }) }); }
+export function useApproveQnaAnswer(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (qnaId: string) => api.approveQnaAnswer(qnaId), onSuccess: () => qc.invalidateQueries({ queryKey: ["gbp-qna", clientId] }) }); }
+export function useUpdateLocalInsightStatus(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ insightId, status }: { insightId: string; status: string }) => api.updateLocalInsightStatus(insightId, status), onSuccess: () => qc.invalidateQueries({ queryKey: ["local-seo-insights", clientId] }) }); }
 
 // ---------- Creative Assets ----------
-export function useCreativeAssets(clientId: string, sourceType?: string) {
-  return useQuery({ queryKey: ["creative-assets", clientId, sourceType], queryFn: () => api.getCreativeAssets(clientId, sourceType), enabled: !!clientId });
-}
-export function useGenerateCreative(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Parameters<typeof api.generateCreativeAsset>[0]) => api.generateCreativeAsset(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }),
-  });
-}
-export function useApproveCreativeAsset(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.approveCreativeAsset(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }),
-  });
-}
-export function useRegenerateCreativeAsset(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ assetId, prompt }: { assetId: string; prompt?: string }) => api.regenerateCreativeAsset(assetId, prompt),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }),
-  });
-}
-export function useDeleteCreativeAsset(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.deleteCreativeAsset(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }),
-  });
-}
-export function useBrandProfile(clientId: string) {
-  return useQuery({ queryKey: ["brand-profile", clientId], queryFn: () => api.getBrandProfile(clientId), enabled: !!clientId });
-}
-export function useSaveBrandProfile(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Parameters<typeof api.saveBrandProfile>[0]) => api.saveBrandProfile(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["brand-profile", clientId] }),
-  });
-}
+export function useCreativeAssets(clientId: string, sourceType?: string) { return useQuery({ queryKey: ["creative-assets", clientId, sourceType], queryFn: () => api.getCreativeAssets(clientId, sourceType), enabled: !!clientId }); }
+export function useGenerateCreative(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (data: Parameters<typeof api.generateCreativeAsset>[0]) => api.generateCreativeAsset(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }) }); }
+export function useApproveCreativeAsset(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.approveCreativeAsset(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }) }); }
+export function useRegenerateCreativeAsset(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ assetId, prompt }: { assetId: string; prompt?: string }) => api.regenerateCreativeAsset(assetId, prompt), onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }) }); }
+export function useDeleteCreativeAsset(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.deleteCreativeAsset(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["creative-assets", clientId] }) }); }
+export function useBrandProfile(clientId: string) { return useQuery({ queryKey: ["brand-profile", clientId], queryFn: () => api.getBrandProfile(clientId), enabled: !!clientId }); }
+export function useSaveBrandProfile(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (data: Parameters<typeof api.saveBrandProfile>[0]) => api.saveBrandProfile(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["brand-profile", clientId] }) }); }
 
 // ---------- Google Ads ----------
-export function useAdsCampaigns(clientId: string) {
-  return useQuery({ queryKey: ["ads-campaigns", clientId], queryFn: () => api.getAdsCampaigns(clientId), enabled: !!clientId });
-}
-export function useAdsRecommendations(clientId: string) {
-  return useQuery({ queryKey: ["ads-recommendations", clientId], queryFn: () => api.getAdsRecommendations(clientId), enabled: !!clientId });
-}
-export function useAdsCopy(clientId: string) {
-  return useQuery({ queryKey: ["ads-copy", clientId], queryFn: () => api.getAdsCopy(clientId), enabled: !!clientId });
-}
-export function useAdsInsights(clientId: string) {
-  return useQuery({ queryKey: ["ads-insights", clientId], queryFn: () => api.getAdsInsights(clientId), enabled: !!clientId });
-}
-export function useAdsPerformance(clientId: string, days?: number) {
-  return useQuery({ queryKey: ["ads-performance", clientId, days], queryFn: () => api.getAdsPerformance(clientId, days), enabled: !!clientId });
-}
-export function useGenerateAdsRecommendations() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (clientId: string) => api.generateAdsRecommendations(clientId),
-    onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["ads-recommendations", clientId] }),
-  });
-}
-export function useGenerateAdCopy(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Parameters<typeof api.generateAdCopy>[0]) => api.generateAdCopy(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["ads-copy", clientId] }),
-  });
-}
-export function useApproveAdCopy(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.approveAdCopy(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["ads-copy", clientId] }),
-  });
-}
-export function useUpdateAdsRecommendation(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ recId, status }: { recId: string; status: string }) => api.updateAdsRecommendation(recId, status),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["ads-recommendations", clientId] }),
-  });
-}
-export function useSyncAds() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (clientId: string) => api.syncAds(clientId),
-    onSuccess: (_d, clientId) => {
-      qc.invalidateQueries({ queryKey: ["ads-campaigns", clientId] });
-      qc.invalidateQueries({ queryKey: ["ads-insights", clientId] });
-      qc.invalidateQueries({ queryKey: ["ads-performance", clientId] });
-    },
-  });
-}
+export function useAdsCampaigns(clientId: string) { return useQuery({ queryKey: ["ads-campaigns", clientId], queryFn: () => api.getAdsCampaigns(clientId), enabled: !!clientId }); }
+export function useAdsRecommendations(clientId: string) { return useQuery({ queryKey: ["ads-recommendations", clientId], queryFn: () => api.getAdsRecommendations(clientId), enabled: !!clientId }); }
+export function useAdsCopy(clientId: string) { return useQuery({ queryKey: ["ads-copy", clientId], queryFn: () => api.getAdsCopy(clientId), enabled: !!clientId }); }
+export function useAdsInsights(clientId: string) { return useQuery({ queryKey: ["ads-insights", clientId], queryFn: () => api.getAdsInsights(clientId), enabled: !!clientId }); }
+export function useAdsPerformance(clientId: string, days?: number) { return useQuery({ queryKey: ["ads-performance", clientId, days], queryFn: () => api.getAdsPerformance(clientId, days), enabled: !!clientId }); }
+export function useGenerateAdsRecommendations() { const qc = useQueryClient(); return useMutation({ mutationFn: (clientId: string) => api.generateAdsRecommendations(clientId), onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["ads-recommendations", clientId] }) }); }
+export function useGenerateAdCopy(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (data: Parameters<typeof api.generateAdCopy>[0]) => api.generateAdCopy(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["ads-copy", clientId] }) }); }
+export function useApproveAdCopy(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.approveAdCopy(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["ads-copy", clientId] }) }); }
+export function useUpdateAdsRecommendation(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ recId, status }: { recId: string; status: string }) => api.updateAdsRecommendation(recId, status), onSuccess: () => qc.invalidateQueries({ queryKey: ["ads-recommendations", clientId] }) }); }
+export function useSyncAds() { const qc = useQueryClient(); return useMutation({ mutationFn: (clientId: string) => api.syncAds(clientId), onSuccess: (_d, clientId) => { qc.invalidateQueries({ queryKey: ["ads-campaigns", clientId] }); qc.invalidateQueries({ queryKey: ["ads-insights", clientId] }); qc.invalidateQueries({ queryKey: ["ads-performance", clientId] }); } }); }
 
 // ---------- Command Center ----------
-export function useCommandCenterSummary(clientId: string) {
-  return useQuery({ queryKey: ["command-center", clientId], queryFn: () => api.getCommandCenterSummary(clientId), enabled: !!clientId });
-}
-export function useMarketingPriorities(clientId: string, status?: string) {
-  return useQuery({ queryKey: ["marketing-priorities", clientId, status], queryFn: () => api.getMarketingPriorities(clientId, status), enabled: !!clientId });
-}
-export function useCrossChannelRecommendations(clientId: string, status?: string) {
-  return useQuery({ queryKey: ["cross-channel-recs", clientId, status], queryFn: () => api.getCrossChannelRecommendations(clientId, status), enabled: !!clientId });
-}
-export function useWeeklyActionPlans(clientId: string) {
-  return useQuery({ queryKey: ["weekly-plans", clientId], queryFn: () => api.getWeeklyActionPlans(clientId), enabled: !!clientId });
-}
-export function useMarketingGoals(clientId: string) {
-  return useQuery({ queryKey: ["marketing-goals", clientId], queryFn: () => api.getMarketingGoals(clientId), enabled: !!clientId });
-}
-export function useQuickWins(clientId: string) {
-  return useQuery({ queryKey: ["quick-wins", clientId], queryFn: () => api.getQuickWins(clientId), enabled: !!clientId });
-}
-export function useRecomputePriorities() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (clientId: string) => api.recomputePriorities(clientId),
-    onSuccess: (_d, clientId) => {
-      qc.invalidateQueries({ queryKey: ["marketing-priorities", clientId] });
-      qc.invalidateQueries({ queryKey: ["command-center", clientId] });
-      qc.invalidateQueries({ queryKey: ["quick-wins", clientId] });
-    },
-  });
-}
-export function useGenerateCrossChannelRecs() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (clientId: string) => api.generateCrossChannelRecommendations(clientId),
-    onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["cross-channel-recs", clientId] }),
-  });
-}
-export function useGenerateWeeklyPlan() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (clientId: string) => api.generateWeeklyPlan(clientId),
-    onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["weekly-plans", clientId] }),
-  });
-}
-export function useUpdatePriorityStatus(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ priorityId, status }: { priorityId: string; status: string }) => api.updateMarketingPriority(priorityId, status),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["marketing-priorities", clientId] });
-      qc.invalidateQueries({ queryKey: ["command-center", clientId] });
-    },
-  });
-}
-export function useUpdateRecommendationStatus(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ recId, status }: { recId: string; status: string }) => api.updateCrossChannelRecommendation(recId, status),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["cross-channel-recs", clientId] }),
-  });
-}
-export function useUpdateWeeklyItemStatus(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ itemId, status }: { itemId: string; status: string }) => api.updateWeeklyItem(itemId, status),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["weekly-plans", clientId] }),
-  });
-}
+export function useCommandCenterSummary(clientId: string) { return useQuery({ queryKey: ["command-center", clientId], queryFn: () => api.getCommandCenterSummary(clientId), enabled: !!clientId }); }
+export function useMarketingPriorities(clientId: string, status?: string) { return useQuery({ queryKey: ["marketing-priorities", clientId, status], queryFn: () => api.getMarketingPriorities(clientId, status), enabled: !!clientId }); }
+export function useCrossChannelRecommendations(clientId: string, status?: string) { return useQuery({ queryKey: ["cross-channel-recs", clientId, status], queryFn: () => api.getCrossChannelRecommendations(clientId, status), enabled: !!clientId }); }
+export function useWeeklyActionPlans(clientId: string) { return useQuery({ queryKey: ["weekly-plans", clientId], queryFn: () => api.getWeeklyActionPlans(clientId), enabled: !!clientId }); }
+export function useMarketingGoals(clientId: string) { return useQuery({ queryKey: ["marketing-goals", clientId], queryFn: () => api.getMarketingGoals(clientId), enabled: !!clientId }); }
+export function useQuickWins(clientId: string) { return useQuery({ queryKey: ["quick-wins", clientId], queryFn: () => api.getQuickWins(clientId), enabled: !!clientId }); }
+export function useRecomputePriorities() { const qc = useQueryClient(); return useMutation({ mutationFn: (clientId: string) => api.recomputePriorities(clientId), onSuccess: (_d, clientId) => { qc.invalidateQueries({ queryKey: ["marketing-priorities", clientId] }); qc.invalidateQueries({ queryKey: ["command-center", clientId] }); qc.invalidateQueries({ queryKey: ["quick-wins", clientId] }); } }); }
+export function useGenerateCrossChannelRecs() { const qc = useQueryClient(); return useMutation({ mutationFn: (clientId: string) => api.generateCrossChannelRecommendations(clientId), onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["cross-channel-recs", clientId] }) }); }
+export function useGenerateWeeklyPlan() { const qc = useQueryClient(); return useMutation({ mutationFn: (clientId: string) => api.generateWeeklyPlan(clientId), onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["weekly-plans", clientId] }) }); }
+export function useUpdatePriorityStatus(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ priorityId, status }: { priorityId: string; status: string }) => api.updateMarketingPriority(priorityId, status), onSuccess: () => { qc.invalidateQueries({ queryKey: ["marketing-priorities", clientId] }); qc.invalidateQueries({ queryKey: ["command-center", clientId] }); } }); }
+export function useUpdateRecommendationStatus(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ recId, status }: { recId: string; status: string }) => api.updateCrossChannelRecommendation(recId, status), onSuccess: () => qc.invalidateQueries({ queryKey: ["cross-channel-recs", clientId] }) }); }
+export function useUpdateWeeklyItemStatus(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ itemId, status }: { itemId: string; status: string }) => api.updateWeeklyItem(itemId, status), onSuccess: () => qc.invalidateQueries({ queryKey: ["weekly-plans", clientId] }) }); }
 
 // ---------- CRM ----------
-export function useCrmContacts(clientId: string) {
-  return useQuery({ queryKey: ["crm-contacts", clientId], queryFn: () => api.getCrmContacts(clientId), enabled: !!clientId });
-}
-export function useCreateCrmContact(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({ mutationFn: (data: any) => api.createCrmContact(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-contacts", clientId] }) });
-}
-export function useUpdateCrmContact(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({ mutationFn: ({ id, data }: { id: string; data: any }) => api.updateCrmContact(id, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-contacts", clientId] }) });
-}
-export function useCrmDeals(clientId: string) {
-  return useQuery({ queryKey: ["crm-deals", clientId], queryFn: () => api.getCrmDeals(clientId), enabled: !!clientId });
-}
-export function useCreateCrmDeal(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({ mutationFn: (data: any) => api.createCrmDeal(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-deals", clientId] }) });
-}
-export function useUpdateCrmDeal(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({ mutationFn: ({ id, data }: { id: string; data: any }) => api.updateCrmDeal(id, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-deals", clientId] }) });
-}
-export function useCrmActivities(clientId: string) {
-  return useQuery({ queryKey: ["crm-activities", clientId], queryFn: () => api.getCrmActivities(clientId), enabled: !!clientId });
-}
-export function useCreateCrmActivity(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({ mutationFn: (data: any) => api.createCrmActivity(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-activities", clientId] }) });
-}
-export function useCompleteCrmActivity(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({ mutationFn: (id: string) => api.completeCrmActivity(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-activities", clientId] }) });
-}
-export function useCaptureLead(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({ mutationFn: (data: any) => api.captureLead(data), onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm-contacts", clientId] }); } });
-}
-export function useCrmInsights(clientId: string, status?: string) {
-  return useQuery({ queryKey: ["crm-insights", clientId, status], queryFn: () => api.getCrmInsights(clientId, status), enabled: !!clientId });
-}
-export function useRecomputeCrmInsights() {
-  const qc = useQueryClient();
-  return useMutation({ mutationFn: (clientId: string) => api.recomputeCrmInsights(clientId), onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["crm-insights", clientId] }) });
-}
-export function useUpdateCrmInsightStatus(clientId: string) {
-  const qc = useQueryClient();
-  return useMutation({ mutationFn: ({ id, status }: { id: string; status: string }) => api.updateCrmInsightStatus(id, status), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-insights", clientId] }) });
-}
-export function useAttributionOverview(clientId: string) {
-  return useQuery({ queryKey: ["attribution-overview", clientId], queryFn: () => api.getAttributionOverview(clientId), enabled: !!clientId });
-}
-export function useAttributionContacts(clientId: string) {
-  return useQuery({ queryKey: ["attribution-contacts", clientId], queryFn: () => api.getAttributionContacts(clientId), enabled: !!clientId });
-}
-export function useAttributionDeals(clientId: string) {
-  return useQuery({ queryKey: ["attribution-deals", clientId], queryFn: () => api.getAttributionDeals(clientId), enabled: !!clientId });
-}
-export function useRecomputeAttribution() {
-  const qc = useQueryClient();
-  return useMutation({ mutationFn: (clientId: string) => api.recomputeAttribution(clientId), onSuccess: (_d, clientId) => { qc.invalidateQueries({ queryKey: ["attribution-overview", clientId] }); qc.invalidateQueries({ queryKey: ["attribution-contacts", clientId] }); qc.invalidateQueries({ queryKey: ["attribution-deals", clientId] }); } });
-}
+export function useCrmContacts(clientId: string) { return useQuery({ queryKey: ["crm-contacts", clientId], queryFn: () => api.getCrmContacts(clientId), enabled: !!clientId }); }
+export function useCreateCrmContact(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (data: any) => api.createCrmContact(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-contacts", clientId] }) }); }
+export function useUpdateCrmContact(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, data }: { id: string; data: any }) => api.updateCrmContact(id, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-contacts", clientId] }) }); }
+export function useDeleteCrmContact(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.deleteCrmContact(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-contacts", clientId] }) }); }
+export function useCrmDeals(clientId: string) { return useQuery({ queryKey: ["crm-deals", clientId], queryFn: () => api.getCrmDeals(clientId), enabled: !!clientId }); }
+export function useCreateCrmDeal(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (data: any) => api.createCrmDeal(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-deals", clientId] }) }); }
+export function useUpdateCrmDeal(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, data }: { id: string; data: any }) => api.updateCrmDeal(id, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-deals", clientId] }) }); }
+export function useDeleteCrmDeal(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.deleteCrmDeal(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-deals", clientId] }) }); }
+export function useCrmActivities(clientId: string) { return useQuery({ queryKey: ["crm-activities", clientId], queryFn: () => api.getCrmActivities(clientId), enabled: !!clientId }); }
+export function useCreateCrmActivity(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (data: any) => api.createCrmActivity(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-activities", clientId] }) }); }
+export function useCompleteCrmActivity(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.completeCrmActivity(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-activities", clientId] }) }); }
+export function useDeleteCrmActivity(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.deleteCrmActivity(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-activities", clientId] }) }); }
+export function useCaptureLead(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (data: any) => api.captureLead(data), onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm-contacts", clientId] }); } }); }
+export function useCrmInsights(clientId: string, status?: string) { return useQuery({ queryKey: ["crm-insights", clientId, status], queryFn: () => api.getCrmInsights(clientId, status), enabled: !!clientId }); }
+export function useRecomputeCrmInsights() { const qc = useQueryClient(); return useMutation({ mutationFn: (clientId: string) => api.recomputeCrmInsights(clientId), onSuccess: (_d, clientId) => qc.invalidateQueries({ queryKey: ["crm-insights", clientId] }) }); }
+export function useUpdateCrmInsightStatus(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, status }: { id: string; status: string }) => api.updateCrmInsightStatus(id, status), onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-insights", clientId] }) }); }
+export function useAttributionOverview(clientId: string) { return useQuery({ queryKey: ["attribution-overview", clientId], queryFn: () => api.getAttributionOverview(clientId), enabled: !!clientId }); }
+export function useAttributionContacts(clientId: string) { return useQuery({ queryKey: ["attribution-contacts", clientId], queryFn: () => api.getAttributionContacts(clientId), enabled: !!clientId }); }
+export function useAttributionDeals(clientId: string) { return useQuery({ queryKey: ["attribution-deals", clientId], queryFn: () => api.getAttributionDeals(clientId), enabled: !!clientId }); }
+export function useRecomputeAttribution() { const qc = useQueryClient(); return useMutation({ mutationFn: (clientId: string) => api.recomputeAttribution(clientId), onSuccess: (_d, clientId) => { qc.invalidateQueries({ queryKey: ["attribution-overview", clientId] }); qc.invalidateQueries({ queryKey: ["attribution-contacts", clientId] }); qc.invalidateQueries({ queryKey: ["attribution-deals", clientId] }); } }); }

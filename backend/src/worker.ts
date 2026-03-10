@@ -952,7 +952,75 @@ async function generateWeeklyPlans() {
 }
 
 // ====================================================================
-// 11. COMBINED DAILY JOB
+// 11. CRM AUTOMATION JOBS
+// ====================================================================
+async function recomputeAttribution() {
+  console.log(`[${new Date().toISOString()}] 🔄 Attribution recompute started`);
+  try {
+    const { rows: activeClients } = await pool.query(`SELECT id FROM clients WHERE status = 'active'`);
+    for (const client of activeClients) {
+      try {
+        const attributionService = await import("./services/crm/attributionService.js");
+        await attributionService.computeFirstTouchAttribution(client.id);
+        await attributionService.computeLastTouchAttribution(client.id);
+        await attributionService.computeLinearAttribution(client.id);
+        console.log(`  ✓ Attribution recomputed for client ${client.id}`);
+      } catch (err: any) {
+        console.error(`  ✗ Attribution error for client ${client.id}:`, err.message);
+      }
+    }
+    console.log(`[${new Date().toISOString()}] ✅ Attribution recompute completed`);
+  } catch (error) {
+    console.error("Fatal error in attribution recompute:", error);
+  }
+}
+
+async function recomputeCrmInsights() {
+  console.log(`[${new Date().toISOString()}] 💡 CRM insight recompute started`);
+  try {
+    const { rows: activeClients } = await pool.query(`SELECT id FROM clients WHERE status = 'active'`);
+    for (const client of activeClients) {
+      try {
+        const insightService = await import("./services/crm/insightService.js");
+        const count = await insightService.recomputeCrmInsights(client.id);
+        console.log(`  ✓ ${count} CRM insights for client ${client.id}`);
+      } catch (err: any) {
+        console.error(`  ✗ CRM insight error for client ${client.id}:`, err.message);
+      }
+    }
+    console.log(`[${new Date().toISOString()}] ✅ CRM insight recompute completed`);
+  } catch (error) {
+    console.error("Fatal error in CRM insight recompute:", error);
+  }
+}
+
+async function sendActivityReminders() {
+  console.log(`[${new Date().toISOString()}] ⏰ Activity reminder check started`);
+  try {
+    const { rows: overdue } = await pool.query(
+      `SELECT a.*, c.full_name as contact_name, cl.name as client_name
+       FROM crm_activities a
+       LEFT JOIN crm_contacts c ON c.id = a.contact_id
+       JOIN clients cl ON cl.id = a.client_id
+       WHERE a.completed_at IS NULL AND a.due_date < NOW()
+       ORDER BY a.due_date ASC`
+    );
+    if (overdue.length > 0) {
+      console.log(`  ⚠ ${overdue.length} overdue activities found`);
+      for (const act of overdue) {
+        console.log(`    - "${act.title}" for ${act.client_name} (due ${act.due_date})`);
+      }
+    } else {
+      console.log(`  ✓ No overdue activities`);
+    }
+    console.log(`[${new Date().toISOString()}] ✅ Activity reminder check completed`);
+  } catch (error) {
+    console.error("Fatal error in activity reminders:", error);
+  }
+}
+
+// ====================================================================
+// 12. COMBINED DAILY JOB
 // ====================================================================
 async function dailyJob() {
   await fetchRankings();
@@ -963,6 +1031,9 @@ async function dailyJob() {
   await syncGbpData();
   await syncAdsData();
   await recomputeCommandCenter();
+  await recomputeAttribution();
+  await recomputeCrmInsights();
+  await sendActivityReminders();
 }
 
 // Run daily at 02:00 SGT
@@ -986,7 +1057,16 @@ cron.schedule("0 7 * * *", recomputeCommandCenter, { timezone: "Asia/Singapore" 
 // Weekly plan generation every Monday at 08:00 SGT
 cron.schedule("0 8 * * 1", generateWeeklyPlans, { timezone: "Asia/Singapore" });
 
-console.log("🕐 Cron worker started — daily at 02:00 SGT, analytics 04:00, GBP 05:00, Ads 06:00, Command 07:00, Weekly plans Monday 08:00, publishing every minute");
+// CRM attribution recompute daily at 03:00 SGT
+cron.schedule("0 3 * * *", recomputeAttribution, { timezone: "Asia/Singapore" });
+
+// CRM insight recompute daily at 03:30 SGT
+cron.schedule("30 3 * * *", recomputeCrmInsights, { timezone: "Asia/Singapore" });
+
+// Activity reminders daily at 09:00 SGT
+cron.schedule("0 9 * * *", sendActivityReminders, { timezone: "Asia/Singapore" });
+
+console.log("🕐 Cron worker started — daily at 02:00 SGT, attribution 03:00, CRM insights 03:30, analytics 04:00, GBP 05:00, Ads 06:00, Command 07:00, Weekly plans Monday 08:00, activity reminders 09:00, publishing every minute");
 
 export {
   fetchRankings,
@@ -999,4 +1079,7 @@ export {
   syncAdsData,
   recomputeCommandCenter,
   generateWeeklyPlans,
+  recomputeAttribution,
+  recomputeCrmInsights,
+  sendActivityReminders,
 };
