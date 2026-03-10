@@ -21,7 +21,6 @@ router.post("/crm/contacts", async (req, res) => {
     const { client_id, first_name, last_name, email, phone, company_name, job_title, lead_source, notes } = req.body;
     const full_name = `${first_name || ""} ${last_name || ""}`.trim();
 
-    // Dedup check
     if (email) {
       const { rows: existing } = await pool.query(
         `SELECT id FROM crm_contacts WHERE client_id = $1 AND email = $2`, [client_id, email]
@@ -61,6 +60,17 @@ router.put("/crm/contacts/:contactId", async (req, res) => {
   } catch (e: any) { res.status(500).json({ error: e.message }); }
 });
 
+router.delete("/crm/contacts/:contactId", async (req, res) => {
+  try {
+    await pool.query(`DELETE FROM crm_activities WHERE contact_id = $1`, [req.params.contactId]);
+    await pool.query(`DELETE FROM attribution_records WHERE contact_id = $1`, [req.params.contactId]);
+    await pool.query(`DELETE FROM lead_capture_events WHERE contact_id = $1`, [req.params.contactId]);
+    const { rows } = await pool.query(`DELETE FROM crm_contacts WHERE id = $1 RETURNING id`, [req.params.contactId]);
+    if (rows.length === 0) return res.status(404).json({ error: "Contact not found" });
+    res.json({ deleted: true });
+  } catch (e: any) { res.status(500).json({ error: e.message }); }
+});
+
 // ===== Deals =====
 router.get("/:id/crm/deals", async (req, res) => {
   try {
@@ -94,7 +104,6 @@ router.put("/crm/deals/:dealId", async (req, res) => {
     for (const [k, v] of Object.entries(fields)) {
       sets.push(`${k} = $${i}`); vals.push(v); i++;
     }
-    // Auto-set won_date
     if (fields.deal_stage === 'won' && !fields.won_date) {
       sets.push(`won_date = $${i}`); vals.push(new Date().toISOString()); i++;
     }
@@ -104,6 +113,15 @@ router.put("/crm/deals/:dealId", async (req, res) => {
       `UPDATE crm_deals SET ${sets.join(", ")} WHERE id = $${vals.length} RETURNING *`, vals
     );
     res.json(rows[0]);
+  } catch (e: any) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete("/crm/deals/:dealId", async (req, res) => {
+  try {
+    await pool.query(`DELETE FROM crm_activities WHERE deal_id = $1`, [req.params.dealId]);
+    const { rows } = await pool.query(`DELETE FROM crm_deals WHERE id = $1 RETURNING id`, [req.params.dealId]);
+    if (rows.length === 0) return res.status(404).json({ error: "Deal not found" });
+    res.json({ deleted: true });
   } catch (e: any) { res.status(500).json({ error: e.message }); }
 });
 
@@ -132,6 +150,14 @@ router.put("/crm/activities/:actId/complete", async (req, res) => {
   } catch (e: any) { res.status(500).json({ error: e.message }); }
 });
 
+router.delete("/crm/activities/:actId", async (req, res) => {
+  try {
+    const { rows } = await pool.query(`DELETE FROM crm_activities WHERE id = $1 RETURNING id`, [req.params.actId]);
+    if (rows.length === 0) return res.status(404).json({ error: "Activity not found" });
+    res.json({ deleted: true });
+  } catch (e: any) { res.status(500).json({ error: e.message }); }
+});
+
 // ===== Lead Capture =====
 router.post("/crm/leads/capture", async (req, res) => {
   try {
@@ -143,7 +169,6 @@ router.post("/crm/leads/capture", async (req, res) => {
     const full_name = `${first_name || ""} ${last_name || ""}`.trim();
     let contact_id: string;
 
-    // Find or create contact
     if (email) {
       const { rows: existing } = await pool.query(
         `SELECT id FROM crm_contacts WHERE client_id = $1 AND email = $2`, [client_id, email]
@@ -167,7 +192,6 @@ router.post("/crm/leads/capture", async (req, res) => {
       contact_id = created[0].id;
     }
 
-    // Record lead capture event
     const { rows: evt } = await pool.query(
       `INSERT INTO lead_capture_events (client_id, contact_id, source_type, channel, landing_page_url, referrer_url,
         utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, event_type)
@@ -176,7 +200,6 @@ router.post("/crm/leads/capture", async (req, res) => {
        utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, event_type || 'form_submit']
     );
 
-    // Create follow-up activity
     await activityService.createActivity({
       client_id, contact_id, activity_type: 'follow_up',
       title: `Follow up with ${full_name || email || 'new lead'}`,
