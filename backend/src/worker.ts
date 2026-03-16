@@ -1118,7 +1118,64 @@ cron.schedule("30 1 * * *", usageRollup, { timezone: "Asia/Singapore" });
 // Approval reminders daily at 10:00 SGT
 cron.schedule("0 10 * * *", sendApprovalReminders, { timezone: "Asia/Singapore" });
 
-console.log("🕐 Cron worker started — Phase 20: invite expiry 01:00, usage rollup 01:30, ranks 02:00, attribution 03:00, CRM insights 03:30, analytics 04:00, GBP 05:00, Ads 06:00, Command 07:00, Weekly plans Monday 08:00, activity reminders 09:00, approval reminders 10:00, publishing every minute");
+console.log("🕐 Cron worker started — Phase 21: onboarding setup 01:45, activation recompute 02:30, invite expiry 01:00, usage rollup 01:30, ranks 02:00, attribution 03:00, CRM insights 03:30, analytics 04:00, GBP 05:00, Ads 06:00, Command 07:00, Weekly plans Monday 08:00, activity reminders 09:00, approval reminders 10:00, publishing every minute");
+
+// ====================================================================
+// PHASE 21: ONBOARDING & ACTIVATION JOBS
+// ====================================================================
+async function recomputeActivation() {
+  console.log(`[${new Date().toISOString()}] 🚀 Activation recompute started`);
+  try {
+    // Auto-complete checklist items where integrations exist
+    await pool.query(
+      `UPDATE activation_checklists ac SET status = 'completed', updated_at = NOW()
+       WHERE ac.item_key = 'connect_gsc' AND ac.status = 'pending'
+       AND EXISTS (SELECT 1 FROM analytics_connections an WHERE an.client_id = ac.client_id AND an.provider = 'gsc' AND an.status = 'active')`
+    );
+    await pool.query(
+      `UPDATE activation_checklists ac SET status = 'completed', updated_at = NOW()
+       WHERE ac.item_key = 'connect_ga4' AND ac.status = 'pending'
+       AND EXISTS (SELECT 1 FROM analytics_connections an WHERE an.client_id = ac.client_id AND an.provider = 'ga4' AND an.status = 'active')`
+    );
+    await pool.query(
+      `UPDATE activation_checklists ac SET status = 'completed', updated_at = NOW()
+       WHERE ac.item_key = 'connect_gbp' AND ac.status = 'pending'
+       AND EXISTS (SELECT 1 FROM gbp_connections g WHERE g.client_id = ac.client_id AND g.status = 'active')`
+    );
+    await pool.query(
+      `UPDATE activation_checklists ac SET status = 'completed', updated_at = NOW()
+       WHERE ac.item_key = 'connect_wordpress' AND ac.status = 'pending'
+       AND EXISTS (SELECT 1 FROM cms_connections cm WHERE cm.client_id = ac.client_id)`
+    );
+    await pool.query(
+      `UPDATE activation_checklists ac SET status = 'completed', updated_at = NOW()
+       WHERE ac.item_key = 'generate_first_article' AND ac.status = 'pending'
+       AND EXISTS (SELECT 1 FROM seo_articles sa WHERE sa.client_id = ac.client_id)`
+    );
+    console.log(`  ✓ Activation checklist auto-complete done`);
+  } catch (error) {
+    console.error("Error in activation recompute:", error);
+  }
+}
+
+async function abandonStaleOnboarding() {
+  console.log(`[${new Date().toISOString()}] 📋 Stale onboarding check started`);
+  try {
+    const { rowCount } = await pool.query(
+      `UPDATE onboarding_sessions SET status = 'abandoned', updated_at = NOW()
+       WHERE status = 'in_progress' AND updated_at < NOW() - INTERVAL '30 days'`
+    );
+    console.log(`  ✓ Abandoned ${rowCount || 0} stale onboarding sessions`);
+  } catch (error) {
+    console.error("Error in stale onboarding check:", error);
+  }
+}
+
+// Activation recompute daily at 02:30 SGT
+cron.schedule("30 2 * * *", recomputeActivation, { timezone: "Asia/Singapore" });
+
+// Stale onboarding cleanup daily at 01:45 SGT
+cron.schedule("45 1 * * *", abandonStaleOnboarding, { timezone: "Asia/Singapore" });
 
 export {
   fetchRankings,
@@ -1137,4 +1194,6 @@ export {
   checkInviteExpiry,
   usageRollup,
   sendApprovalReminders,
+  recomputeActivation,
+  abandonStaleOnboarding,
 };
