@@ -80,6 +80,8 @@ app.use("/api/command", commandRouter);
 app.use("/api/clients", commandRouter);
 app.use("/api/crm", crmRouter);
 app.use("/api/clients", crmRouter);
+app.use("/api", onboardingRouter);
+app.use("/api/clients", onboardingRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
