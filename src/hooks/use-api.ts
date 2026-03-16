@@ -268,3 +268,11 @@ export function useAttributionOverview(clientId: string) { return useQuery({ que
 export function useAttributionContacts(clientId: string) { return useQuery({ queryKey: ["attribution-contacts", clientId], queryFn: () => api.getAttributionContacts(clientId), enabled: !!clientId }); }
 export function useAttributionDeals(clientId: string) { return useQuery({ queryKey: ["attribution-deals", clientId], queryFn: () => api.getAttributionDeals(clientId), enabled: !!clientId }); }
 export function useRecomputeAttribution() { const qc = useQueryClient(); return useMutation({ mutationFn: (clientId: string) => api.recomputeAttribution(clientId), onSuccess: (_d, clientId) => { qc.invalidateQueries({ queryKey: ["attribution-overview", clientId] }); qc.invalidateQueries({ queryKey: ["attribution-contacts", clientId] }); qc.invalidateQueries({ queryKey: ["attribution-deals", clientId] }); } }); }
+
+// ---------- Onboarding ----------
+export function useStartOnboarding() { return useMutation({ mutationFn: (workspaceId: string) => api.startOnboarding(workspaceId) }); }
+export function useCompleteOnboarding() { return useMutation({ mutationFn: (workspaceId: string) => api.completeOnboarding(workspaceId) }); }
+export function useTemplates(industry?: string) { return useQuery({ queryKey: ["templates", industry], queryFn: () => api.getTemplates(industry) }); }
+export function useRunSetup() { return useMutation({ mutationFn: (data: { workspace_id: string; client_id: string; template_id: string }) => api.runSetup(data) }); }
+export function useActivationChecklist(clientId: string) { return useQuery({ queryKey: ["activation-checklist", clientId], queryFn: () => api.getActivationChecklist(clientId), enabled: !!clientId }); }
+export function useUpdateChecklistItem(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ itemId, status }: { itemId: string; status: string }) => api.updateChecklistItem(itemId, status), onSuccess: () => qc.invalidateQueries({ queryKey: ["activation-checklist", clientId] }) }); }

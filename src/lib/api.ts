@@ -287,3 +287,21 @@ export const getAttributionOverview = (clientId: string) => request<AttributionO
 export const getAttributionContacts = (clientId: string) => request<AttributionContact[]>(`/clients/${clientId}/attribution/contacts`);
 export const getAttributionDeals = (clientId: string) => request<AttributionDeal[]>(`/clients/${clientId}/attribution/deals`);
 export const recomputeAttribution = (clientId: string) => request<any>(`/clients/${clientId}/attribution/recompute`, { method: "POST" });
+
+// ---------- Onboarding ----------
+export const startOnboarding = (workspaceId: string) => request<any>(`/onboarding/start`, { method: "POST", body: JSON.stringify({ workspace_id: workspaceId }) });
+export const getOnboarding = (workspaceId: string) => request<any>(`/onboarding/${workspaceId}`);
+export const updateOnboarding = (workspaceId: string, data: any) => request<any>(`/onboarding/${workspaceId}`, { method: "PUT", body: JSON.stringify(data) });
+export const completeOnboarding = (workspaceId: string) => request<any>(`/onboarding/${workspaceId}/complete`, { method: "POST" });
+
+// ---------- Templates ----------
+export const getTemplates = (industry?: string) => request<any[]>(`/templates${industry ? `?industry=${industry}` : ""}`);
+export const getTemplate = (id: string) => request<any>(`/templates/${id}`);
+
+// ---------- Setup ----------
+export const runSetup = (data: { workspace_id: string; client_id: string; template_id: string }) => request<any>(`/setup/run`, { method: "POST", body: JSON.stringify(data) });
+export const getSetupStatus = (workspaceId: string) => request<any>(`/setup/${workspaceId}/status`);
+
+// ---------- Activation Checklist ----------
+export const getActivationChecklist = (clientId: string) => request<any[]>(`/clients/${clientId}/activation-checklist`);
+export const updateChecklistItem = (itemId: string, status: string) => request<any>(`/activation-checklist/${itemId}`, { method: "PUT", body: JSON.stringify({ status }) });
