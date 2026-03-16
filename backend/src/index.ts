@@ -22,6 +22,11 @@ import creativeRouter from "./routes/creative.js";
 import adsRouter from "./routes/ads.js";
 import commandRouter from "./routes/command.js";
 import crmRouter from "./routes/crm.js";
+import authRouter from "./routes/auth.js";
+import workspacesRouter from "./routes/workspaces.js";
+import invitesRouter from "./routes/invites.js";
+import approvalsRouter from "./routes/approvals.js";
+import approvalsClientRouter from "./routes/approvals-client.js";
 
 dotenv.config();
 
@@ -31,7 +36,14 @@ const PORT = Number(process.env.PORT) || 3001;
 app.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173" }));
 app.use(express.json());
 
-// Routes
+// Auth routes (no middleware needed)
+app.use("/api/auth", authRouter);
+app.use("/api/workspaces", workspacesRouter);
+app.use("/api/invites", invitesRouter);
+app.use("/api/approvals", approvalsRouter);
+app.use("/api/clients", approvalsClientRouter);
+
+// Existing routes
 app.use("/api/clients", clientsRouter);
 app.use("/api/clients", keywordsRouter);
 app.use("/api/clients", competitorsRouter);

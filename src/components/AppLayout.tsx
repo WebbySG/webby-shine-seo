@@ -3,6 +3,13 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Outlet, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogOut, Settings, User as UserIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const PAGE_TITLES: Record<string, { label: string; module?: string }> = {
   "/": { label: "Dashboard" },
@@ -16,6 +23,7 @@ const PAGE_TITLES: Record<string, { label: string; module?: string }> = {
   "/creative": { label: "Creative Assets", module: "content" },
   "/google-ads": { label: "Google Ads", module: "ads" },
   "/crm": { label: "CRM", module: "crm" },
+  "/settings": { label: "Settings" },
 };
 
 const MODULE_BADGE_STYLES: Record<string, string> = {
@@ -30,8 +38,11 @@ const MODULE_BADGE_STYLES: Record<string, string> = {
 
 export function AppLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, workspace } = useAuth();
   const basePath = "/" + (location.pathname.split("/")[1] || "");
-  const page = PAGE_TITLES[basePath] || { label: "Webby SEO" };
+  const page = PAGE_TITLES[basePath] || { label: workspace?.brand_name || "Webby SEO" };
+  const initials = user ? `${user.first_name?.[0] || ""}${user.last_name?.[0] || ""}`.toUpperCase() || "U" : "U";
 
   return (
     <SidebarProvider>
@@ -42,9 +53,7 @@ export function AppLayout() {
             <div className="flex items-center gap-3">
               <SidebarTrigger className="mr-1" />
               <div className="h-4 w-px bg-border/50" />
-              <span className="text-sm font-semibold text-foreground tracking-tight">
-                {page.label}
-              </span>
+              <span className="text-sm font-semibold text-foreground tracking-tight">{page.label}</span>
               {page.module && (
                 <Badge variant="outline" className={`text-[10px] font-medium ${MODULE_BADGE_STYLES[page.module] || ""}`}>
                   {page.module.toUpperCase()}
@@ -52,10 +61,23 @@ export function AppLayout() {
               )}
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-[10px] font-mono text-muted-foreground/60 uppercase tracking-widest">
-                SEO Operating System
-              </span>
               <ThemeToggle />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 rounded-full hover:bg-muted/60 p-1 pr-2 transition-colors">
+                    <Avatar className="h-7 w-7">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">{initials}</AvatarFallback>
+                    </Avatar>
+                    <span className="text-xs font-medium text-muted-foreground hidden sm:inline">{user?.full_name}</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => navigate("/settings")}><UserIcon className="h-4 w-4 mr-2" /> Profile</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/settings")}><Settings className="h-4 w-4 mr-2" /> Settings</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-destructive"><LogOut className="h-4 w-4 mr-2" /> Sign Out</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
           <main className="flex-1 overflow-auto p-6 lg:p-8">
