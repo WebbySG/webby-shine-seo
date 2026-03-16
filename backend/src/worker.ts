@@ -1066,7 +1066,59 @@ cron.schedule("30 3 * * *", recomputeCrmInsights, { timezone: "Asia/Singapore" }
 // Activity reminders daily at 09:00 SGT
 cron.schedule("0 9 * * *", sendActivityReminders, { timezone: "Asia/Singapore" });
 
-console.log("🕐 Cron worker started — daily at 02:00 SGT, attribution 03:00, CRM insights 03:30, analytics 04:00, GBP 05:00, Ads 06:00, Command 07:00, Weekly plans Monday 08:00, activity reminders 09:00, publishing every minute");
+// ====================================================================
+// PHASE 20: INVITE EXPIRY, USAGE ROLLUP, APPROVAL REMINDERS
+// ====================================================================
+async function checkInviteExpiry() {
+  console.log(`[${new Date().toISOString()}] 📧 Invite expiry check started`);
+  try {
+    const { rowCount } = await pool.query(
+      `UPDATE invites SET status = 'expired', updated_at = NOW() WHERE status = 'pending' AND expires_at < NOW()`
+    );
+    console.log(`  ✓ Expired ${rowCount || 0} invites`);
+  } catch (error) {
+    console.error("Error in invite expiry check:", error);
+  }
+}
+
+async function usageRollup() {
+  console.log(`[${new Date().toISOString()}] 📊 Usage rollup started`);
+  try {
+    const { rowCount } = await pool.query(
+      `DELETE FROM usage_events WHERE created_at < NOW() - INTERVAL '90 days'`
+    );
+    console.log(`  ✓ Cleaned ${rowCount || 0} old usage events`);
+  } catch (error) {
+    console.error("Error in usage rollup:", error);
+  }
+}
+
+async function sendApprovalReminders() {
+  console.log(`[${new Date().toISOString()}] 🔔 Approval reminder check started`);
+  try {
+    const { rows } = await pool.query(
+      `SELECT ca.id, ca.asset_type, ca.client_id, c.name as client_name
+       FROM client_approvals ca
+       JOIN clients c ON c.id = ca.client_id
+       WHERE ca.status = 'pending' AND ca.created_at < NOW() - INTERVAL '2 days'`
+    );
+    console.log(`  ✓ ${rows.length} pending approvals need reminders`);
+    // In production: send email/notification reminders
+  } catch (error) {
+    console.error("Error in approval reminders:", error);
+  }
+}
+
+// Invite expiry daily at 01:00 SGT
+cron.schedule("0 1 * * *", checkInviteExpiry, { timezone: "Asia/Singapore" });
+
+// Usage rollup daily at 01:30 SGT
+cron.schedule("30 1 * * *", usageRollup, { timezone: "Asia/Singapore" });
+
+// Approval reminders daily at 10:00 SGT
+cron.schedule("0 10 * * *", sendApprovalReminders, { timezone: "Asia/Singapore" });
+
+console.log("🕐 Cron worker started — Phase 20: invite expiry 01:00, usage rollup 01:30, ranks 02:00, attribution 03:00, CRM insights 03:30, analytics 04:00, GBP 05:00, Ads 06:00, Command 07:00, Weekly plans Monday 08:00, activity reminders 09:00, approval reminders 10:00, publishing every minute");
 
 export {
   fetchRankings,
@@ -1082,4 +1134,7 @@ export {
   recomputeAttribution,
   recomputeCrmInsights,
   sendActivityReminders,
+  checkInviteExpiry,
+  usageRollup,
+  sendApprovalReminders,
 };
