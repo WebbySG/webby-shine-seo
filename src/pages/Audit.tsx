@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useClients, useAuditIssues } from "@/hooks/use-api";
 import { clients as dummyClients, getClientAuditIssues } from "@/data/dummy";
+import { Button } from "@/components/ui/button";
 import { AlertTriangle, AlertCircle, Info, CheckCircle2, Shield, Bug, Wrench, CircleDot } from "lucide-react";
 
 const severityConfig = {

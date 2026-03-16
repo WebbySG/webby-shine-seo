@@ -295,7 +295,22 @@ export default function ClientDetail() {
             <Globe className="h-3 w-3" />{client.domain}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button size="sm" variant="outline" onClick={() => {
+            const kw = prompt("Enter keyword to track:");
+            if (kw) toast.info(`Keyword "${kw}" — use the API to add it`);
+          }}>
+            <Key className="h-3.5 w-3.5 mr-1" /> Add Keyword
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => {
+            const d = prompt("Enter competitor domain:");
+            if (d) toast.info(`Competitor "${d}" — use the API to add it`);
+          }}>
+            <Users2 className="h-3.5 w-3.5 mr-1" /> Add Competitor
+          </Button>
+          <Button size="sm" variant="outline" disabled title="Run via Command Center">
+            <AlertTriangle className="h-3.5 w-3.5 mr-1" /> Run Audit
+          </Button>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-lg border">
             <Activity className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Health</span>

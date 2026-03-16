@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useClients, useOpportunities } from "@/hooks/use-api";
 import { clients as dummyClients } from "@/data/dummy";
-import { Target, FileSearch, Layers, Wrench, Lightbulb, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Target, FileSearch, Layers, Wrench, Lightbulb, TrendingUp, RefreshCw } from "lucide-react";
 import type { Opportunity } from "@/lib/api";
 
 const TYPE_META: Record<Opportunity["type"], { label: string; icon: typeof Target; colorClass: string; bgClass: string; borderClass: string }> = {
