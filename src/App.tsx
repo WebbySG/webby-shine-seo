@@ -26,6 +26,8 @@ import WorkspaceSettings from "@/pages/WorkspaceSettings";
 import PortalOverview from "@/pages/portal/PortalOverview";
 import PortalPerformance from "@/pages/portal/PortalPerformance";
 import PortalSettings from "@/pages/portal/PortalSettings";
+import OnboardingWizard from "@/pages/OnboardingWizard";
+import SetupComplete from "@/pages/SetupComplete";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
