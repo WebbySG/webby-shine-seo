@@ -27,6 +27,7 @@ import workspacesRouter from "./routes/workspaces.js";
 import invitesRouter from "./routes/invites.js";
 import approvalsRouter from "./routes/approvals.js";
 import approvalsClientRouter from "./routes/approvals-client.js";
+import onboardingRouter from "./routes/onboarding.js";
 
 dotenv.config();
 
