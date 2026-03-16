@@ -65,6 +65,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Fetch current user on mount / token change
   useEffect(() => {
     if (!token) {
+      // No token — allow access in demo/preview mode with full permissions
+      setUser({ id: "demo", workspace_id: "demo", first_name: "Demo", last_name: "User", full_name: "Demo User", email: "demo@webby.seo", status: "active" });
+      setWorkspace({ id: "demo", name: "Webby SEO", slug: "demo", workspace_type: "agency", status: "active" });
+      setRoles(["owner"]);
+      setPermissions([
+        "view_dashboard", "manage_clients", "manage_articles", "approve_articles",
+        "publish_articles", "manage_social", "manage_videos", "manage_gbp",
+        "manage_ads", "view_analytics", "view_crm", "manage_crm", "view_billing",
+        "manage_branding", "manage_team", "manage_settings"
+      ]);
       setIsLoading(false);
       return;
     }
