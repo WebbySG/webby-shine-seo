@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useClients, useAuditIssues } from "@/hooks/use-api";
 import { clients as dummyClients, getClientAuditIssues } from "@/data/dummy";
+import { Button } from "@/components/ui/button";
 import { AlertTriangle, AlertCircle, Info, CheckCircle2, Shield, Bug, Wrench, CircleDot } from "lucide-react";
 
 const severityConfig = {
@@ -37,17 +38,22 @@ export default function Audit() {
 
   return (
     <PageTransition className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Technical Audit</h1>
           <p className="text-muted-foreground text-sm mt-1">SEO issue tracker & resolution board</p>
         </div>
-        <Select value={clientId} onValueChange={setClientId}>
-          <SelectTrigger className="w-[200px] bg-card border"><SelectValue placeholder="Select client" /></SelectTrigger>
-          <SelectContent>
-            {clients.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-3">
+          <Select value={clientId} onValueChange={setClientId}>
+            <SelectTrigger className="w-[200px] bg-card border"><SelectValue placeholder="Select client" /></SelectTrigger>
+            <SelectContent>
+              {clients.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+            </SelectContent>
+          </Select>
+          <Button size="sm" variant="outline" disabled title="Run audit from Client Detail page">
+            <Shield className="h-3.5 w-3.5 mr-1" /> Run Audit
+          </Button>
+        </div>
       </div>
 
       {/* KPI Cards with accent borders */}

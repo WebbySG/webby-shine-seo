@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useClients, useOpportunities } from "@/hooks/use-api";
 import { clients as dummyClients } from "@/data/dummy";
-import { Target, FileSearch, Layers, Wrench, Lightbulb, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Target, FileSearch, Layers, Wrench, Lightbulb, TrendingUp, RefreshCw } from "lucide-react";
 import type { Opportunity } from "@/lib/api";
 
 const TYPE_META: Record<Opportunity["type"], { label: string; icon: typeof Target; colorClass: string; bgClass: string; borderClass: string }> = {
@@ -45,17 +46,22 @@ export default function Opportunities() {
 
   return (
     <PageTransition className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Opportunities</h1>
           <p className="text-muted-foreground text-sm mt-1">Weekly SEO action suggestions · <span className="font-medium text-foreground">{highPriorityCount} high priority</span></p>
         </div>
-        <Select value={clientId} onValueChange={setClientId}>
-          <SelectTrigger className="w-[200px] bg-card border"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {clients.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-3">
+          <Select value={clientId} onValueChange={setClientId}>
+            <SelectTrigger className="w-[200px] bg-card border"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {clients.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+            </SelectContent>
+          </Select>
+          <Button size="sm" variant="outline" disabled title="Opportunities are auto-generated from crawl data">
+            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Summary cards with accent borders */}

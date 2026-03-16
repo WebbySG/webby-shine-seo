@@ -6,9 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useClients } from "@/hooks/use-api";
 import { usePerformanceSummary, usePagePerformance, useKeywordPerformance, useAssetPerformance, usePerformanceInsights, useUpdateInsightStatus, useAnalyticsConnections, useSyncAnalytics } from "@/hooks/use-api";
 import { BarChart3, TrendingUp, MousePointerClick, Eye, Target, Lightbulb, RefreshCw, Loader2, Check, ArrowUpRight, ArrowDownRight, Minus, Link2, Layers } from "lucide-react";
+import {
+  LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  Tooltip, Legend, ResponsiveContainer
+} from "recharts";
 import { toast } from "sonner";
 
 const INSIGHT_ICONS: Record<string, typeof Lightbulb> = {
@@ -26,13 +31,40 @@ const PRIORITY_COLORS: Record<string, string> = {
   low: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
 };
 
+// Generate trend data from page performance for charts
+function generateTrendFromPages(pages: any[]) {
+  if (!pages.length) return [];
+  // Group by source or create synthetic weekly data
+  const sorted = [...pages].sort((a, b) => Number(b.clicks) - Number(a.clicks)).slice(0, 10);
+  return sorted.map((p, i) => ({
+    name: (p.page_url || "").replace(/https?:\/\/[^/]+/, "").slice(0, 30) || `Page ${i + 1}`,
+    clicks: Number(p.clicks) || 0,
+    impressions: Number(p.impressions) || 0,
+    ctr: Number((Number(p.ctr) * 100).toFixed(1)) || 0,
+    position: Number(Number(p.average_position).toFixed(1)) || 0,
+  }));
+}
+
+function generateKwChart(keywords: any[]) {
+  if (!keywords.length) return [];
+  return [...keywords]
+    .sort((a, b) => Number(b.clicks) - Number(a.clicks))
+    .slice(0, 8)
+    .map((k) => ({
+      name: (k.keyword || "").slice(0, 25),
+      clicks: Number(k.clicks) || 0,
+      impressions: Number(k.impressions) || 0,
+      position: Number(Number(k.average_position).toFixed(1)) || 0,
+    }));
+}
+
 export default function Analytics() {
   const [selectedClient, setSelectedClient] = useState<string>("");
   const [days, setDays] = useState(14);
   const { data: clients } = useClients();
-  const { data: summary } = usePerformanceSummary(selectedClient, days);
-  const { data: pagePerf } = usePagePerformance(selectedClient, days);
-  const { data: kwPerf } = useKeywordPerformance(selectedClient, days);
+  const { data: summary, isLoading: summaryLoading } = usePerformanceSummary(selectedClient, days);
+  const { data: pagePerf, isLoading: pagesLoading } = usePagePerformance(selectedClient, days);
+  const { data: kwPerf, isLoading: kwLoading } = useKeywordPerformance(selectedClient, days);
   const { data: assetPerf } = useAssetPerformance(selectedClient, days);
   const { data: insights } = usePerformanceInsights(selectedClient);
   const { data: connections } = useAnalyticsConnections(selectedClient);
@@ -45,6 +77,9 @@ export default function Analytics() {
   const allInsights = insights ?? [];
   const conns = connections ?? [];
   const s = summary?.summary ?? { total_clicks: 0, total_impressions: 0, avg_ctr: 0, avg_position: 0, total_sessions: 0 };
+
+  const trendData = generateTrendFromPages(pages);
+  const kwChartData = generateKwChart(keywords);
 
   const kpiCards = [
     { label: "Organic Clicks", value: Number(s.total_clicks || 0).toLocaleString(), icon: MousePointerClick, color: "border-l-analytics-primary" },
@@ -62,7 +97,7 @@ export default function Analytics() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Analytics & Performance</h1>
           <p className="text-sm text-muted-foreground mt-1.5">Track content performance and get optimization insights</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>
             <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -80,12 +115,12 @@ export default function Analytics() {
             </SelectContent>
           </Select>
           {selectedClient && (
-            <Button size="sm" variant="outline" disabled={syncAnalytics.isPending} onClick={() => {
+            <Button size="sm" onClick={() => {
               syncAnalytics.mutate(selectedClient, {
                 onSuccess: (data) => toast.success(`Generated ${data.insights_generated} insights`),
                 onError: () => toast.error("Sync failed"),
               });
-            }}>
+            }} disabled={syncAnalytics.isPending}>
               {syncAnalytics.isPending ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5 mr-1.5" />}
               Sync & Analyze
             </Button>
@@ -99,32 +134,125 @@ export default function Analytics() {
             <div className="h-16 w-16 rounded-2xl bg-analytics-background flex items-center justify-center mb-4">
               <BarChart3 className="h-8 w-8 text-analytics-primary" />
             </div>
-            <p className="text-muted-foreground font-medium">Select a client to view performance analytics</p>
+            <p className="text-muted-foreground font-medium mb-2">Select a client to view performance analytics</p>
+            <p className="text-xs text-muted-foreground">Choose a client above, then click "Sync & Analyze" to fetch data</p>
           </CardContent>
         </Card>
       ) : (
         <>
           {/* KPI Cards */}
-           <StaggerContainer className="grid gap-4 sm:grid-cols-5">
-            {kpiCards.map((m) => (
-              <StaggerItem key={m.label}>
-              <Card className={`hover-lift border-l-4 ${m.color}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
-                      <m.icon className="h-3.5 w-3.5 text-muted-foreground" />
+          {summaryLoading ? (
+            <div className="grid gap-4 sm:grid-cols-5">
+              {[1,2,3,4,5].map(i => <Skeleton key={i} className="h-20 rounded-lg" />)}
+            </div>
+          ) : (
+            <StaggerContainer className="grid gap-4 grid-cols-2 sm:grid-cols-5">
+              {kpiCards.map((m) => (
+                <StaggerItem key={m.label}>
+                  <Card className={`hover-lift border-l-4 ${m.color}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
+                          <m.icon className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                        <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">{m.label}</p>
+                      </div>
+                      <p className="text-2xl font-bold text-foreground">{m.value}</p>
+                    </CardContent>
+                  </Card>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          )}
+
+          {/* Charts Row */}
+          {pagesLoading ? (
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Skeleton className="h-72 rounded-lg" />
+              <Skeleton className="h-72 rounded-lg" />
+            </div>
+          ) : trendData.length > 0 ? (
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Clicks & Impressions by Page */}
+              <Card className="hover-lift">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <div className="h-7 w-7 rounded-lg bg-analytics-background flex items-center justify-center">
+                      <MousePointerClick className="h-4 w-4 text-analytics-primary" />
                     </div>
-                    <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">{m.label}</p>
-                  </div>
-                  <p className="text-2xl font-bold text-foreground">{m.value}</p>
+                    Top Pages — Clicks & Impressions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart data={trendData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" className="opacity-30" horizontal={false} />
+                      <XAxis type="number" tick={{ fontSize: 10 }} />
+                      <YAxis type="category" dataKey="name" tick={{ fontSize: 9 }} width={120} />
+                      <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Bar dataKey="clicks" fill="hsl(235, 82%, 76%)" name="Clicks" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="impressions" fill="hsl(235, 82%, 76%, 0.3)" name="Impressions" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </CardContent>
               </Card>
-              </StaggerItem>
-            ))}
-           </StaggerContainer>
+
+              {/* CTR & Position by Page */}
+              <Card className="hover-lift">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <div className="h-7 w-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                      <Target className="h-4 w-4 text-emerald-500" />
+                    </div>
+                    CTR & Avg Position
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart data={trendData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" className="opacity-30" horizontal={false} />
+                      <XAxis type="number" tick={{ fontSize: 10 }} />
+                      <YAxis type="category" dataKey="name" tick={{ fontSize: 9 }} width={120} />
+                      <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Bar dataKey="ctr" fill="hsl(142, 71%, 45%)" name="CTR %" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          ) : null}
+
+          {/* Top Keywords Chart */}
+          {kwChartData.length > 0 && (
+            <Card className="hover-lift">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-lg bg-seo-background flex items-center justify-center">
+                    <Target className="h-4 w-4 text-seo-primary" />
+                  </div>
+                  Top Keywords Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={kwChartData}>
+                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                    <XAxis dataKey="name" tick={{ fontSize: 9 }} angle={-20} textAnchor="end" height={60} />
+                    <YAxis tick={{ fontSize: 10 }} />
+                    <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Bar dataKey="clicks" fill="hsl(217, 91%, 60%)" name="Clicks" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="impressions" fill="hsl(217, 91%, 60%, 0.25)" name="Impressions" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
 
           <Tabs defaultValue="insights" className="space-y-6">
-            <TabsList className="bg-muted/50 border">
+            <TabsList className="bg-muted/50 border flex-wrap h-auto gap-1">
               <TabsTrigger value="insights" className="gap-1.5"><Lightbulb className="h-3.5 w-3.5" /> Insights ({allInsights.length})</TabsTrigger>
               <TabsTrigger value="pages" className="gap-1.5"><Link2 className="h-3.5 w-3.5" /> Pages</TabsTrigger>
               <TabsTrigger value="keywords" className="gap-1.5"><Target className="h-3.5 w-3.5" /> Keywords</TabsTrigger>
@@ -141,7 +269,17 @@ export default function Analytics() {
                       <div className="h-12 w-12 rounded-xl bg-analytics-background flex items-center justify-center mb-3">
                         <Lightbulb className="h-6 w-6 text-analytics-primary" />
                       </div>
-                      <p className="text-muted-foreground">No insights yet. Click "Sync & Analyze" to generate.</p>
+                      <p className="text-muted-foreground font-medium mb-1">No insights yet</p>
+                      <p className="text-xs text-muted-foreground mb-3">Click "Sync & Analyze" to generate performance insights</p>
+                      <Button size="sm" onClick={() => {
+                        syncAnalytics.mutate(selectedClient, {
+                          onSuccess: (data) => toast.success(`Generated ${data.insights_generated} insights`),
+                          onError: () => toast.error("Sync failed"),
+                        });
+                      }} disabled={syncAnalytics.isPending}>
+                        {syncAnalytics.isPending ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5 mr-1.5" />}
+                        Sync & Analyze
+                      </Button>
                     </CardContent>
                   </Card>
                 )}
@@ -156,7 +294,7 @@ export default function Analytics() {
                               <Icon className="h-4 w-4" />
                             </div>
                             <div className="min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
                                 <Badge className={`${PRIORITY_COLORS[ins.priority]} border text-xs`}>{ins.priority}</Badge>
                                 <Badge variant="outline" className="text-xs">{ins.insight_type.replace(/_/g, " ")}</Badge>
                               </div>
@@ -167,15 +305,17 @@ export default function Analytics() {
                               )}
                             </div>
                           </div>
-                          {ins.status === "open" && (
-                            <Button size="sm" variant="outline" className="shrink-0" onClick={() => {
-                              updateInsight.mutate({ insightId: ins.id, status: "reviewed" }, {
-                                onSuccess: () => toast.success("Marked as reviewed"),
-                              });
-                            }}>
-                              <Check className="h-3.5 w-3.5 mr-1" />Reviewed
-                            </Button>
-                          )}
+                          <div className="flex gap-1.5 shrink-0">
+                            {ins.status === "open" && (
+                              <Button size="sm" variant="outline" onClick={() => {
+                                updateInsight.mutate({ insightId: ins.id, status: "reviewed" }, {
+                                  onSuccess: () => toast.success("Marked as reviewed"),
+                                });
+                              }}>
+                                <Check className="h-3.5 w-3.5 mr-1" />Reviewed
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -188,35 +328,45 @@ export default function Analytics() {
             <TabsContent value="pages">
               <Card className="hover-lift">
                 <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead>Page URL</TableHead>
-                        <TableHead className="text-center">Clicks</TableHead>
-                        <TableHead className="text-center">Impressions</TableHead>
-                        <TableHead className="text-center">CTR</TableHead>
-                        <TableHead className="text-center">Avg Position</TableHead>
-                        <TableHead className="text-center">Sessions</TableHead>
-                        <TableHead>Source</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {pages.length === 0 && (
-                        <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No page performance data yet.</TableCell></TableRow>
-                      )}
-                      {pages.map((p: any, i: number) => (
-                        <TableRow key={i}>
-                          <TableCell className="font-mono text-xs truncate max-w-[300px]">{p.page_url}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(p.clicks).toLocaleString()}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(p.impressions).toLocaleString()}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{(Number(p.ctr) * 100).toFixed(1)}%</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(p.average_position).toFixed(1)}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(p.sessions).toLocaleString()}</TableCell>
-                          <TableCell><Badge variant="outline" className="text-xs">{p.source}</Badge></TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  {pagesLoading ? (
+                    <div className="p-6 space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full rounded-lg" />)}</div>
+                  ) : pages.length === 0 ? (
+                    <div className="flex flex-col items-center py-12">
+                      <div className="h-12 w-12 rounded-xl bg-analytics-background flex items-center justify-center mb-3">
+                        <Link2 className="h-6 w-6 text-analytics-primary" />
+                      </div>
+                      <p className="text-muted-foreground text-sm">No page data yet. Sync analytics to import.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="hover:bg-transparent">
+                            <TableHead className="sticky left-0 bg-card z-10">Page URL</TableHead>
+                            <TableHead className="text-center">Clicks</TableHead>
+                            <TableHead className="text-center">Impressions</TableHead>
+                            <TableHead className="text-center">CTR</TableHead>
+                            <TableHead className="text-center">Avg Position</TableHead>
+                            <TableHead className="text-center">Sessions</TableHead>
+                            <TableHead>Source</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {pages.map((p: any, i: number) => (
+                            <TableRow key={i}>
+                              <TableCell className="font-mono text-xs truncate max-w-[300px] sticky left-0 bg-card">{p.page_url}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(p.clicks).toLocaleString()}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(p.impressions).toLocaleString()}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{(Number(p.ctr) * 100).toFixed(1)}%</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(p.average_position).toFixed(1)}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(p.sessions).toLocaleString()}</TableCell>
+                              <TableCell><Badge variant="outline" className="text-xs">{p.source}</Badge></TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -225,41 +375,51 @@ export default function Analytics() {
             <TabsContent value="keywords">
               <Card className="hover-lift">
                 <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead>Keyword</TableHead>
-                        <TableHead className="text-center">Clicks</TableHead>
-                        <TableHead className="text-center">Impressions</TableHead>
-                        <TableHead className="text-center">CTR</TableHead>
-                        <TableHead className="text-center">Avg Position</TableHead>
-                        <TableHead className="text-center">Change</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {keywords.length === 0 && (
-                        <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No keyword performance data yet.</TableCell></TableRow>
-                      )}
-                      {keywords.map((k: any, i: number) => (
-                        <TableRow key={i}>
-                          <TableCell className="font-medium">{k.keyword || "–"}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(k.clicks).toLocaleString()}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(k.impressions).toLocaleString()}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{(Number(k.ctr) * 100).toFixed(1)}%</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(k.average_position).toFixed(1)}</TableCell>
-                          <TableCell className="text-center">
-                            {Number(k.rank_change) > 0 ? (
-                              <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 border gap-1"><ArrowUpRight className="h-3 w-3" />+{k.rank_change}</Badge>
-                            ) : Number(k.rank_change) < 0 ? (
-                              <Badge className="bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 border gap-1"><ArrowDownRight className="h-3 w-3" />{k.rank_change}</Badge>
-                            ) : (
-                              <Badge variant="outline" className="gap-1"><Minus className="h-3 w-3" />0</Badge>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  {kwLoading ? (
+                    <div className="p-6 space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full rounded-lg" />)}</div>
+                  ) : keywords.length === 0 ? (
+                    <div className="flex flex-col items-center py-12">
+                      <div className="h-12 w-12 rounded-xl bg-seo-background flex items-center justify-center mb-3">
+                        <Target className="h-6 w-6 text-seo-primary" />
+                      </div>
+                      <p className="text-muted-foreground text-sm">No keyword data yet. Sync analytics to import.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="hover:bg-transparent">
+                            <TableHead className="sticky left-0 bg-card z-10">Keyword</TableHead>
+                            <TableHead className="text-center">Clicks</TableHead>
+                            <TableHead className="text-center">Impressions</TableHead>
+                            <TableHead className="text-center">CTR</TableHead>
+                            <TableHead className="text-center">Avg Position</TableHead>
+                            <TableHead className="text-center">Change</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {keywords.map((k: any, i: number) => (
+                            <TableRow key={i}>
+                              <TableCell className="font-medium sticky left-0 bg-card">{k.keyword || "–"}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(k.clicks).toLocaleString()}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(k.impressions).toLocaleString()}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{(Number(k.ctr) * 100).toFixed(1)}%</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(k.average_position).toFixed(1)}</TableCell>
+                              <TableCell className="text-center">
+                                {Number(k.rank_change) > 0 ? (
+                                  <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 border gap-1"><ArrowUpRight className="h-3 w-3" />+{k.rank_change}</Badge>
+                                ) : Number(k.rank_change) < 0 ? (
+                                  <Badge className="bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 border gap-1"><ArrowDownRight className="h-3 w-3" />{k.rank_change}</Badge>
+                                ) : (
+                                  <Badge variant="outline" className="gap-1"><Minus className="h-3 w-3" />0</Badge>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -268,71 +428,77 @@ export default function Analytics() {
             <TabsContent value="assets">
               <Card className="hover-lift">
                 <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead>Asset Type</TableHead>
-                        <TableHead>Platform</TableHead>
-                        <TableHead className="text-center">Views</TableHead>
-                        <TableHead className="text-center">Clicks</TableHead>
-                        <TableHead className="text-center">Engagements</TableHead>
-                        <TableHead className="text-center">Shares</TableHead>
-                        <TableHead className="text-center">Likes</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {assets.length === 0 && (
-                        <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No asset performance data yet.</TableCell></TableRow>
-                      )}
-                      {assets.map((a: any, i: number) => (
-                        <TableRow key={i}>
-                          <TableCell><Badge variant="outline" className="text-xs">{a.asset_type.replace(/_/g, " ")}</Badge></TableCell>
-                          <TableCell className="text-sm capitalize">{a.platform || "–"}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(a.views).toLocaleString()}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(a.clicks).toLocaleString()}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(a.engagements).toLocaleString()}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(a.shares).toLocaleString()}</TableCell>
-                          <TableCell className="text-center font-mono text-sm">{Number(a.likes).toLocaleString()}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  {assets.length === 0 ? (
+                    <div className="flex flex-col items-center py-12">
+                      <div className="h-12 w-12 rounded-xl bg-content-background flex items-center justify-center mb-3">
+                        <Layers className="h-6 w-6 text-content-primary" />
+                      </div>
+                      <p className="text-muted-foreground text-sm">No asset performance data yet.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="hover:bg-transparent">
+                            <TableHead>Asset Type</TableHead>
+                            <TableHead>Platform</TableHead>
+                            <TableHead className="text-center">Views</TableHead>
+                            <TableHead className="text-center">Clicks</TableHead>
+                            <TableHead className="text-center">Engagements</TableHead>
+                            <TableHead className="text-center">Shares</TableHead>
+                            <TableHead className="text-center">Likes</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {assets.map((a: any, i: number) => (
+                            <TableRow key={i}>
+                              <TableCell><Badge variant="outline" className="text-xs">{a.asset_type.replace(/_/g, " ")}</Badge></TableCell>
+                              <TableCell className="text-sm capitalize">{a.platform || "–"}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(a.views).toLocaleString()}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(a.clicks).toLocaleString()}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(a.engagements).toLocaleString()}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(a.shares).toLocaleString()}</TableCell>
+                              <TableCell className="text-center font-mono text-sm">{Number(a.likes).toLocaleString()}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* Connections */}
             <TabsContent value="connections">
-              <div className="grid gap-4 sm:grid-cols-2">
-                {[
-                  { provider: "gsc", label: "Google Search Console", desc: "Page clicks, impressions, CTR, and average position", icon: BarChart3 },
-                  { provider: "ga4", label: "Google Analytics 4", desc: "Sessions, users, engagement rate", icon: TrendingUp },
-                ].map((p) => {
-                  const conn = conns.find((c: any) => c.provider === p.provider);
-                  return (
-                    <Card key={p.provider} className="hover-lift">
-                      <CardContent className="p-5">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="h-10 w-10 rounded-xl bg-analytics-background flex items-center justify-center">
-                            <p.icon className="h-5 w-5 text-analytics-primary" />
+              <Card className="hover-lift">
+                <CardHeader>
+                  <CardTitle className="text-base">Analytics Connections</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {conns.length === 0 ? (
+                    <div className="flex flex-col items-center py-8">
+                      <div className="h-12 w-12 rounded-xl bg-analytics-background flex items-center justify-center mb-3">
+                        <BarChart3 className="h-6 w-6 text-analytics-primary" />
+                      </div>
+                      <p className="text-muted-foreground text-sm mb-1">No connections configured</p>
+                      <p className="text-xs text-muted-foreground">Configure GA4 and Search Console via backend settings</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {conns.map((c: any) => (
+                        <div key={c.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div>
+                            <p className="text-sm font-medium text-foreground capitalize">{c.platform}</p>
+                            <p className="text-xs text-muted-foreground">{c.property_id || c.account_id}</p>
                           </div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-sm text-foreground">{p.label}</h4>
-                            <Badge variant={conn?.status === "active" ? "default" : "outline"} className="text-[10px] mt-0.5">
-                              {conn?.status || "not connected"}
-                            </Badge>
-                          </div>
+                          <Badge variant={c.status === "active" ? "default" : "secondary"} className="text-xs">{c.status}</Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-3">{p.desc}</p>
-                        {conn?.site_url && (
-                          <p className="text-xs font-mono text-muted-foreground mb-2">{conn.site_url || conn.property_id}</p>
-                        )}
-                        <p className="text-[11px] text-muted-foreground/60 italic">Configure OAuth credentials in backend environment.</p>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </>
