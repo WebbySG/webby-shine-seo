@@ -52,6 +52,8 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/onboarding" element={<OnboardingWizard />} />
+              <Route path="/setup-complete" element={<SetupComplete />} />
 
               {/* Agency / Internal routes */}
               <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
