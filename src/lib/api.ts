@@ -305,3 +305,14 @@ export const getSetupStatus = (workspaceId: string) => request<any>(`/setup/${wo
 // ---------- Activation Checklist ----------
 export const getActivationChecklist = (clientId: string) => request<any[]>(`/clients/${clientId}/activation-checklist`);
 export const updateChecklistItem = (itemId: string, status: string) => request<any>(`/activation-checklist/${itemId}`, { method: "PUT", body: JSON.stringify({ status }) });
+
+// ---------- Reports ----------
+export const getReportTemplates = (workspaceId?: string) => request<any[]>(`/report-templates${workspaceId ? `?workspace_id=${workspaceId}` : ""}`);
+export const getReportRuns = (clientId: string) => request<any[]>(`/clients/${clientId}/reports`);
+export const generateReportApi = (data: { workspace_id: string; client_id: string; template_id: string; date_from: string; date_to: string }) =>
+  request<any>(`/reports/generate`, { method: "POST", body: JSON.stringify(data) });
+export const getReportByToken = (token: string) => request<any>(`/reports/share/${token}`);
+export const getScheduledReports = (workspaceId: string) => request<any[]>(`/workspaces/${workspaceId}/scheduled-reports`);
+export const createScheduledReport = (data: any) => request<any>(`/scheduled-reports`, { method: "POST", body: JSON.stringify(data) });
+export const updateScheduledReport = (id: string, data: any) => request<any>(`/scheduled-reports/${id}`, { method: "PUT", body: JSON.stringify(data) });
+export const deleteScheduledReport = (id: string) => request<{ deleted: boolean }>(`/scheduled-reports/${id}`, { method: "DELETE" });

@@ -33,6 +33,7 @@ const channelNav = [
 const businessNav = [
   { title: "Clients", url: "/clients", icon: Users, color: "text-foreground", perm: "manage_clients" },
   { title: "CRM", url: "/crm", icon: Handshake, color: "text-crm-primary", perm: "view_crm" },
+  { title: "Reports", url: "/reports", icon: FileText, color: "text-analytics-primary", perm: "view_analytics" },
 ];
 
 const settingsNav = [

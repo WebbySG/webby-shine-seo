@@ -276,3 +276,10 @@ export function useTemplates(industry?: string) { return useQuery({ queryKey: ["
 export function useRunSetup() { return useMutation({ mutationFn: (data: { workspace_id: string; client_id: string; template_id: string }) => api.runSetup(data) }); }
 export function useActivationChecklist(clientId: string) { return useQuery({ queryKey: ["activation-checklist", clientId], queryFn: () => api.getActivationChecklist(clientId), enabled: !!clientId }); }
 export function useUpdateChecklistItem(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ itemId, status }: { itemId: string; status: string }) => api.updateChecklistItem(itemId, status), onSuccess: () => qc.invalidateQueries({ queryKey: ["activation-checklist", clientId] }) }); }
+
+// ---------- Reports ----------
+export function useReportTemplates(workspaceId?: string) { return useQuery({ queryKey: ["report-templates", workspaceId], queryFn: () => api.getReportTemplates(workspaceId) }); }
+export function useReportRuns(clientId: string) { return useQuery({ queryKey: ["report-runs", clientId], queryFn: () => api.getReportRuns(clientId), enabled: !!clientId }); }
+export function useGenerateReport() { const qc = useQueryClient(); return useMutation({ mutationFn: (data: { workspace_id: string; client_id: string; template_id: string; date_from: string; date_to: string }) => api.generateReportApi(data), onSuccess: (_d, vars) => qc.invalidateQueries({ queryKey: ["report-runs", vars.client_id] }) }); }
+export function useScheduledReports(workspaceId: string) { return useQuery({ queryKey: ["scheduled-reports", workspaceId], queryFn: () => api.getScheduledReports(workspaceId), enabled: !!workspaceId }); }
+export function useCreateScheduledReport() { const qc = useQueryClient(); return useMutation({ mutationFn: (data: any) => api.createScheduledReport(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["scheduled-reports"] }) }); }
