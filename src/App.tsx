@@ -28,6 +28,7 @@ import PortalPerformance from "@/pages/portal/PortalPerformance";
 import PortalSettings from "@/pages/portal/PortalSettings";
 import OnboardingWizard from "@/pages/OnboardingWizard";
 import SetupComplete from "@/pages/SetupComplete";
+import DemoQA from "@/pages/DemoQA";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
