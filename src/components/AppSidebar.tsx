@@ -37,6 +37,7 @@ const businessNav = [
 
 const settingsNav = [
   { title: "Settings", url: "/settings", icon: Settings, color: "text-foreground", perm: "manage_settings" },
+  { title: "QA Checklist", url: "/qa", icon: ClipboardList, color: "text-muted-foreground", perm: "view_dashboard" },
 ];
 
 export function AppSidebar() {
