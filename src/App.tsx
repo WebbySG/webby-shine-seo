@@ -71,6 +71,7 @@ const App = () => (
                 <Route path="/google-ads" element={<GoogleAds />} />
                 <Route path="/crm" element={<CRM />} />
                 <Route path="/settings" element={<WorkspaceSettings />} />
+                <Route path="/qa" element={<DemoQA />} />
               </Route>
 
               {/* Client Portal routes */}

@@ -109,6 +109,12 @@ export function AppSidebar() {
         {renderGroup("System", settingsNav)}
       </SidebarContent>
       <SidebarFooter className="p-4 pt-2 space-y-2">
+        {!collapsed && isDemoMode && (
+          <div className="rounded-lg bg-primary/10 p-2.5 border border-primary/20 flex items-center gap-2">
+            <FlaskConical className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-xs font-medium text-primary">Demo Mode</span>
+          </div>
+        )}
         {!collapsed && (
           <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground hover:text-foreground" onClick={logout}>
             <LogOut className="h-4 w-4 mr-2" /> Sign Out
@@ -117,7 +123,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="rounded-lg bg-muted/50 p-3 border border-border/30">
             <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Version</p>
-            <p className="text-xs font-mono text-muted-foreground">v3.0 — Phase 20</p>
+            <p className="text-xs font-mono text-muted-foreground">v3.1 — Phase 22</p>
           </div>
         )}
       </SidebarFooter>
