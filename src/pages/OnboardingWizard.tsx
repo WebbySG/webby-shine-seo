@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { useTemplates, useStartOnboarding, useCompleteOnboarding, useRunSetup, useCreateClient } from "@/hooks/use-api";
-import { Building2, Globe, Target, Users, Link2, LayoutTemplate, CheckCircle2, ArrowRight, ArrowLeft, Sparkles, Rocket } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { useTemplates, useCreateClient } from "@/hooks/use-api";
+import { Building2, Globe, Target, Users, Link2, LayoutTemplate, CheckCircle2, ArrowRight, ArrowLeft, Sparkles, Rocket, FileText, MapPin, Megaphone, BarChart3, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 
 const STEPS = [
@@ -24,6 +25,7 @@ const STEPS = [
 ];
 
 const INDUSTRIES = [
+  { value: "marketing", label: "Marketing / Agency" },
   { value: "home_services", label: "Home Services" },
   { value: "design", label: "Design" },
   { value: "education", label: "Education" },
@@ -90,11 +92,14 @@ export default function OnboardingWizard() {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<WizardData>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   const navigate = useNavigate();
   const templatesQuery = useTemplates(data.industry || undefined);
   const createClient = useCreateClient();
 
   const update = (fields: Partial<WizardData>) => setData((d) => ({ ...d, ...fields }));
+
+  const selectedTemplate = templatesQuery.data?.find((t: any) => t.id === data.template_id);
 
   const canNext = () => {
     switch (step) {
@@ -109,7 +114,6 @@ export default function OnboardingWizard() {
   const handleComplete = async () => {
     setIsSubmitting(true);
     try {
-      // Create client
       let domain = data.website_url.replace(/^https?:\/\//, "").replace(/\/$/, "");
       const client = await createClient.mutateAsync({ name: data.business_name, domain });
       toast.success("Setup complete! Your marketing system is ready.");
@@ -173,7 +177,7 @@ export default function OnboardingWizard() {
             <StepCard title="Business Basics" description="Tell us about your business.">
               <div className="space-y-4">
                 <Field label="Business Name" required>
-                  <Input placeholder="e.g. ABC Renovation Pte Ltd" value={data.business_name} onChange={(e) => update({ business_name: e.target.value })} />
+                  <Input placeholder="e.g. Webby Digital Agency" value={data.business_name} onChange={(e) => update({ business_name: e.target.value })} />
                 </Field>
                 <Field label="Industry" required>
                   <Select value={data.industry} onValueChange={(v) => update({ industry: v })}>
@@ -182,7 +186,7 @@ export default function OnboardingWizard() {
                   </Select>
                 </Field>
                 <Field label="Niche (optional)">
-                  <Input placeholder="e.g. luxury condo renovation" value={data.niche} onChange={(e) => update({ niche: e.target.value })} />
+                  <Input placeholder="e.g. digital agency, performance marketing" value={data.niche} onChange={(e) => update({ niche: e.target.value })} />
                 </Field>
                 <Field label="Target Location">
                   <Input placeholder="e.g. Singapore" value={data.target_location} onChange={(e) => update({ target_location: e.target.value })} />
@@ -254,27 +258,146 @@ export default function OnboardingWizard() {
             <StepCard title="Choose a Template" description="Select an industry template to pre-configure your marketing system.">
               <div className="grid gap-3">
                 {templatesQuery.data?.length ? (
-                  templatesQuery.data.map((t: any) => (
-                    <button
-                      key={t.id}
-                      onClick={() => update({ template_id: t.id })}
-                      className={`text-left p-4 rounded-xl border-2 transition-all ${
-                        data.template_id === t.id ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/30"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-semibold">{t.name}</p>
-                          <p className="text-sm text-muted-foreground mt-1">{t.description}</p>
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            <Badge variant="secondary" className="text-xs">{t.industry}</Badge>
-                            <Badge variant="outline" className="text-xs">{t.template_type}</Badge>
+                  templatesQuery.data.map((t: any) => {
+                    const isSelected = data.template_id === t.id;
+                    const isPreviewing = previewTemplateId === t.id;
+                    const config = t.config_json || {};
+
+                    return (
+                      <div key={t.id} className="rounded-xl border-2 transition-all overflow-hidden" style={{
+                        borderColor: isSelected ? 'hsl(var(--primary))' : undefined,
+                        backgroundColor: isSelected ? 'hsl(var(--primary) / 0.03)' : undefined,
+                      }}>
+                        <button
+                          onClick={() => update({ template_id: t.id })}
+                          className="w-full text-left p-4"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <p className="font-semibold">{t.name}</p>
+                              <p className="text-sm text-muted-foreground mt-1">{t.description}</p>
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                <Badge variant="secondary" className="text-xs">{t.industry}</Badge>
+                                <Badge variant="outline" className="text-xs">{t.template_type}</Badge>
+                                {config.keywords && <Badge variant="outline" className="text-xs">{config.keywords.length} keywords</Badge>}
+                                {config.page_map && <Badge variant="outline" className="text-xs">{config.page_map.length} pages</Badge>}
+                                {config.ads_suggestions && <Badge variant="outline" className="text-xs">{config.ads_suggestions.length} ad campaigns</Badge>}
+                              </div>
+                            </div>
+                            {isSelected && <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />}
                           </div>
+                        </button>
+
+                        {/* Preview toggle */}
+                        <div className="px-4 pb-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setPreviewTemplateId(isPreviewing ? null : t.id); }}
+                            className="text-xs text-primary hover:underline flex items-center gap-1"
+                          >
+                            {isPreviewing ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                            {isPreviewing ? "Hide preview" : "Preview what's included"}
+                          </button>
                         </div>
-                        {data.template_id === t.id && <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />}
+
+                        {/* Preview panel */}
+                        {isPreviewing && (
+                          <div className="border-t bg-muted/30 p-4 space-y-4">
+                            {config.keywords?.length > 0 && (
+                              <PreviewSection icon={Target} title="Starter Keywords" count={config.keywords.length}>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {config.keywords.map((kw: string) => (
+                                    <Badge key={kw} variant="secondary" className="text-xs font-normal">{kw}</Badge>
+                                  ))}
+                                </div>
+                              </PreviewSection>
+                            )}
+
+                            {config.page_map?.length > 0 && (
+                              <PreviewSection icon={FileText} title="Recommended Pages" count={config.page_map.length}>
+                                <div className="space-y-1.5">
+                                  {config.page_map.map((p: any) => (
+                                    <div key={p.slug} className="flex items-start gap-2 text-xs">
+                                      <code className="text-primary bg-primary/10 px-1.5 py-0.5 rounded font-mono">/{p.slug}</code>
+                                      <span className="text-muted-foreground">{p.description}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                                {config.page_map_advice && (
+                                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 p-2 rounded bg-amber-500/10 border border-amber-500/20">
+                                    💡 {config.page_map_advice}
+                                  </p>
+                                )}
+                              </PreviewSection>
+                            )}
+
+                            {config.content_clusters?.length > 0 && (
+                              <PreviewSection icon={BarChart3} title="Content Clusters" count={config.content_clusters.length}>
+                                <div className="space-y-2">
+                                  {config.content_clusters.map((c: any) => (
+                                    <div key={c.cluster}>
+                                      <p className="text-xs font-medium">{c.cluster}</p>
+                                      <div className="flex flex-wrap gap-1 mt-1">
+                                        {c.topics.map((t: string) => (
+                                          <Badge key={t} variant="outline" className="text-xs font-normal">{t}</Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </PreviewSection>
+                            )}
+
+                            {config.ads_suggestions?.length > 0 && (
+                              <PreviewSection icon={Megaphone} title="Ad Campaigns" count={config.ads_suggestions.length}>
+                                <div className="space-y-2">
+                                  {config.ads_suggestions.map((ad: any) => (
+                                    <div key={ad.campaign} className="text-xs p-2 rounded bg-background border">
+                                      <p className="font-medium">{ad.campaign}</p>
+                                      <p className="text-muted-foreground mt-0.5">Budget: ${ad.budget_daily}/day</p>
+                                      {ad.ad_copy_angle && <p className="text-muted-foreground italic">"{ad.ad_copy_angle}"</p>}
+                                    </div>
+                                  ))}
+                                </div>
+                              </PreviewSection>
+                            )}
+
+                            {config.local_seo && (
+                              <PreviewSection icon={MapPin} title="Local SEO Setup">
+                                <div className="text-xs space-y-1">
+                                  <p><span className="font-medium">Categories:</span> {config.local_seo.categories?.join(", ")}</p>
+                                  <p><span className="font-medium">Services:</span> {config.local_seo.services?.join(", ")}</p>
+                                </div>
+                              </PreviewSection>
+                            )}
+
+                            {config.crm_pipeline?.length > 0 && (
+                              <PreviewSection icon={Users} title="CRM Pipeline">
+                                <div className="flex flex-wrap gap-1.5">
+                                  {config.crm_pipeline.map((s: any, i: number) => (
+                                    <Badge key={s.stage} variant="outline" className="text-xs font-normal">
+                                      {i + 1}. {s.stage}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </PreviewSection>
+                            )}
+
+                            {config.weekly_plan_defaults?.length > 0 && (
+                              <PreviewSection icon={CheckCircle2} title="Weekly Action Plan">
+                                <ul className="text-xs space-y-1 text-muted-foreground">
+                                  {config.weekly_plan_defaults.map((item: string) => (
+                                    <li key={item} className="flex items-start gap-1.5">
+                                      <span className="text-primary mt-0.5">•</span> {item}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </PreviewSection>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    </button>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
                     <LayoutTemplate className="h-10 w-10 mx-auto mb-3 opacity-50" />
@@ -299,7 +422,37 @@ export default function OnboardingWizard() {
                 <ReviewRow label="Goals" value={data.business_goals || "—"} />
                 <ReviewRow label="Competitors" value={data.competitors || "None specified"} />
                 <ReviewRow label="Existing Channels" value={data.existing_channels.length ? data.existing_channels.join(", ") : "None"} />
-                <ReviewRow label="Template" value={templatesQuery.data?.find((t: any) => t.id === data.template_id)?.name || "None selected"} />
+                <ReviewRow label="Template" value={selectedTemplate?.name || "None selected"} />
+
+                {/* Template summary in review */}
+                {selectedTemplate?.config_json && (
+                  <>
+                    <Separator />
+                    <div className="p-4 rounded-xl bg-muted/50 border">
+                      <p className="font-semibold text-sm mb-3">Template will configure:</p>
+                      <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                        {selectedTemplate.config_json.keywords && (
+                          <div className="flex items-center gap-1.5"><Target className="h-3.5 w-3.5 text-primary" /> {selectedTemplate.config_json.keywords.length} starter keywords</div>
+                        )}
+                        {selectedTemplate.config_json.page_map && (
+                          <div className="flex items-center gap-1.5"><FileText className="h-3.5 w-3.5 text-primary" /> {selectedTemplate.config_json.page_map.length} page recommendations</div>
+                        )}
+                        {selectedTemplate.config_json.content_topics && (
+                          <div className="flex items-center gap-1.5"><BarChart3 className="h-3.5 w-3.5 text-primary" /> {selectedTemplate.config_json.content_topics.length} content topics</div>
+                        )}
+                        {selectedTemplate.config_json.ads_suggestions && (
+                          <div className="flex items-center gap-1.5"><Megaphone className="h-3.5 w-3.5 text-primary" /> {selectedTemplate.config_json.ads_suggestions.length} ad campaigns</div>
+                        )}
+                        {selectedTemplate.config_json.crm_pipeline && (
+                          <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-primary" /> {selectedTemplate.config_json.crm_pipeline.length}-stage CRM pipeline</div>
+                        )}
+                        {selectedTemplate.config_json.weekly_plan_defaults && (
+                          <div className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Weekly action plan</div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <div className="mt-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
                   <div className="flex items-center gap-2 text-primary mb-2">
@@ -310,6 +463,9 @@ export default function OnboardingWizard() {
                     <li>• Client workspace will be created</li>
                     <li>• Starter keywords will be seeded</li>
                     <li>• Content topics will be generated</li>
+                    <li>• Service pages will be recommended</li>
+                    <li>• Ad campaigns will be configured</li>
+                    <li>• CRM pipeline will be initialized</li>
                     <li>• Activation checklist will be ready</li>
                   </ul>
                 </div>
@@ -366,6 +522,19 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
     <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
       <span className="text-sm font-medium text-muted-foreground w-32 shrink-0">{label}</span>
       <span className="text-sm whitespace-pre-wrap">{value}</span>
+    </div>
+  );
+}
+
+function PreviewSection({ icon: Icon, title, count, children }: { icon: any; title: string; count?: number; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className="h-3.5 w-3.5 text-primary" />
+        <span className="text-xs font-semibold">{title}</span>
+        {count !== undefined && <Badge variant="secondary" className="text-xs h-4 px-1.5">{count}</Badge>}
+      </div>
+      {children}
     </div>
   );
 }
