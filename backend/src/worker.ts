@@ -1177,6 +1177,23 @@ cron.schedule("30 2 * * *", recomputeActivation, { timezone: "Asia/Singapore" })
 // Stale onboarding cleanup daily at 01:45 SGT
 cron.schedule("45 1 * * *", abandonStaleOnboarding, { timezone: "Asia/Singapore" });
 
+// ====================================================================
+// PHASE 23: SCHEDULED REPORTS
+// ====================================================================
+async function processScheduledReportsJob() {
+  console.log(`[${new Date().toISOString()}] 📊 Scheduled reports job started`);
+  try {
+    const { processScheduledReports } = await import("./services/reports/reportService.js");
+    await processScheduledReports();
+    console.log(`  ✓ Scheduled reports processed`);
+  } catch (error) {
+    console.error("Error in scheduled reports job:", error);
+  }
+}
+
+// Scheduled reports daily at 09:30 SGT
+cron.schedule("30 9 * * *", processScheduledReportsJob, { timezone: "Asia/Singapore" });
+
 export {
   fetchRankings,
   generateOpportunities,
@@ -1196,4 +1213,5 @@ export {
   sendApprovalReminders,
   recomputeActivation,
   abandonStaleOnboarding,
+  processScheduledReportsJob,
 };

@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, Search, TrendingUp,
   MapPin, Paintbrush, DollarSign, Command, Handshake, Settings, LogOut,
-  ClipboardList, FlaskConical,
+  ClipboardList, FlaskConical, FileText,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -33,6 +33,7 @@ const channelNav = [
 const businessNav = [
   { title: "Clients", url: "/clients", icon: Users, color: "text-foreground", perm: "manage_clients" },
   { title: "CRM", url: "/crm", icon: Handshake, color: "text-crm-primary", perm: "view_crm" },
+  { title: "Reports", url: "/reports", icon: FileText, color: "text-analytics-primary", perm: "view_analytics" },
 ];
 
 const settingsNav = [
@@ -123,7 +124,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="rounded-lg bg-muted/50 p-3 border border-border/30">
             <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Version</p>
-            <p className="text-xs font-mono text-muted-foreground">v3.1 — Phase 22</p>
+            <p className="text-xs font-mono text-muted-foreground">v3.2 — Phase 23</p>
           </div>
         )}
       </SidebarFooter>

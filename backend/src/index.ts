@@ -28,6 +28,7 @@ import invitesRouter from "./routes/invites.js";
 import approvalsRouter from "./routes/approvals.js";
 import approvalsClientRouter from "./routes/approvals-client.js";
 import onboardingRouter from "./routes/onboarding.js";
+import reportsRouter from "./routes/reports.js";
 
 dotenv.config();
 
@@ -83,6 +84,8 @@ app.use("/api/crm", crmRouter);
 app.use("/api/clients", crmRouter);
 app.use("/api", onboardingRouter);
 app.use("/api/clients", onboardingRouter);
+app.use("/api", reportsRouter);
+app.use("/api", reportsRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });

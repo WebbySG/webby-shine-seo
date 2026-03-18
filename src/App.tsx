@@ -29,6 +29,7 @@ import PortalSettings from "@/pages/portal/PortalSettings";
 import OnboardingWizard from "@/pages/OnboardingWizard";
 import SetupComplete from "@/pages/SetupComplete";
 import DemoQA from "@/pages/DemoQA";
+import Reports from "@/pages/Reports";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -71,6 +72,7 @@ const App = () => (
                 <Route path="/google-ads" element={<GoogleAds />} />
                 <Route path="/crm" element={<CRM />} />
                 <Route path="/settings" element={<WorkspaceSettings />} />
+                <Route path="/reports" element={<Reports />} />
                 <Route path="/qa" element={<DemoQA />} />
               </Route>
 
