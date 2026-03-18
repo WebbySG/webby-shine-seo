@@ -55,6 +55,32 @@ export async function runSetup(workspaceId: string, clientId: string, templateId
       summary.push(`Seeded ${config.ads_suggestions.length} ads recommendations`);
     }
 
+    // Seed page map as content suggestions (service pages)
+    if (config.page_map?.length) {
+      for (const page of config.page_map) {
+        await pool.query(
+          `INSERT INTO content_suggestions (client_id, cluster_name, keyword, suggested_slug, reason, priority, status)
+           VALUES ($1, 'Service Pages', $2, $3, $4, 'high', 'pending')
+           ON CONFLICT DO NOTHING`,
+          [clientId, page.title, page.slug, page.description || `Recommended service page: ${page.title}`]
+        );
+      }
+      summary.push(`Seeded ${config.page_map.length} service page recommendations`);
+    }
+
+    // Seed CRM pipeline stages
+    if (config.crm_pipeline?.length) {
+      for (const stage of config.crm_pipeline) {
+        await pool.query(
+          `INSERT INTO crm_contacts (client_id, name, email, status, source, created_at)
+           SELECT $1, $2 || ' (pipeline stage)', '', 'active', 'template', NOW()
+           WHERE NOT EXISTS (SELECT 1 FROM crm_contacts WHERE client_id = $1 AND name = $2 || ' (pipeline stage)')`,
+          [clientId, stage.stage]
+        );
+      }
+      summary.push(`Configured ${config.crm_pipeline.length} CRM pipeline stages`);
+    }
+
     // Create activation checklist
     await createActivationChecklist(workspaceId, clientId);
     summary.push("Created activation checklist");
