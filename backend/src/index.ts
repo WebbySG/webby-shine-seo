@@ -28,6 +28,7 @@ import invitesRouter from "./routes/invites.js";
 import approvalsRouter from "./routes/approvals.js";
 import approvalsClientRouter from "./routes/approvals-client.js";
 import onboardingRouter from "./routes/onboarding.js";
+import reportsRouter from "./routes/reports.js";
 
 dotenv.config();
 
