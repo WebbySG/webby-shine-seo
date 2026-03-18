@@ -44,7 +44,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { hasPermission, logout, workspace } = useAuth();
+  const { hasPermission, logout, workspace, isDemoMode } = useAuth();
   const brandName = workspace?.brand_name || "Webby SEO";
 
   const isActive = (path: string) =>
