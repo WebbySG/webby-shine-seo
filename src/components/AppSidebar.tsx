@@ -1,6 +1,7 @@
 import {
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, Search, TrendingUp,
   MapPin, Paintbrush, DollarSign, Command, Handshake, Settings, LogOut,
+  ClipboardList, FlaskConical,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -36,13 +37,14 @@ const businessNav = [
 
 const settingsNav = [
   { title: "Settings", url: "/settings", icon: Settings, color: "text-foreground", perm: "manage_settings" },
+  { title: "QA Checklist", url: "/qa", icon: ClipboardList, color: "text-muted-foreground", perm: "view_dashboard" },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { hasPermission, logout, workspace } = useAuth();
+  const { hasPermission, logout, workspace, isDemoMode } = useAuth();
   const brandName = workspace?.brand_name || "Webby SEO";
 
   const isActive = (path: string) =>
@@ -107,6 +109,12 @@ export function AppSidebar() {
         {renderGroup("System", settingsNav)}
       </SidebarContent>
       <SidebarFooter className="p-4 pt-2 space-y-2">
+        {!collapsed && isDemoMode && (
+          <div className="rounded-lg bg-primary/10 p-2.5 border border-primary/20 flex items-center gap-2">
+            <FlaskConical className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-xs font-medium text-primary">Demo Mode</span>
+          </div>
+        )}
         {!collapsed && (
           <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground hover:text-foreground" onClick={logout}>
             <LogOut className="h-4 w-4 mr-2" /> Sign Out
@@ -115,7 +123,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="rounded-lg bg-muted/50 p-3 border border-border/30">
             <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Version</p>
-            <p className="text-xs font-mono text-muted-foreground">v3.0 — Phase 20</p>
+            <p className="text-xs font-mono text-muted-foreground">v3.1 — Phase 22</p>
           </div>
         )}
       </SidebarFooter>

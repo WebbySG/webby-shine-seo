@@ -13,6 +13,35 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./backend/db/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/001.sql
       - ./backend/db/migrations/002_seed.sql:/docker-entrypoint-initdb.d/002.sql
+      - ./backend/db/migrations/003_keywords_extra_columns.sql:/docker-entrypoint-initdb.d/003.sql
+      - ./backend/db/migrations/004_seo_opportunities.sql:/docker-entrypoint-initdb.d/004.sql
+      - ./backend/db/migrations/005_internal_link_suggestions.sql:/docker-entrypoint-initdb.d/005.sql
+      - ./backend/db/migrations/006_content_suggestions.sql:/docker-entrypoint-initdb.d/006.sql
+      - ./backend/db/migrations/007_seo_briefs.sql:/docker-entrypoint-initdb.d/007.sql
+      - ./backend/db/migrations/008_seo_articles.sql:/docker-entrypoint-initdb.d/008.sql
+      - ./backend/db/migrations/009_cms_connections.sql:/docker-entrypoint-initdb.d/009.sql
+      - ./backend/db/migrations/010_social_posts.sql:/docker-entrypoint-initdb.d/010.sql
+      - ./backend/db/migrations/011_video_assets.sql:/docker-entrypoint-initdb.d/011.sql
+      - ./backend/db/migrations/012_publishing_jobs.sql:/docker-entrypoint-initdb.d/012.sql
+      - ./backend/db/migrations/013_analytics_connections.sql:/docker-entrypoint-initdb.d/013.sql
+      - ./backend/db/migrations/014_performance_snapshots.sql:/docker-entrypoint-initdb.d/014.sql
+      - ./backend/db/migrations/015_performance_insights.sql:/docker-entrypoint-initdb.d/015.sql
+      - ./backend/db/migrations/016_gbp_connections.sql:/docker-entrypoint-initdb.d/016.sql
+      - ./backend/db/migrations/017_gbp_profile_snapshots.sql:/docker-entrypoint-initdb.d/017.sql
+      - ./backend/db/migrations/018_gbp_post_drafts.sql:/docker-entrypoint-initdb.d/018.sql
+      - ./backend/db/migrations/019_local_seo_insights.sql:/docker-entrypoint-initdb.d/019.sql
+      - ./backend/db/migrations/020_creative_assets.sql:/docker-entrypoint-initdb.d/020.sql
+      - ./backend/db/migrations/021_brand_profiles.sql:/docker-entrypoint-initdb.d/021.sql
+      - ./backend/db/migrations/022_google_ads.sql:/docker-entrypoint-initdb.d/022.sql
+      - ./backend/db/migrations/023_ads_recommendations.sql:/docker-entrypoint-initdb.d/023.sql
+      - ./backend/db/migrations/024_command_center.sql:/docker-entrypoint-initdb.d/024.sql
+      - ./backend/db/migrations/025_crm_system.sql:/docker-entrypoint-initdb.d/025.sql
+      - ./backend/db/migrations/026_auth_system.sql:/docker-entrypoint-initdb.d/026.sql
+      - ./backend/db/migrations/027_client_approvals.sql:/docker-entrypoint-initdb.d/027.sql
+      - ./backend/db/migrations/028_saas_packaging.sql:/docker-entrypoint-initdb.d/028.sql
+      - ./backend/db/migrations/029_onboarding.sql:/docker-entrypoint-initdb.d/029.sql
+      - ./backend/db/migrations/030_seed_templates.sql:/docker-entrypoint-initdb.d/030.sql
+      - ./backend/db/migrations/031_demo_seed.sql:/docker-entrypoint-initdb.d/031.sql
 
   api:
     build: ./backend
