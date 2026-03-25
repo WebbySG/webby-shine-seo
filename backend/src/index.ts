@@ -87,7 +87,9 @@ app.use("/api/clients", crmRouter);
 app.use("/api", onboardingRouter);
 app.use("/api/clients", onboardingRouter);
 app.use("/api", reportsRouter);
-app.use("/api", reportsRouter);
+app.use("/api", activityRouter);
+app.use("/api/ai-visibility", aiVisibilityRouter);
+app.use("/api/clients", aiVisibilityRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
