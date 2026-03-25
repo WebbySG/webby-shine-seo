@@ -18,7 +18,7 @@ type SortDir = "asc" | "desc";
 
 export default function Rankings() {
   const { data: apiClients } = useClients();
-  const clients = apiClients ?? dummyClients;
+  const clients = apiClients ?? [];
 
   const [clientId, setClientId] = useState(clients[0]?.id ?? "");
   const { data: apiKeywords, isLoading } = useKeywords(clientId);
