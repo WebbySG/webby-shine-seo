@@ -316,3 +316,61 @@ export const getScheduledReports = (workspaceId: string) => request<any[]>(`/wor
 export const createScheduledReport = (data: any) => request<any>(`/scheduled-reports`, { method: "POST", body: JSON.stringify(data) });
 export const updateScheduledReport = (id: string, data: any) => request<any>(`/scheduled-reports/${id}`, { method: "PUT", body: JSON.stringify(data) });
 export const deleteScheduledReport = (id: string) => request<{ deleted: boolean }>(`/scheduled-reports/${id}`, { method: "DELETE" });
+
+// ---------- Activity Log ----------
+export interface ActivityLogEntry { id: string; workspace_id: string | null; client_id: string | null; user_id: string | null; actor_name: string; action: string; entity_type: string; entity_id: string | null; summary: string | null; metadata_json: any; created_at: string; }
+export const getActivityLog = (params?: { client_id?: string; entity_type?: string; limit?: number }) => {
+  const q = new URLSearchParams();
+  if (params?.client_id) q.set("client_id", params.client_id);
+  if (params?.entity_type) q.set("entity_type", params.entity_type);
+  if (params?.limit) q.set("limit", String(params.limit));
+  return request<ActivityLogEntry[]>(`/activity?${q.toString()}`);
+};
+
+// ---------- Notifications ----------
+export interface AppNotification { id: string; workspace_id: string | null; user_id: string | null; type: string; category: string; title: string; message: string | null; entity_type: string | null; entity_id: string | null; is_read: boolean; created_at: string; }
+export const getNotifications = (params?: { is_read?: boolean; category?: string }) => {
+  const q = new URLSearchParams();
+  if (params?.is_read !== undefined) q.set("is_read", String(params.is_read));
+  if (params?.category) q.set("category", params.category);
+  return request<AppNotification[]>(`/notifications?${q.toString()}`);
+};
+export const markNotificationRead = (id: string) => request<AppNotification>(`/notifications/${id}/read`, { method: "PUT" });
+export const markAllNotificationsRead = () => request<{ success: boolean }>(`/notifications/read-all`, { method: "PUT" });
+export const getUnreadCount = () => request<{ count: number }>(`/notifications/unread-count`);
+
+// ---------- Job Center ----------
+export const getAllPublishingJobs = (params?: { status?: string; client_id?: string }) => {
+  const q = new URLSearchParams();
+  if (params?.status) q.set("status", params.status);
+  if (params?.client_id) q.set("client_id", params.client_id);
+  return request<(PublishingJob & { client_name?: string })[]>(`/publishing-jobs?${q.toString()}`);
+};
+
+// ---------- AI Visibility ----------
+export interface AiVisPromptSet { id: string; client_id: string; name: string; description: string | null; topic_cluster: string | null; intent_type: string; status: string; prompt_count: number; run_count: number; created_at: string; }
+export interface AiVisPrompt { id: string; prompt_set_id: string; prompt_text: string; target_entities: string[]; competitor_entities: string[]; created_at: string; }
+export interface AiVisRun { id: string; client_id: string; prompt_set_id: string | null; prompt_set_name: string | null; provider: string; status: string; total_prompts: number; prompts_with_mention: number; prompts_with_citation: number; started_at: string | null; completed_at: string | null; created_at: string; }
+export interface AiVisObservation { id: string; run_id: string; prompt_id: string; prompt_text: string; provider: string; brand_mentioned: boolean; brand_position: number | null; competitor_mentioned: boolean; competitor_names: string[]; citation_present: boolean; citation_url: string | null; sentiment: string | null; prominence: string; raw_snippet: string | null; }
+export interface AiVisOverview { summary: { total_runs: number; total_prompts_checked: number; total_mentions: number; total_citations: number; visibility_rate: number; citation_rate: number }; trend: AiVisRun[]; byPromptSet: any[]; competitorMentions: { competitor: string; mention_count: number }[]; }
+
+export const getAiVisPromptSets = (clientId: string) => request<AiVisPromptSet[]>(`/clients/${clientId}/ai-visibility/prompt-sets`);
+export const createAiVisPromptSet = (data: { client_id: string; name: string; description?: string; topic_cluster?: string; intent_type?: string }) => request<AiVisPromptSet>(`/ai-visibility/prompt-sets`, { method: "POST", body: JSON.stringify(data) });
+export const updateAiVisPromptSet = (id: string, data: any) => request<AiVisPromptSet>(`/ai-visibility/prompt-sets/${id}`, { method: "PUT", body: JSON.stringify(data) });
+export const deleteAiVisPromptSet = (id: string) => request<{ deleted: boolean }>(`/ai-visibility/prompt-sets/${id}`, { method: "DELETE" });
+
+export const getAiVisPrompts = (setId: string) => request<AiVisPrompt[]>(`/ai-visibility/prompt-sets/${setId}/prompts`);
+export const createAiVisPrompt = (data: { prompt_set_id: string; prompt_text: string; target_entities?: string[]; competitor_entities?: string[] }) => request<AiVisPrompt>(`/ai-visibility/prompts`, { method: "POST", body: JSON.stringify(data) });
+export const createAiVisPromptsBulk = (data: { prompt_set_id: string; prompts: { prompt_text: string; target_entities?: string[]; competitor_entities?: string[] }[] }) => request<AiVisPrompt[]>(`/ai-visibility/prompts/bulk`, { method: "POST", body: JSON.stringify(data) });
+export const deleteAiVisPrompt = (id: string) => request<{ deleted: boolean }>(`/ai-visibility/prompts/${id}`, { method: "DELETE" });
+
+export const getAiVisRuns = (clientId: string) => request<AiVisRun[]>(`/clients/${clientId}/ai-visibility/runs`);
+export const startAiVisRun = (data: { client_id: string; prompt_set_id: string; provider?: string }) => request<AiVisRun>(`/ai-visibility/runs`, { method: "POST", body: JSON.stringify(data) });
+
+export const getAiVisObservations = (runId: string) => request<AiVisObservation[]>(`/ai-visibility/runs/${runId}/observations`);
+export const updateAiVisObservation = (id: string, data: Partial<AiVisObservation>) => request<AiVisObservation>(`/ai-visibility/observations/${id}`, { method: "PUT", body: JSON.stringify(data) });
+
+export const getAiVisOverview = (clientId: string) => request<AiVisOverview>(`/clients/${clientId}/ai-visibility/overview`);
+
+export const getAiVisCompetitors = (clientId: string) => request<any[]>(`/clients/${clientId}/ai-visibility/competitors`);
+export const createAiVisCompetitor = (data: { client_id: string; competitor_name: string; competitor_domain?: string }) => request<any>(`/ai-visibility/competitors`, { method: "POST", body: JSON.stringify(data) });
