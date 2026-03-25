@@ -10,7 +10,7 @@ import { Plus, Globe, Key, Users2, ArrowRight, Activity, Building2 } from "lucid
 
 export default function ClientList() {
   const { data: apiClients, isLoading, isError } = useClients();
-  const clients = apiClients ?? dummyClients;
+  const clients = apiClients ?? [];
 
   const avgHealth = clients.length > 0 ? Math.round(clients.reduce((a, c) => a + c.health_score, 0) / clients.length) : 0;
   const totalKeywords = clients.reduce((a, c) => a + c.keywords_count, 0);

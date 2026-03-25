@@ -26,13 +26,7 @@ export default function Rankings() {
   const [sortKey, setSortKey] = useState<SortKey>("current_position");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-  const rawKws = apiKeywords ?? getClientRankings(clientId).map(r => ({
-    ...r, current_position: r.current_position as number | null,
-    last_position: r.last_position as number | null,
-    change: r.change as number | null,
-    ranking_url: r.ranking_url as string | null,
-    tracked_date: r.tracked_date as string | null,
-  }));
+  const rawKws = apiKeywords ?? [];
 
   const kws = useMemo(() => {
     return [...rawKws].sort((a, b) => {

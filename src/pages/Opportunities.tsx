@@ -35,7 +35,7 @@ function buildDummyOpportunities(): Opportunity[] {
 
 export default function Opportunities() {
   const { data: apiClients } = useClients();
-  const clients = apiClients ?? dummyClients;
+  const clients = apiClients ?? [];
   const [clientId, setClientId] = useState(clients[0]?.id ?? "");
   const { data: apiOpportunities, isLoading } = useOpportunities(clientId);
 

@@ -17,14 +17,11 @@ const severityConfig = {
 
 export default function Audit() {
   const { data: apiClients } = useClients();
-  const clients = apiClients ?? dummyClients;
+  const clients = apiClients ?? [];
   const [clientId, setClientId] = useState(clients[0]?.id ?? "");
   const { data: apiIssues } = useAuditIssues(clientId);
 
-  const issues = apiIssues ?? getClientAuditIssues(clientId).map(i => ({
-    id: i.id, issue_type: i.type, severity: i.severity, affected_url: i.affected_url,
-    description: i.description, fix_instruction: i.fix_instruction as string | null, status: i.status,
-  }));
+  const issues = apiIssues ?? [];
 
   const statusGroups = {
     open: issues.filter((i) => i.status === "open"),
