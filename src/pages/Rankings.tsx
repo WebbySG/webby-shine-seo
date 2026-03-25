@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
 import { useClients, useKeywords } from "@/hooks/use-api";
-import { clients as dummyClients, getClientRankings } from "@/data/dummy";
+
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, TrendingUp, TrendingDown, BarChart3, Target, RefreshCw } from "lucide-react";
 import {
