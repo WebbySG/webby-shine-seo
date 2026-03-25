@@ -103,22 +103,29 @@ router.post("/crm/deals", async (req, res) => {
 });
 
 router.put("/crm/deals/:dealId", async (req, res) => {
+  const ALLOWED_FIELDS = new Set([
+    "deal_name", "deal_value", "deal_stage", "pipeline_name",
+    "expected_close_date", "notes", "lost_reason", "contact_id",
+  ]);
   try {
     const fields = req.body;
     const sets: string[] = [];
     const vals: any[] = [];
     let i = 1;
     for (const [k, v] of Object.entries(fields)) {
+      if (!ALLOWED_FIELDS.has(k)) continue;
       sets.push(`${k} = $${i}`); vals.push(v); i++;
     }
     if (fields.deal_stage === 'won' && !fields.won_date) {
       sets.push(`won_date = $${i}`); vals.push(new Date().toISOString()); i++;
     }
+    if (sets.length === 0) return res.status(400).json({ error: "No valid fields to update" });
     sets.push(`updated_at = NOW()`);
     vals.push(req.params.dealId);
     const { rows } = await pool.query(
       `UPDATE crm_deals SET ${sets.join(", ")} WHERE id = $${vals.length} RETURNING *`, vals
     );
+    if (rows.length === 0) return res.status(404).json({ error: "Deal not found" });
     res.json(rows[0]);
   } catch (e: any) { res.status(500).json({ error: e.message }); }
 });
