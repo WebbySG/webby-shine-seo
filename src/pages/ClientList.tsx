@@ -5,12 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClients } from "@/hooks/use-api";
-import { clients as dummyClients } from "@/data/dummy";
+
 import { Plus, Globe, Key, Users2, ArrowRight, Activity, Building2 } from "lucide-react";
 
 export default function ClientList() {
   const { data: apiClients, isLoading, isError } = useClients();
-  const clients = apiClients ?? dummyClients;
+  const clients = apiClients ?? [];
 
   const avgHealth = clients.length > 0 ? Math.round(clients.reduce((a, c) => a + c.health_score, 0) / clients.length) : 0;
   const totalKeywords = clients.reduce((a, c) => a + c.keywords_count, 0);

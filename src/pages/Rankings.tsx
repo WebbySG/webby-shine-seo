@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
 import { useClients, useKeywords } from "@/hooks/use-api";
-import { clients as dummyClients, getClientRankings } from "@/data/dummy";
+
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, TrendingUp, TrendingDown, BarChart3, Target, RefreshCw } from "lucide-react";
 import {
@@ -18,7 +18,7 @@ type SortDir = "asc" | "desc";
 
 export default function Rankings() {
   const { data: apiClients } = useClients();
-  const clients = apiClients ?? dummyClients;
+  const clients = apiClients ?? [];
 
   const [clientId, setClientId] = useState(clients[0]?.id ?? "");
   const { data: apiKeywords, isLoading } = useKeywords(clientId);
@@ -26,13 +26,7 @@ export default function Rankings() {
   const [sortKey, setSortKey] = useState<SortKey>("current_position");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-  const rawKws = apiKeywords ?? getClientRankings(clientId).map(r => ({
-    ...r, current_position: r.current_position as number | null,
-    last_position: r.last_position as number | null,
-    change: r.change as number | null,
-    ranking_url: r.ranking_url as string | null,
-    tracked_date: r.tracked_date as string | null,
-  }));
+  const rawKws = apiKeywords ?? [];
 
   const kws = useMemo(() => {
     return [...rawKws].sort((a, b) => {

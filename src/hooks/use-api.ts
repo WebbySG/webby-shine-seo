@@ -283,3 +283,41 @@ export function useReportRuns(clientId: string) { return useQuery({ queryKey: ["
 export function useGenerateReport() { const qc = useQueryClient(); return useMutation({ mutationFn: (data: { workspace_id: string; client_id: string; template_id: string; date_from: string; date_to: string }) => api.generateReportApi(data), onSuccess: (_d, vars) => qc.invalidateQueries({ queryKey: ["report-runs", vars.client_id] }) }); }
 export function useScheduledReports(workspaceId: string) { return useQuery({ queryKey: ["scheduled-reports", workspaceId], queryFn: () => api.getScheduledReports(workspaceId), enabled: !!workspaceId }); }
 export function useCreateScheduledReport() { const qc = useQueryClient(); return useMutation({ mutationFn: (data: any) => api.createScheduledReport(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["scheduled-reports"] }) }); }
+
+// ---------- Activity Log ----------
+export function useActivityLog(params?: { client_id?: string; entity_type?: string; limit?: number }) {
+  return useQuery({ queryKey: ["activity-log", params], queryFn: () => api.getActivityLog(params) });
+}
+
+// ---------- Notifications ----------
+export function useNotifications(params?: { is_read?: boolean; category?: string }) {
+  return useQuery({ queryKey: ["notifications", params], queryFn: () => api.getNotifications(params), refetchInterval: 30000 });
+}
+export function useUnreadCount() {
+  return useQuery({ queryKey: ["unread-count"], queryFn: api.getUnreadCount, refetchInterval: 30000 });
+}
+export function useMarkNotificationRead() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (id: string) => api.markNotificationRead(id), onSuccess: () => { qc.invalidateQueries({ queryKey: ["notifications"] }); qc.invalidateQueries({ queryKey: ["unread-count"] }); } });
+}
+export function useMarkAllRead() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: () => api.markAllNotificationsRead(), onSuccess: () => { qc.invalidateQueries({ queryKey: ["notifications"] }); qc.invalidateQueries({ queryKey: ["unread-count"] }); } });
+}
+
+// ---------- Job Center ----------
+export function useAllPublishingJobs(params?: { status?: string; client_id?: string }) {
+  return useQuery({ queryKey: ["all-publishing-jobs", params], queryFn: () => api.getAllPublishingJobs(params), refetchInterval: 15000 });
+}
+
+// ---------- AI Visibility ----------
+export function useAiVisPromptSets(clientId: string) { return useQuery({ queryKey: ["ai-vis-prompt-sets", clientId], queryFn: () => api.getAiVisPromptSets(clientId), enabled: !!clientId }); }
+export function useCreateAiVisPromptSet() { const qc = useQueryClient(); return useMutation({ mutationFn: (data: Parameters<typeof api.createAiVisPromptSet>[0]) => api.createAiVisPromptSet(data), onSuccess: (_d, vars) => qc.invalidateQueries({ queryKey: ["ai-vis-prompt-sets", vars.client_id] }) }); }
+export function useDeleteAiVisPromptSet(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.deleteAiVisPromptSet(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-vis-prompt-sets", clientId] }) }); }
+export function useAiVisPrompts(setId: string) { return useQuery({ queryKey: ["ai-vis-prompts", setId], queryFn: () => api.getAiVisPrompts(setId), enabled: !!setId }); }
+export function useCreateAiVisPromptsBulk(setId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (data: Parameters<typeof api.createAiVisPromptsBulk>[0]) => api.createAiVisPromptsBulk(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-vis-prompts", setId] }) }); }
+export function useAiVisRuns(clientId: string) { return useQuery({ queryKey: ["ai-vis-runs", clientId], queryFn: () => api.getAiVisRuns(clientId), enabled: !!clientId }); }
+export function useStartAiVisRun(clientId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: (data: Parameters<typeof api.startAiVisRun>[0]) => api.startAiVisRun(data), onSuccess: () => { qc.invalidateQueries({ queryKey: ["ai-vis-runs", clientId] }); qc.invalidateQueries({ queryKey: ["ai-vis-overview", clientId] }); } }); }
+export function useAiVisObservations(runId: string) { return useQuery({ queryKey: ["ai-vis-observations", runId], queryFn: () => api.getAiVisObservations(runId), enabled: !!runId }); }
+export function useUpdateAiVisObservation(runId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, data }: { id: string; data: any }) => api.updateAiVisObservation(id, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-vis-observations", runId] }) }); }
+export function useAiVisOverview(clientId: string) { return useQuery({ queryKey: ["ai-vis-overview", clientId], queryFn: () => api.getAiVisOverview(clientId), enabled: !!clientId }); }

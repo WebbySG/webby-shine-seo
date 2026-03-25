@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useClient, useKeywords, useCompetitors, useAuditIssues, useInternalLinks, useContentPlan, useBriefs, useGenerateBrief, useArticles, useGenerateArticle, useUpdateArticle, useApproveArticle, usePublishArticle, useCmsConnection, useSaveCmsConnection, useTestCmsConnection, useSocialPosts, useGenerateSocialPosts, useUpdateSocialPost, useApproveSocialPost, useVideos, useGenerateVideo, useUpdateVideo, useApproveVideo, usePublishingJobs, useScheduleJob, useRetryJob, useCancelJob } from "@/hooks/use-api";
-import { clients as dummyClients, getClientRankings, getClientCompetitors, getClientAuditIssues } from "@/data/dummy";
+
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
 import { ArrowLeft, Globe, TrendingUp, TrendingDown, Target, Link2, ExternalLink, FileText, FolderTree, BookOpen, Sparkles, ChevronDown, ChevronUp, Pencil, Check, X, FileEdit, Settings, Upload, Loader2, Share2, MessageSquare, Video, Play, User, Users2, Clock, RotateCcw, Ban, Calendar as CalendarIcon, ListTodo, Key, AlertTriangle, AlertCircle, Info, Activity, BarChart3 } from "lucide-react";
 import type { InternalLinkSuggestion, ContentSuggestion, ContentPlanCluster, SeoBrief, SeoArticle, CmsConnection, SocialPost, VideoAsset, PublishingJob } from "@/lib/api";
@@ -165,21 +165,13 @@ export default function ClientDetail() {
 
   const cmsConnection: CmsConnection | null = apiCmsConnection ?? null;
 
-  const dummyClient = dummyClients.find((c) => c.id === id);
-  const client = apiClient ?? dummyClient;
+  const client = apiClient ?? null;
 
-  const kws = apiKeywords ?? getClientRankings(id!).map(r => ({
-    ...r, current_position: r.current_position, last_position: r.last_position, change: r.change, ranking_url: r.ranking_url, tracked_date: r.tracked_date
-  }));
+  const kws = apiKeywords ?? [];
 
-  const comps = apiCompetitors ?? getClientCompetitors(id!).map(c => ({
-    id: c.id, domain: c.domain, label: null, source: "manual", confirmed: true
-  }));
+  const comps = apiCompetitors ?? [];
 
-  const issues = apiAuditIssues ?? getClientAuditIssues(id!).map(i => ({
-    id: i.id, issue_type: i.type, severity: i.severity, affected_url: i.affected_url,
-    description: i.description, fix_instruction: i.fix_instruction, status: i.status
-  }));
+  const issues = apiAuditIssues ?? [];
 
   const internalLinks: InternalLinkSuggestion[] = apiInternalLinks ?? buildDummyInternalLinks();
   const contentClusters: ContentPlanCluster[] = apiContentPlan?.clusters ?? buildDummyContentPlan();

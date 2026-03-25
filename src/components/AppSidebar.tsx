@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, Search, TrendingUp,
   MapPin, Paintbrush, DollarSign, Command, Handshake, Settings, LogOut,
-  ClipboardList, FlaskConical, FileText,
+  ClipboardList, FlaskConical, FileText, Eye, Briefcase, ScrollText,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -25,6 +25,7 @@ const seoNav = [
 
 const channelNav = [
   { title: "Analytics", url: "/analytics", icon: TrendingUp, color: "text-analytics-primary", perm: "view_analytics" },
+  { title: "AI Visibility", url: "/ai-visibility", icon: Eye, color: "text-primary", perm: "view_analytics" },
   { title: "Local SEO", url: "/local-seo", icon: MapPin, color: "text-gbp-primary", perm: "manage_gbp" },
   { title: "Creative", url: "/creative", icon: Paintbrush, color: "text-content-primary", perm: "manage_articles" },
   { title: "Google Ads", url: "/google-ads", icon: DollarSign, color: "text-ads-primary", perm: "manage_ads" },
@@ -37,6 +38,8 @@ const businessNav = [
 ];
 
 const settingsNav = [
+  { title: "Job Center", url: "/jobs", icon: Briefcase, color: "text-foreground", perm: "view_dashboard" },
+  { title: "Activity Log", url: "/activity", icon: ScrollText, color: "text-foreground", perm: "view_dashboard" },
   { title: "Settings", url: "/settings", icon: Settings, color: "text-foreground", perm: "manage_settings" },
   { title: "QA Checklist", url: "/qa", icon: ClipboardList, color: "text-muted-foreground", perm: "view_dashboard" },
 ];
@@ -124,7 +127,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="rounded-lg bg-muted/50 p-3 border border-border/30">
             <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Version</p>
-            <p className="text-xs font-mono text-muted-foreground">v3.2 — Phase 23</p>
+            <p className="text-xs font-mono text-muted-foreground">v4.0 — Phase 24</p>
           </div>
         )}
       </SidebarFooter>
