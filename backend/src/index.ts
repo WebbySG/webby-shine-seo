@@ -29,6 +29,8 @@ import approvalsRouter from "./routes/approvals.js";
 import approvalsClientRouter from "./routes/approvals-client.js";
 import onboardingRouter from "./routes/onboarding.js";
 import reportsRouter from "./routes/reports.js";
+import activityRouter from "./routes/activity.js";
+import aiVisibilityRouter from "./routes/ai-visibility.js";
 
 dotenv.config();
 
