@@ -38,6 +38,8 @@ const businessNav = [
 ];
 
 const settingsNav = [
+  { title: "Job Center", url: "/jobs", icon: Briefcase, color: "text-foreground", perm: "view_dashboard" },
+  { title: "Activity Log", url: "/activity", icon: ScrollText, color: "text-foreground", perm: "view_dashboard" },
   { title: "Settings", url: "/settings", icon: Settings, color: "text-foreground", perm: "manage_settings" },
   { title: "QA Checklist", url: "/qa", icon: ClipboardList, color: "text-muted-foreground", perm: "view_dashboard" },
 ];
