@@ -55,16 +55,17 @@ function AddClientDialog() {
   );
 }
 
-// Generate mock trend data from client health scores for visualization
+// Deterministic trend data derived from client aggregate stats (no Math.random)
 function generateGrowthTrend(clients: any[]) {
   const weeks = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"];
   const baseHealth = clients.length > 0
-    ? clients.reduce((s, c) => s + c.health_score, 0) / clients.length
+    ? clients.reduce((s: number, c: any) => s + c.health_score, 0) / clients.length
     : 50;
+  const totalKw = clients.reduce((s: number, c: any) => s + c.keywords_count, 0);
   return weeks.map((w, i) => ({
     name: w,
-    visibility: Math.round(baseHealth + (i * 2) + (Math.random() * 5 - 2)),
-    keywords: Math.round(clients.reduce((s, c) => s + c.keywords_count, 0) * (0.85 + i * 0.03)),
+    visibility: Math.round(baseHealth + i * 2),
+    keywords: Math.round(totalKw * (0.85 + i * 0.03)),
   }));
 }
 

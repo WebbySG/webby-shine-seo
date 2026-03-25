@@ -4,12 +4,16 @@ import pool from "../db.js";
 const router = Router();
 
 // GET /api/activity — list activity log entries
-router.get("/", async (req, res) => {
-  const { client_id, entity_type, limit = "50", offset = "0" } = req.query;
+router.get("/activity", async (req, res) => {
+  const { client_id, workspace_id, entity_type, limit = "50", offset = "0" } = req.query;
   try {
     let query = `SELECT * FROM activity_log WHERE 1=1`;
     const params: any[] = [];
 
+    if (workspace_id) {
+      params.push(workspace_id);
+      query += ` AND workspace_id = $${params.length}`;
+    }
     if (client_id) {
       params.push(client_id);
       query += ` AND client_id = $${params.length}`;
