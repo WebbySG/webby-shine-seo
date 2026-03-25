@@ -25,6 +25,7 @@ const seoNav = [
 
 const channelNav = [
   { title: "Analytics", url: "/analytics", icon: TrendingUp, color: "text-analytics-primary", perm: "view_analytics" },
+  { title: "AI Visibility", url: "/ai-visibility", icon: Eye, color: "text-primary", perm: "view_analytics" },
   { title: "Local SEO", url: "/local-seo", icon: MapPin, color: "text-gbp-primary", perm: "manage_gbp" },
   { title: "Creative", url: "/creative", icon: Paintbrush, color: "text-content-primary", perm: "manage_articles" },
   { title: "Google Ads", url: "/google-ads", icon: DollarSign, color: "text-ads-primary", perm: "manage_ads" },
