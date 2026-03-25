@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, Search, TrendingUp,
   MapPin, Paintbrush, DollarSign, Command, Handshake, Settings, LogOut,
-  ClipboardList, FlaskConical, FileText,
+  ClipboardList, FlaskConical, FileText, Eye, Briefcase, ScrollText,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
