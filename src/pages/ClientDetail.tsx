@@ -165,21 +165,13 @@ export default function ClientDetail() {
 
   const cmsConnection: CmsConnection | null = apiCmsConnection ?? null;
 
-  const dummyClient = dummyClients.find((c) => c.id === id);
-  const client = apiClient ?? dummyClient;
+  const client = apiClient ?? null;
 
-  const kws = apiKeywords ?? getClientRankings(id!).map(r => ({
-    ...r, current_position: r.current_position, last_position: r.last_position, change: r.change, ranking_url: r.ranking_url, tracked_date: r.tracked_date
-  }));
+  const kws = apiKeywords ?? [];
 
-  const comps = apiCompetitors ?? getClientCompetitors(id!).map(c => ({
-    id: c.id, domain: c.domain, label: null, source: "manual", confirmed: true
-  }));
+  const comps = apiCompetitors ?? [];
 
-  const issues = apiAuditIssues ?? getClientAuditIssues(id!).map(i => ({
-    id: i.id, issue_type: i.type, severity: i.severity, affected_url: i.affected_url,
-    description: i.description, fix_instruction: i.fix_instruction, status: i.status
-  }));
+  const issues = apiAuditIssues ?? [];
 
   const internalLinks: InternalLinkSuggestion[] = apiInternalLinks ?? buildDummyInternalLinks();
   const contentClusters: ContentPlanCluster[] = apiContentPlan?.clusters ?? buildDummyContentPlan();
