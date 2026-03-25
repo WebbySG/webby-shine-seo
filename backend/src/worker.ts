@@ -1026,25 +1026,17 @@ async function sendActivityReminders() {
   }
 }
 
-// ====================================================================
-// 12. COMBINED DAILY JOB
-// ====================================================================
-async function dailyJob() {
+// NOTE: Individual jobs are scheduled below on staggered crons.
+// Do NOT use a combined dailyJob() — it causes double execution
+// since analytics, GBP, ads, command center already have dedicated slots.
+
+// Rank tracking + derivative jobs at 02:00 SGT
+cron.schedule("0 2 * * *", async () => {
   await fetchRankings();
   await generateOpportunities();
   await generateInternalLinks();
   await generateContentPlan();
-  await syncAnalyticsData();
-  await syncGbpData();
-  await syncAdsData();
-  await recomputeCommandCenter();
-  await recomputeAttribution();
-  await recomputeCrmInsights();
-  await sendActivityReminders();
-}
-
-// Run daily at 02:00 SGT
-cron.schedule("0 2 * * *", dailyJob, { timezone: "Asia/Singapore" });
+}, { timezone: "Asia/Singapore" });
 
 // Process publishing jobs every minute
 cron.schedule("* * * * *", processPublishingJobs);
