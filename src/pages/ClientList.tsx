@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClients } from "@/hooks/use-api";
-import { clients as dummyClients } from "@/data/dummy";
+
 import { Plus, Globe, Key, Users2, ArrowRight, Activity, Building2 } from "lucide-react";
 
 export default function ClientList() {
