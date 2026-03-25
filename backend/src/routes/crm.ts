@@ -38,12 +38,17 @@ router.post("/crm/contacts", async (req, res) => {
 });
 
 router.put("/crm/contacts/:contactId", async (req, res) => {
+  const ALLOWED_FIELDS = new Set([
+    "first_name", "last_name", "email", "phone", "company_name",
+    "job_title", "lead_source", "notes", "status", "source_type",
+  ]);
   try {
     const fields = req.body;
     const sets: string[] = [];
     const vals: any[] = [];
     let i = 1;
     for (const [k, v] of Object.entries(fields)) {
+      if (!ALLOWED_FIELDS.has(k)) continue;
       sets.push(`${k} = $${i}`); vals.push(v); i++;
     }
     if (fields.first_name || fields.last_name) {
@@ -51,11 +56,13 @@ router.put("/crm/contacts/:contactId", async (req, res) => {
       vals.push(`${fields.first_name || ""} ${fields.last_name || ""}`.trim());
       i++;
     }
+    if (sets.length === 0) return res.status(400).json({ error: "No valid fields to update" });
     sets.push(`updated_at = NOW()`);
     vals.push(req.params.contactId);
     const { rows } = await pool.query(
       `UPDATE crm_contacts SET ${sets.join(", ")} WHERE id = $${vals.length} RETURNING *`, vals
     );
+    if (rows.length === 0) return res.status(404).json({ error: "Contact not found" });
     res.json(rows[0]);
   } catch (e: any) { res.status(500).json({ error: e.message }); }
 });
