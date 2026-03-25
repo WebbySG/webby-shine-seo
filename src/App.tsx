@@ -76,6 +76,9 @@ const App = () => (
                 <Route path="/crm" element={<CRM />} />
                 <Route path="/settings" element={<WorkspaceSettings />} />
                 <Route path="/reports" element={<Reports />} />
+                <Route path="/ai-visibility" element={<AiVisibility />} />
+                <Route path="/jobs" element={<JobCenter />} />
+                <Route path="/activity" element={<ActivityLog />} />
                 <Route path="/qa" element={<DemoQA />} />
               </Route>
 
