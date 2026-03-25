@@ -127,7 +127,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="rounded-lg bg-muted/50 p-3 border border-border/30">
             <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Version</p>
-            <p className="text-xs font-mono text-muted-foreground">v3.2 — Phase 23</p>
+            <p className="text-xs font-mono text-muted-foreground">v4.0 — Phase 24</p>
           </div>
         )}
       </SidebarFooter>
