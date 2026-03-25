@@ -30,6 +30,9 @@ import OnboardingWizard from "@/pages/OnboardingWizard";
 import SetupComplete from "@/pages/SetupComplete";
 import DemoQA from "@/pages/DemoQA";
 import Reports from "@/pages/Reports";
+import AiVisibility from "@/pages/AiVisibility";
+import JobCenter from "@/pages/JobCenter";
+import ActivityLog from "@/pages/ActivityLog";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
