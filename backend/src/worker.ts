@@ -603,6 +603,13 @@ async function processPublishingJobs() {
           [result?.externalPostId || null, result?.publishedUrl || null, job.id]
         );
 
+        // Log activity + notification
+        const { logAndNotify } = await import("./services/activityLogger.js");
+        await logAndNotify(
+          { clientId: job.client_id, action: "published", entityType: job.asset_type, entityId: job.asset_id, summary: `Published ${job.asset_type} to ${job.platform}` },
+          { type: "success", category: "publish", title: `${job.asset_type} published to ${job.platform}` }
+        );
+
         console.log(`  ✓ Job ${job.id} completed (${job.asset_type}/${job.job_type})`);
       } catch (err: any) {
         const retryCount = (job.retry_count || 0) + 1;
