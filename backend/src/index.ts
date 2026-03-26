@@ -31,6 +31,7 @@ import onboardingRouter from "./routes/onboarding.js";
 import reportsRouter from "./routes/reports.js";
 import activityRouter from "./routes/activity.js";
 import aiVisibilityRouter from "./routes/ai-visibility.js";
+import { authLimiter, aiLimiter, publishLimiter, generalLimiter } from "./middleware/rateLimiter.js";
 
 dotenv.config();
 
@@ -40,8 +41,11 @@ const PORT = Number(process.env.PORT) || 3001;
 app.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173" }));
 app.use(express.json());
 
-// Auth routes (no middleware needed)
-app.use("/api/auth", authRouter);
+// Global rate limit
+app.use("/api", generalLimiter);
+
+// Auth routes with strict rate limiting
+app.use("/api/auth", authLimiter, authRouter);
 app.use("/api/workspaces", workspacesRouter);
 app.use("/api/invites", invitesRouter);
 app.use("/api/approvals", approvalsRouter);
