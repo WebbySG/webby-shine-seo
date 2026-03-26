@@ -115,6 +115,7 @@ export function AppSidebar() {
       <SidebarContent className="px-2 pt-2">
         {renderGroup("Core", coreNav)}
         {renderGroup("SEO", seoNav)}
+        {renderGroup("Content", contentNav)}
         {renderGroup("Channels", channelNav)}
         {renderGroup("Business", businessNav)}
         {renderGroup("System", settingsNav)}

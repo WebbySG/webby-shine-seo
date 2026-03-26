@@ -82,6 +82,9 @@ const App = () => (
                 <Route path="/ai-visibility" element={<AiVisibility />} />
                 <Route path="/jobs" element={<JobCenter />} />
                 <Route path="/activity" element={<ActivityLog />} />
+                <Route path="/topical-maps" element={<TopicalMaps />} />
+                <Route path="/content-optimizer" element={<ContentOptimizer />} />
+                <Route path="/bulk-content" element={<BulkContent />} />
                 <Route path="/qa" element={<DemoQA />} />
               </Route>
 
