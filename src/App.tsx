@@ -33,6 +33,9 @@ import Reports from "@/pages/Reports";
 import AiVisibility from "@/pages/AiVisibility";
 import JobCenter from "@/pages/JobCenter";
 import ActivityLog from "@/pages/ActivityLog";
+import TopicalMaps from "@/pages/TopicalMaps";
+import ContentOptimizer from "@/pages/ContentOptimizer";
+import BulkContent from "@/pages/BulkContent";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
