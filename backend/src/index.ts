@@ -31,6 +31,9 @@ import onboardingRouter from "./routes/onboarding.js";
 import reportsRouter from "./routes/reports.js";
 import activityRouter from "./routes/activity.js";
 import aiVisibilityRouter from "./routes/ai-visibility.js";
+import topicalMapsRouter from "./routes/topical-maps.js";
+import contentScoreRouter from "./routes/content-score.js";
+import bulkContentRouter from "./routes/bulk-content.js";
 import { authLimiter, aiLimiter, publishLimiter, generalLimiter } from "./middleware/rateLimiter.js";
 
 dotenv.config();
