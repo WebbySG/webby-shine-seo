@@ -2,6 +2,7 @@ import {
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, Search, TrendingUp,
   MapPin, Paintbrush, DollarSign, Command, Handshake, Settings, LogOut,
   ClipboardList, FlaskConical, FileText, Eye, Briefcase, ScrollText,
+  Network, Gauge, Layers,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -23,11 +24,17 @@ const seoNav = [
   { title: "Opportunities", url: "/opportunities", icon: Lightbulb, color: "text-seo-primary", perm: "view_dashboard" },
 ];
 
+const contentNav = [
+  { title: "Topical Maps", url: "/topical-maps", icon: Network, color: "text-content-primary", perm: "manage_articles" },
+  { title: "Content Score", url: "/content-optimizer", icon: Gauge, color: "text-content-primary", perm: "manage_articles" },
+  { title: "Bulk Content", url: "/bulk-content", icon: Layers, color: "text-content-primary", perm: "manage_articles" },
+  { title: "Creative", url: "/creative", icon: Paintbrush, color: "text-content-primary", perm: "manage_articles" },
+];
+
 const channelNav = [
   { title: "Analytics", url: "/analytics", icon: TrendingUp, color: "text-analytics-primary", perm: "view_analytics" },
   { title: "AI Visibility", url: "/ai-visibility", icon: Eye, color: "text-primary", perm: "view_analytics" },
   { title: "Local SEO", url: "/local-seo", icon: MapPin, color: "text-gbp-primary", perm: "manage_gbp" },
-  { title: "Creative", url: "/creative", icon: Paintbrush, color: "text-content-primary", perm: "manage_articles" },
   { title: "Google Ads", url: "/google-ads", icon: DollarSign, color: "text-ads-primary", perm: "manage_ads" },
 ];
 
@@ -108,6 +115,7 @@ export function AppSidebar() {
       <SidebarContent className="px-2 pt-2">
         {renderGroup("Core", coreNav)}
         {renderGroup("SEO", seoNav)}
+        {renderGroup("Content", contentNav)}
         {renderGroup("Channels", channelNav)}
         {renderGroup("Business", businessNav)}
         {renderGroup("System", settingsNav)}

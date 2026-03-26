@@ -33,6 +33,9 @@ import Reports from "@/pages/Reports";
 import AiVisibility from "@/pages/AiVisibility";
 import JobCenter from "@/pages/JobCenter";
 import ActivityLog from "@/pages/ActivityLog";
+import TopicalMaps from "@/pages/TopicalMaps";
+import ContentOptimizer from "@/pages/ContentOptimizer";
+import BulkContent from "@/pages/BulkContent";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -79,6 +82,9 @@ const App = () => (
                 <Route path="/ai-visibility" element={<AiVisibility />} />
                 <Route path="/jobs" element={<JobCenter />} />
                 <Route path="/activity" element={<ActivityLog />} />
+                <Route path="/topical-maps" element={<TopicalMaps />} />
+                <Route path="/content-optimizer" element={<ContentOptimizer />} />
+                <Route path="/bulk-content" element={<BulkContent />} />
                 <Route path="/qa" element={<DemoQA />} />
               </Route>
 
