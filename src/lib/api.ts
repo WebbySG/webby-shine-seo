@@ -1,3 +1,5 @@
+import { matchDemoRoute } from "./demo-data";
+
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -7,15 +9,32 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...((options?.headers as Record<string, string>) || {}),
   };
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error || `API error ${res.status}`);
+
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers,
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `API error ${res.status}`);
+    }
+    return res.json();
+  } catch (err) {
+    // If backend is unreachable, fall back to demo data
+    const method = options?.method || "GET";
+    let body: any;
+    if (options?.body && typeof options.body === "string") {
+      try { body = JSON.parse(options.body); } catch {}
+    }
+    const demoResult = matchDemoRoute(path, method, body);
+    if (demoResult !== undefined) {
+      console.info(`[Demo Mode] ${method} ${path} → demo data`);
+      return demoResult as T;
+    }
+    // No demo match — rethrow original error
+    throw err;
   }
-  return res.json();
 }
 
 // ---------- Types ----------
