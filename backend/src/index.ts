@@ -71,7 +71,7 @@ app.use("/api/clients", videosRouter);
 app.use("/api/videos", videosRouter);
 app.use("/api/publishing", publishingRouter);
 app.use("/api/clients", publishingRouter);
-app.use("/api/ai", aiRouter);
+app.use("/api/ai", aiLimiter, aiRouter);
 app.use("/api/analytics", analyticsRouter);
 app.use("/api/clients", analyticsRouter);
 app.use("/api/gbp", gbpRouter);
