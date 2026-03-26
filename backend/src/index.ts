@@ -69,7 +69,7 @@ app.use("/api/articles", socialRouter);
 app.use("/api/social", socialRouter);
 app.use("/api/clients", videosRouter);
 app.use("/api/videos", videosRouter);
-app.use("/api/publishing", publishingRouter);
+app.use("/api/publishing", publishLimiter, publishingRouter);
 app.use("/api/clients", publishingRouter);
 app.use("/api/ai", aiLimiter, aiRouter);
 app.use("/api/analytics", analyticsRouter);
