@@ -97,6 +97,12 @@ app.use("/api", reportsRouter);
 app.use("/api", activityRouter);
 app.use("/api/ai-visibility", aiVisibilityRouter);
 app.use("/api/clients", aiVisibilityRouter);
+app.use("/api/topical-maps", aiLimiter, topicalMapsRouter);
+app.use("/api/clients", topicalMapsRouter);
+app.use("/api/content-score", contentScoreRouter);
+app.use("/api/clients", contentScoreRouter);
+app.use("/api/bulk-content", aiLimiter, bulkContentRouter);
+app.use("/api/clients", bulkContentRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });

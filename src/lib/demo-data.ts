@@ -562,6 +562,64 @@ const routes: DemoRoute[] = [
     { id: "avo3", run_id: "avr2", prompt_id: "avp3", prompt_text: "Which agency should I hire for Google SEO in Singapore?", brand_mentioned: false, brand_position: null, prominence: "absent", competitor_mentioned: true, competitor_names: ["seo-pros.asia"], citation_present: false, citation_url: null, sentiment: null, raw_excerpt: null, created_at: daysAgo(1) },
   ] },
 
+  // ── Topical Maps ──
+  { pattern: /^\/topical-maps\/generate$/, method: "POST", handler: (_m, body) => ({
+    id: crypto.randomUUID(), client_id: body?.client_id, name: body?.name || `${body?.seed_keyword} Topical Map`, seed_keyword: body?.seed_keyword, status: "ready", cluster_count: 5, article_count: 14, created_at: now,
+    clusters: [
+      { id: "tc1", cluster_name: `${body?.seed_keyword} Fundamentals`, pillar_keyword: `what is ${body?.seed_keyword?.toLowerCase()}`, search_intent: "informational", estimated_volume: 2400, difficulty_score: 35, priority: "high" },
+      { id: "tc2", cluster_name: `${body?.seed_keyword} Strategies`, pillar_keyword: `${body?.seed_keyword?.toLowerCase()} strategies`, search_intent: "informational", estimated_volume: 1600, difficulty_score: 45, priority: "high" },
+      { id: "tc3", cluster_name: `${body?.seed_keyword} Tools`, pillar_keyword: `best ${body?.seed_keyword?.toLowerCase()} tools`, search_intent: "commercial", estimated_volume: 1900, difficulty_score: 50, priority: "medium" },
+    ],
+    articles: [
+      { id: "ta1", cluster_id: "tc1", title: `What Is ${body?.seed_keyword}? Complete Guide`, target_keyword: `what is ${body?.seed_keyword?.toLowerCase()}`, content_type: "pillar_page", search_intent: "informational", estimated_volume: 2400, difficulty_score: 35, word_count_target: 2500, status: "planned" },
+      { id: "ta2", cluster_id: "tc1", title: `${body?.seed_keyword} for Beginners`, target_keyword: `${body?.seed_keyword?.toLowerCase()} for beginners`, content_type: "how_to", search_intent: "informational", estimated_volume: 1200, difficulty_score: 25, word_count_target: 2000, status: "planned" },
+      { id: "ta3", cluster_id: "tc2", title: `Top 10 ${body?.seed_keyword} Strategies`, target_keyword: `${body?.seed_keyword?.toLowerCase()} strategies`, content_type: "listicle", search_intent: "informational", estimated_volume: 1600, difficulty_score: 45, word_count_target: 2200, status: "planned" },
+      { id: "ta4", cluster_id: "tc3", title: `Best ${body?.seed_keyword} Tools Compared`, target_keyword: `best ${body?.seed_keyword?.toLowerCase()} tools`, content_type: "comparison", search_intent: "commercial", estimated_volume: 1900, difficulty_score: 50, word_count_target: 2500, status: "planned" },
+    ],
+  }) },
+  { pattern: /^\/topical-maps\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
+  { pattern: /^\/topical-maps\/[^/]+$/, handler: () => ({ id: "tm1", name: "SEO Services Topical Map", seed_keyword: "seo services", status: "ready", cluster_count: 5, article_count: 14, created_at: daysAgo(7), clusters: [
+    { id: "tc1", cluster_name: "SEO Fundamentals", pillar_keyword: "what is seo", search_intent: "informational", estimated_volume: 2400, difficulty_score: 35, priority: "high" },
+    { id: "tc2", cluster_name: "SEO Strategies", pillar_keyword: "seo strategies", search_intent: "informational", estimated_volume: 1600, difficulty_score: 45, priority: "high" },
+  ], articles: [
+    { id: "ta1", cluster_id: "tc1", title: "What Is SEO? Complete Guide", target_keyword: "what is seo", content_type: "pillar_page", search_intent: "informational", estimated_volume: 2400, difficulty_score: 35, word_count_target: 2500, status: "planned" },
+    { id: "ta2", cluster_id: "tc1", title: "SEO for Beginners", target_keyword: "seo for beginners", content_type: "how_to", search_intent: "informational", estimated_volume: 1200, difficulty_score: 25, word_count_target: 2000, status: "planned" },
+    { id: "ta3", cluster_id: "tc2", title: "Top 10 SEO Strategies", target_keyword: "seo strategies", content_type: "listicle", search_intent: "informational", estimated_volume: 1600, difficulty_score: 45, word_count_target: 2200, status: "planned" },
+  ] }) },
+  { pattern: /^\/clients\/[^/]+\/topical-maps$/, handler: () => [
+    { id: "tm1", name: "SEO Services Topical Map", seed_keyword: "seo services", status: "ready", cluster_count: 5, article_count: 14, created_at: daysAgo(7) },
+  ] },
+
+  // ── Content Scores ──
+  { pattern: /^\/content-score\/analyze$/, method: "POST", handler: (_m, body) => ({
+    id: crypto.randomUUID(), client_id: body?.client_id, title: body?.title || "Untitled", target_keyword: body?.target_keyword, overall_score: 72, word_count: (body?.content || "").split(/\s+/).length, word_count_target: 1500, word_count_score: 65, heading_score: 80, keyword_density: 0.018, keyword_score: 85, readability_score: 75, focus_terms_found: 4, focus_terms_total: 6, focus_terms_score: 67, internal_links_count: 2, external_links_count: 1, link_score: 58, meta_title_length: (body?.meta_title || body?.title || "").length, meta_desc_length: (body?.meta_description || "").length, meta_score: 50,
+    issues_json: [{ type: "word_count", severity: "medium", message: "Content could be longer for better rankings." }],
+    suggestions_json: ["Add more focus terms", "Include authoritative external links"],
+    focus_terms_json: [{ term: body?.target_keyword?.toLowerCase(), found: true }, { term: "guide", found: true }, { term: "best practices", found: false }],
+    scored_at: now,
+  }) },
+  { pattern: /^\/clients\/[^/]+\/content-scores$/, handler: () => [
+    { id: "cs1", title: "Complete SEO Guide", target_keyword: "seo guide", overall_score: 82, word_count: 2100, word_count_target: 1500, word_count_score: 100, heading_score: 90, keyword_density: 0.019, keyword_score: 88, readability_score: 78, focus_terms_found: 5, focus_terms_total: 6, focus_terms_score: 83, internal_links_count: 4, external_links_count: 2, link_score: 83, meta_title_length: 45, meta_desc_length: 142, meta_score: 100, issues_json: [], suggestions_json: [], focus_terms_json: [], scored_at: daysAgo(2) },
+    { id: "cs2", title: "Web Design Best Practices", target_keyword: "web design", overall_score: 58, word_count: 890, word_count_target: 1500, word_count_score: 45, heading_score: 60, keyword_density: 0.012, keyword_score: 70, readability_score: 65, focus_terms_found: 3, focus_terms_total: 7, focus_terms_score: 43, internal_links_count: 1, external_links_count: 0, link_score: 30, meta_title_length: 22, meta_desc_length: 0, meta_score: 25, issues_json: [{ type: "word_count", severity: "high", message: "Content is only 890 words." }], suggestions_json: ["Add more content"], focus_terms_json: [], scored_at: daysAgo(5) },
+  ] },
+
+  // ── Bulk Content ──
+  { pattern: /^\/bulk-content\/generate$/, method: "POST", handler: (_m, body) => {
+    const kws = body?.keywords || [{ keyword: "sample keyword" }];
+    return { id: crypto.randomUUID(), name: body?.name || "Bulk Job", status: "completed", total_articles: kws.length, completed_articles: kws.length, failed_articles: 0, created_at: now, items: kws.map((k: any, i: number) => ({ id: `bi${i}`, target_keyword: k.keyword, title: `Guide to ${k.keyword}`, status: "completed", content_score: Math.round(55 + Math.random() * 35), completed_at: now })) };
+  } },
+  { pattern: /^\/bulk-content\/[^/]+\/cancel$/, method: "POST", handler: () => ({ status: "cancelled" }) },
+  { pattern: /^\/bulk-content\/[^/]+$/, handler: () => ({ id: "bj1", name: "SEO Content Pack", status: "completed", total_articles: 5, completed_articles: 5, failed_articles: 0, created_at: daysAgo(3), items: [
+    { id: "bi1", target_keyword: "seo agency singapore", title: "Best SEO Agency Singapore", status: "completed", content_score: 78, completed_at: daysAgo(3) },
+    { id: "bi2", target_keyword: "web design services", title: "Web Design Services Guide", status: "completed", content_score: 72, completed_at: daysAgo(3) },
+    { id: "bi3", target_keyword: "google ads management", title: "Google Ads Management Guide", status: "completed", content_score: 85, completed_at: daysAgo(3) },
+    { id: "bi4", target_keyword: "content marketing", title: "Content Marketing Strategies", status: "completed", content_score: 69, completed_at: daysAgo(3) },
+    { id: "bi5", target_keyword: "local seo tips", title: "Local SEO Tips for Businesses", status: "completed", content_score: 81, completed_at: daysAgo(3) },
+  ] }) },
+  { pattern: /^\/clients\/[^/]+\/bulk-jobs$/, handler: () => [
+    { id: "bj1", name: "SEO Content Pack", status: "completed", total_articles: 5, completed_articles: 5, failed_articles: 0, created_at: daysAgo(3) },
+  ] },
+
   // ── Rankings (standalone) ──
   { pattern: /^\/rankings/, handler: () => keywords },
 
