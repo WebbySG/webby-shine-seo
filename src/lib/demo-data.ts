@@ -552,6 +552,7 @@ const routes: DemoRoute[] = [
   { pattern: /^\/ai-visibility\/prompt-sets\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
   { pattern: /^\/clients\/[^/]+\/ai-visibility\/prompt-sets$/, handler: () => aiVisPromptSets },
   { pattern: /^\/ai-visibility\/prompts$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, created_at: now }) },
+  { pattern: /^\/ai-visibility\/prompts\/bulk$/, method: "POST", handler: (_m, body) => (body?.prompts || []).map((p: any) => ({ id: crypto.randomUUID(), prompt_set_id: body?.prompt_set_id, ...p, created_at: now })) },
   { pattern: /^\/ai-visibility\/runs\/trigger$/, method: "POST", handler: () => ({ id: crypto.randomUUID(), status: "completed", total_prompts: 3, prompts_with_mention: 2, prompts_with_citation: 1 }) },
   { pattern: /^\/clients\/[^/]+\/ai-visibility\/runs$/, handler: () => aiVisRuns },
   { pattern: /^\/clients\/[^/]+\/ai-visibility\/overview$/, handler: () => aiVisOverview },
