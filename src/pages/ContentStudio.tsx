@@ -155,10 +155,7 @@ function ScoreDetail({ score: s, onBack }: { score: ContentScore; onBack: () => 
 }
 
 export default function ContentStudio() {
-  const { clientId } = useAuth();
-  const { data: clients } = useClients();
-  const [selectedClient, setSelectedClient] = useState("");
-  const cId = selectedClient || clients?.[0]?.id || clientId || "";
+  const { activeClientId: cId } = useActiveClient();
   const queryClient = useQueryClient();
 
   // ─── Score state ───

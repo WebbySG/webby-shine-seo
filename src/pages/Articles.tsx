@@ -22,10 +22,7 @@ const statusConfig: Record<string, { color: string; label: string }> = {
 };
 
 export default function Articles() {
-  const { data: clients } = useClients();
-  const [selectedClient, setSelectedClient] = useState("");
-  const clientId = selectedClient || clients?.[0]?.id || "";
-
+  const { activeClientId: clientId } = useActiveClient();
   const { data: articles = [], isLoading } = useQuery<any[]>({
     queryKey: ["articles", clientId],
     queryFn: () => request(`/clients/${clientId}/articles`),

@@ -26,9 +26,7 @@ const statusConfig: Record<string, { color: string; label: string }> = {
 };
 
 export default function SocialMedia() {
-  const { data: clients } = useClients();
-  const [selectedClient, setSelectedClient] = useState("");
-  const clientId = selectedClient || clients?.[0]?.id || "";
+  const { activeClientId: clientId } = useActiveClient();
 
   const { data: posts = [], isLoading } = useQuery<any[]>({
     queryKey: ["social-posts", clientId],

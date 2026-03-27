@@ -22,9 +22,7 @@ const statusConfig: Record<string, { color: string; label: string }> = {
 };
 
 export default function VideoAssets() {
-  const { data: clients } = useClients();
-  const [selectedClient, setSelectedClient] = useState("");
-  const clientId = selectedClient || clients?.[0]?.id || "";
+  const { activeClientId: clientId } = useActiveClient();
 
   const { data: videos = [], isLoading } = useQuery<any[]>({
     queryKey: ["videos", clientId],
