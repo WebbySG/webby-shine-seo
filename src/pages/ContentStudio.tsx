@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { request } from "@/lib/api";
-import { useClients } from "@/hooks/use-api";
-import { useAuth } from "@/contexts/AuthContext";
+import { useActiveClient } from "@/contexts/ClientContext";
 import { PageTransition, FadeIn } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
