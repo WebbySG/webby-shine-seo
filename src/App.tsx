@@ -100,9 +100,7 @@ const App = () => (
                 <Route path="/brief-workflow" element={<BriefWorkflow />} />
                 <Route path="/social-media" element={<SocialMedia />} />
                 <Route path="/videos" element={<VideoAssets />} />
-                <Route path="/inbox" element={<Navigate to="/" replace />} />
-                <Route path="/automations" element={<Navigate to="/" replace />} />
-                <Route path="/knowledge-base" element={<Navigate to="/" replace />} />
+                
                 <Route path="/backlinks" element={<Backlinks />} />
                 <Route path="/schema-creator" element={<SchemaCreator />} />
                 <Route path="/site-explorer" element={<SiteExplorer />} />
