@@ -113,7 +113,7 @@ export default function Dashboard() {
       {/* Hero with cast */}
       <MascotHeroBanner
         greeting="Welcome to Webby AI Control Tower"
-        subtitle="Your digital strategy squad is here. Leo handles SEO, Max runs SEM, and Kai crafts your content."
+        subtitle="Your digital strategy squad is here. Sera handles SEO, Max runs SEM, and Kai crafts your content."
       />
 
       {/* Event banner */}

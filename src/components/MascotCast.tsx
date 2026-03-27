@@ -15,7 +15,7 @@ interface MascotInfo {
 
 export const MASCOTS: Record<MascotRole, MascotInfo> = {
   seo: {
-    name: "Leo",
+    name: "Sera",
     role: "SEO Director",
     img: seoDirectorImg,
     accent: "text-primary",
@@ -55,7 +55,7 @@ export function MascotHeroBanner({
 
       <div className="relative flex items-center gap-6 lg:gap-8">
         {/* Cast avatars */}
-        <div className="hidden sm:flex items-end -space-x-4">
+        <div className="hidden sm:flex items-end -space-x-6">
           {(["seo", "sem", "content"] as MascotRole[]).map((role, i) => {
             const m = MASCOTS[role];
             return (
@@ -71,13 +71,13 @@ export function MascotHeroBanner({
                   animate={{ y: [0, -3, 0] }}
                   transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <div className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl bg-card border-2 border-border/30 shadow-lg overflow-hidden group-hover:shadow-xl group-hover:border-primary/30 transition-all duration-300">
+                  <div className="h-28 w-28 lg:h-32 lg:w-32 overflow-hidden shrink-0 drop-shadow-xl group-hover:drop-shadow-2xl transition-all duration-300 group-hover:scale-105">
                     <img
                       src={m.img}
                       alt={`${m.name} – ${m.role}`}
                       className="h-full w-full object-cover object-top"
-                      width={512}
-                      height={512}
+                      width={1024}
+                      height={1024}
                     />
                   </div>
                   {/* Name tag */}
@@ -142,14 +142,14 @@ export function MascotSectionHeader({
             animate={{ y: [0, -2, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-xl bg-card border border-border/30 shadow-md overflow-hidden shrink-0">
+            <div className="h-16 w-16 lg:h-20 lg:w-20 overflow-hidden shrink-0 drop-shadow-lg">
               <img
                 src={m.img}
                 alt={`${m.name} – ${m.role}`}
                 className="h-full w-full object-cover object-top"
                 loading="lazy"
-                width={512}
-                height={512}
+                width={1024}
+                height={1024}
               />
             </div>
           </motion.div>
@@ -194,14 +194,14 @@ export function MascotEmptyState({
           animate={{ y: [0, -4, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          <div className="h-24 w-24 rounded-2xl bg-card border border-border/40 shadow-lg overflow-hidden mx-auto mb-4">
+          <div className="h-28 w-28 overflow-hidden mx-auto mb-4 drop-shadow-xl">
             <img
               src={m.img}
               alt={m.name}
               className="h-full w-full object-cover object-top"
               loading="lazy"
-              width={512}
-              height={512}
+              width={1024}
+              height={1024}
             />
           </div>
         </motion.div>
@@ -235,8 +235,8 @@ export function MascotBanner({
       exit={{ opacity: 0, y: -8 }}
       className={`flex items-center gap-3 rounded-xl border ${borderColor} border-l-4 bg-card/80 backdrop-blur-sm p-3 shadow-sm`}
     >
-      <div className="h-10 w-10 rounded-lg bg-muted/30 overflow-hidden shrink-0">
-        <img src={m.img} alt={m.name} className="h-full w-full object-cover object-top" loading="lazy" width={512} height={512} />
+      <div className="h-12 w-12 overflow-hidden shrink-0 drop-shadow-md">
+        <img src={m.img} alt={m.name} className="h-full w-full object-cover object-top" loading="lazy" width={1024} height={1024} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs text-foreground leading-relaxed">{message}</p>
