@@ -350,7 +350,7 @@ const aiVisOverview = {
 // ─── Report Templates ───
 const reportTemplates = [
   { id: "rt1", workspace_id: DEMO_WORKSPACE_ID, name: "Monthly SEO Report", description: "Comprehensive SEO performance overview", report_type: "seo", sections: ["rankings", "traffic", "audit", "opportunities"], is_default: true, created_at: daysAgo(60) },
-  { id: "rt2", workspace_id: DEMO_WORKSPACE_ID, name: "Full Marketing Report", description: "Cross-channel marketing performance", report_type: "full", sections: ["rankings", "traffic", "content", "social", "ads", "crm"], is_default: false, created_at: daysAgo(60) },
+  { id: "rt2", workspace_id: DEMO_WORKSPACE_ID, name: "Full Marketing Report", description: "Cross-channel marketing performance", report_type: "full", sections: ["rankings", "traffic", "content", "social", "ads", "attribution"], is_default: false, created_at: daysAgo(60) },
 ];
 
 const reportRuns = [
