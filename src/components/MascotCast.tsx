@@ -145,15 +145,18 @@ export function MascotSectionHeader({
             animate={{ y: [0, -2, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="h-16 w-16 lg:h-20 lg:w-20 overflow-hidden shrink-0 drop-shadow-lg">
-              <img
-                src={m.img}
-                alt={`${m.name} – ${m.role}`}
-                className="h-full w-full object-cover object-top"
-                loading="lazy"
-                width={1024}
-                height={1024}
-              />
+            <div className="relative h-16 w-16 lg:h-20 lg:w-20 shrink-0">
+              <div className={`absolute inset-1 rounded-full bg-gradient-to-t ${m.bgGradient} blur-lg opacity-50`} />
+              <div className="relative h-full w-full overflow-hidden drop-shadow-lg">
+                <img
+                  src={m.img}
+                  alt={`${m.name} – ${m.role}`}
+                  className="h-full w-full object-cover object-top"
+                  loading="lazy"
+                  width={1024}
+                  height={1024}
+                />
+              </div>
             </div>
           </motion.div>
         </motion.div>
