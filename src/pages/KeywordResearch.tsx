@@ -234,11 +234,12 @@ export default function KeywordResearch() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 max-w-[600px]">
+          <TabsList className="grid w-full grid-cols-6 max-w-[720px]">
             <TabsTrigger value="keywords" className="gap-1"><Search className="h-3.5 w-3.5" /> Keywords</TabsTrigger>
             <TabsTrigger value="clusters" className="gap-1"><Network className="h-3.5 w-3.5" /> Clusters</TabsTrigger>
             <TabsTrigger value="mapping" className="gap-1"><Map className="h-3.5 w-3.5" /> Page Map</TabsTrigger>
             <TabsTrigger value="structure" className="gap-1"><Layers className="h-3.5 w-3.5" /> Structure</TabsTrigger>
+            <TabsTrigger value="context" className="gap-1"><Shield className="h-3.5 w-3.5" /> Context</TabsTrigger>
             <TabsTrigger value="briefs" className="gap-1"><FileText className="h-3.5 w-3.5" /> Briefs</TabsTrigger>
           </TabsList>
 
