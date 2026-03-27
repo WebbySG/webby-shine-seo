@@ -17,10 +17,7 @@ type SortKey = "keyword" | "current_position" | "change";
 type SortDir = "asc" | "desc";
 
 export default function Rankings() {
-  const { data: apiClients } = useClients();
-  const clients = apiClients ?? [];
-
-  const [clientId, setClientId] = useState(clients[0]?.id ?? "");
+  const { activeClientId: clientId } = useActiveClient();
   const { data: apiKeywords, isLoading } = useKeywords(clientId);
 
   const [sortKey, setSortKey] = useState<SortKey>("current_position");
