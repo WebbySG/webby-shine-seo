@@ -8,13 +8,13 @@
 
 **Webby SEO OS** is a multi-tenant digital marketing operating system for agencies, focused on:
 
-- **SEO** — technical audit, keyword research, competitor benchmarking, rankings
-- **SEM** — Google Ads campaign management, ad copy generation
+- **SEO** — technical audit, keyword research, competitor benchmarking, rankings, AI visibility tracking
+- **SEM** — Google Ads campaign management, ad copy generation, budget recommendations
 - **SMM** — social media content, video assets, GBP/local SEO
-- **Content** — briefs, drafts, approvals, publishing
-- **Analytics & Reporting** — GA4/GSC performance, attribution, scheduled reports
+- **Content** — service-page-first briefs, drafts, approvals, publishing
+- **Analytics & Reporting** — GA4/GSC performance, lightweight attribution, scheduled reports
 
-**NOT in scope:** CRM, helpdesk, inbox, deal pipelines, contact management, support ticketing. These were removed in v6.0.
+**NOT in scope:** CRM, helpdesk, inbox, deal pipelines, contact management, support ticketing, Chatwoot, automations, knowledge base, CSAT. All removed in v6.0.
 
 ---
 
@@ -37,7 +37,7 @@ The frontend works fully in **demo/mock mode** using intercepted API calls. When
 ### Core
 | Page | Route | Description |
 |------|-------|-------------|
-| Dashboard | `/` | KPI cards, visibility trend, channel distribution, client health, quick actions |
+| Dashboard | `/` | KPI cards, visibility trend, channel distribution, client health, quick actions, mascot hero banner |
 | Command Center | `/command-center` | Marketing priorities, cross-channel recommendations, weekly plans |
 
 ### SEO
@@ -103,7 +103,44 @@ All modules use a persistent `activeClientId` via `ClientContext` and `GlobalCli
 
 ---
 
-## 5. Frontend Type Contracts
+## 5. Mascot System
+
+The platform uses a branded 3D anime-style mascot cast instead of a chatbot widget:
+
+| Character | Role | Module | Appearance |
+|-----------|------|--------|------------|
+| **Sera** | SEO Director | SEO pages | Female, round glasses, short bob, professional blazer |
+| **Max** | SEM Director | Ads/SEM pages | Male, IT nerd look, thick glasses, hoodie, messy hair |
+| **Kai** | Content Creator | Content pages | Female, long flowing hair, colorful scarf, artistic |
+
+**Mascot Components** (`src/components/MascotCast.tsx`):
+- `MascotHeroBanner` — full cast on Dashboard with greeting
+- `MascotSectionHeader` — single mascot per module section header
+- `MascotEmptyState` — mascot for empty-state encouragement
+
+All mascots have transparent backgrounds, ambient glow effects, consistent 3/4 body proportions, and drop shadows for grounding. They act as contextual "buddies" — not chatbots.
+
+**Assets** (transparent PNGs in `src/assets/`):
+- `mascot-seo-director.png` (Sera)
+- `mascot-sem-director.png` (Max)
+- `mascot-content-creator.png` (Kai)
+
+---
+
+## 6. Design System
+
+- **Typography:** Space Grotesk (display), system sans-serif (body)
+- **Palette:** Indigo/Violet primary, Cyan accent — "AI Control Tower" aesthetic
+- **Mode:** Light-mode first, dark mode supported via ThemeProvider
+- **Module accent colors:** SEO=emerald, Content=blue, Social=purple, Video=pink, GBP=amber, Analytics=cyan, Ads=orange, Command=indigo
+- **Tokens:** HSL semantic color tokens in `index.css`, all colors via Tailwind config
+- **Motion:** Framer Motion page transitions and stagger animations
+- **Components:** Full shadcn/ui library, Recharts for data visualization
+- **UI patterns:** SourceBadge (evidence tracking), ConfidenceChip (AI certainty), FreshnessIndicator (data staleness), RankChangeIndicator
+
+---
+
+## 7. Frontend Type Contracts
 
 These TypeScript interfaces in `src/lib/api.ts` define the data contracts the backend must implement:
 
@@ -114,13 +151,18 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 
 ### Audit
 - `AuditRun` — domain, scope, provider, pages_crawled, score, status, issue counts
-- `AuditIssue` — issue_type, severity, affected_url, description, fix_instruction, status, evidence[], rechecks[]
+- `AuditIssue` — issue_type, severity, affected_url, description, fix_instruction, status, evidence[], rechecks[], provider, category, why_it_matters
 - `AuditPage` — url, status_code, title, meta_description, word_count, load_time_ms
 - `AuditEvidence` — evidence_type, key, value, expected_value
 - `AuditRecheck` — previous_status, new_status, diff_summary
 
+### Keyword Research
+- `KeywordResearchJob` — seed_keywords, location, language, status, result counts
+- `KeywordCluster` — cluster_name, intent, keywords[], total_volume
+- `PageMapping` — primary_keyword, page_type (core_service/sub_service/supporting_content/blog), recommended_slug, secondary_keywords, search_intent, competitor_context, audit_context, priority
+
 ### Content Lifecycle
-- `SeoBrief` — keyword, title, page_type, secondary_keywords, search_intent, target_audience, page_goal, cta_angle, sections[], competitor_context[], audit_context[], evidence[], priority
+- `SeoBrief` — keyword, title, page_type, secondary_keywords, search_intent, target_audience, page_goal, cta_angle, sections[], competitor_context[], audit_context[], evidence[], priority, source_mapping_id
 - `SeoBriefDraft` — brief_id, title, slug, content, version, status, review_checks[], internal_link_suggestions[]
 - `DraftReviewCheck` — check_type, label, status (pass/fail/warning/pending), detail
 - `SeoArticle` — brief_id, title, content, status, target_keyword, slug, publish_date
@@ -149,9 +191,16 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 ### Competitor Benchmark
 - `CompetitorBenchmark` — competitor_domain, own_domain, status, metrics, findings, gap analysis
 
+### AI Visibility
+- `AiVisPromptSet`, `AiVisPrompt`, `AiVisRun`, `AiVisObservation`, `AiVisOverview`
+
+### Reports & Activity
+- `ActivityLogEntry` — actor_name, action, entity_type, summary
+- `AppNotification` — type, category, title, message, is_read
+
 ---
 
-## 6. Expected Backend API Endpoints
+## 8. Expected Backend API Endpoints
 
 ### Auth
 - `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
@@ -162,6 +211,13 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 
 ### Keywords & Rankings
 - `GET/POST /api/clients/:id/keywords`, `GET /api/rankings?client_id=`
+
+### Keyword Research
+- `POST /api/keyword-research/start` — start research job with seed keywords, location, language
+- `GET /api/keyword-research/jobs/:id` — get job status and results
+- `GET /api/keyword-research/jobs/:id/clusters` — get keyword clusters
+- `GET /api/keyword-research/jobs/:id/mappings` — get page mapping recommendations
+- `POST /api/keyword-research/jobs/:id/mappings/:mappingId/create-brief` — create brief from mapping
 
 ### Competitors
 - `GET/POST /api/clients/:id/competitors`
@@ -216,61 +272,133 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 ### GBP / Local SEO
 - `GET /api/clients/:id/gbp-connection`, `GET /api/clients/:id/gbp-profile`
 - `GET /api/clients/:id/gbp-posts`, `GET /api/clients/:id/gbp-reviews`
+- `GET /api/clients/:id/gbp-qna`
 - `POST /api/gbp/sync`, `POST /api/gbp/posts/generate`
+- `POST /api/gbp/posts/:id/approve`
+- `POST /api/gbp/reviews/:id/generate-response`, `POST /api/gbp/reviews/:id/approve`
+- `POST /api/gbp/qna/:id/generate-answer`, `POST /api/gbp/qna/:id/approve`
 
 ### Google Ads
 - `GET /api/clients/:id/ads-campaigns`, `GET /api/clients/:id/ads-recommendations`
-- `GET /api/clients/:id/ads-performance`
+- `GET /api/clients/:id/ads-performance`, `GET /api/clients/:id/ads-copy`
+- `GET /api/clients/:id/ads-insights`
 - `POST /api/ads/recommendations/generate`, `POST /api/ads/copy/generate`
+- `POST /api/ads/copy/:id/approve`, `PUT /api/ads/recommendations/:id`
+- `POST /api/ads/sync`
 
 ### Creative
-- `GET /api/clients/:id/creative-assets`, `POST /api/creative/generate`
-- `GET/POST /api/creative/brand/:id`
+- `GET /api/clients/:id/creative-assets`, `GET /api/creative/:id`
+- `POST /api/creative/generate`, `POST /api/creative/:id/approve`
+- `POST /api/creative/:id/regenerate`, `POST /api/creative/:id/delete`
+- `GET /api/creative/brand/:clientId`, `POST /api/creative/brand`
 
 ### Command Center
 - `GET /api/clients/:id/command-center`, `GET /api/clients/:id/marketing-priorities`
 - `GET /api/clients/:id/cross-channel-recommendations`
+- `GET /api/clients/:id/quick-wins`
+- `GET /api/clients/:id/weekly-action-plans`, `GET /api/clients/:id/marketing-goals`
 - `POST /api/clients/:id/priorities/recompute`
+- `POST /api/clients/:id/recommendations/generate`
+- `POST /api/clients/:id/weekly-action-plan/generate`
+- `PUT /api/command/priorities/:id`, `PUT /api/command/recommendations/:id`, `PUT /api/command/items/:id`
 
 ### Reports
 - `GET /api/report-templates`, `GET /api/clients/:id/reports`
 - `POST /api/reports/generate`, `GET /api/reports/share/:token`
+- `GET /api/workspaces/:id/scheduled-reports`
+- `POST /api/scheduled-reports`, `PUT /api/scheduled-reports/:id`, `DELETE /api/scheduled-reports/:id`
 
 ### AI Visibility
 - `GET /api/clients/:id/ai-visibility/prompt-sets`, `POST /api/ai-visibility/prompt-sets`
-- `POST /api/ai-visibility/runs/trigger`, `GET /api/clients/:id/ai-visibility/runs`
+- `PUT /api/ai-visibility/prompt-sets/:id`, `DELETE /api/ai-visibility/prompt-sets/:id`
+- `GET /api/ai-visibility/prompt-sets/:id/prompts`
+- `POST /api/ai-visibility/prompts`, `POST /api/ai-visibility/prompts/bulk`, `DELETE /api/ai-visibility/prompts/:id`
+- `POST /api/ai-visibility/runs`, `GET /api/clients/:id/ai-visibility/runs`
 - `GET /api/ai-visibility/runs/:id/observations`
+- `GET /api/clients/:id/ai-visibility/overview`
 
-### Onboarding
-- `POST /api/onboarding/start`, `GET /api/onboarding/:id`
+### Onboarding & Setup
+- `POST /api/onboarding/start`, `GET /api/onboarding/:id`, `PUT /api/onboarding/:id`
 - `POST /api/onboarding/:id/complete`
+- `GET /api/templates`, `GET /api/templates/:id`
+- `POST /api/setup/run`, `GET /api/setup/:id/status`
+- `GET /api/clients/:id/activation-checklist`, `PUT /api/activation-checklist/:id`
 
-### Activity & Notifications
+### Activity, Notifications & Jobs
 - `GET /api/activity`, `GET /api/notifications`, `PUT /api/notifications/:id/read`
+- `PUT /api/notifications/read-all`, `GET /api/notifications/unread-count`
+- `GET /api/publishing-jobs`
+
+### Content Plan & Internal Links
+- `GET /api/clients/:id/content-plan`, `PATCH /api/clients/:id/content-plan/:id`
+- `GET /api/clients/:id/internal-links`, `PATCH /api/clients/:id/internal-links/:id`
+- `GET /api/clients/:id/opportunities`, `PATCH /api/clients/:id/opportunities/:id`
+
+### CMS
+- `GET /api/clients/:id/cms`, `POST /api/clients/:id/cms`, `DELETE /api/clients/:id/cms`
+- `POST /api/clients/:id/cms/test`
 
 ---
 
-## 7. Database Schema (Backend — Pending)
+## 9. Database Schema (Backend — Pending)
 
 Tables needed (from existing migrations 001–040):
 
-### Core: `workspaces`, `users`, `user_roles`, `user_permissions`, `invites`, `sessions`
-### Clients: `clients`, `client_approvals`
-### SEO: `keywords`, `rank_snapshots`, `competitors`, `audit_runs`, `audit_issues`, `seo_opportunities`, `internal_link_suggestions`, `content_suggestions`
-### Content: `seo_briefs`, `seo_articles`, `cms_connections`, `publishing_jobs`, `social_posts`, `video_assets`
-### Analytics: `analytics_connections`, `performance_snapshots`, `performance_insights`
-### Local SEO: `gbp_connections`, `gbp_profile_snapshots`, `gbp_post_drafts`, `local_seo_insights`
-### Creative: `creative_assets`, `brand_profiles`
-### Ads: `google_ads_accounts`, `ads_campaigns`, `ads_recommendations`
-### Command: `command_priorities`, `command_recommendations`
-### Attribution: `lead_capture_events`, `attribution_records` (analytics-only — no CRM tables)
-### Reports: `report_templates`, `scheduled_reports`, `report_runs`
-### AI Visibility: `ai_visibility_snapshots`, `ai_visibility_queries`
-### Content Engine: `content_scores`, `topical_maps`, `bulk_content_jobs`
-### Onboarding: `onboarding_sessions`, `setup_templates`, `activation_checklist_items`
-### SaaS: `subscription_plans`, `workspace_subscriptions`, `usage_records`
+### Core
+`workspaces`, `users`, `user_roles`, `user_permissions`, `invites`, `sessions`
 
-**Removed tables** (CRM/inbox — fully de-scoped):
+### Clients
+`clients`, `client_approvals`
+
+### SEO
+`keywords`, `rank_snapshots`, `competitors`, `audit_runs`, `audit_issues`, `seo_opportunities`, `internal_link_suggestions`, `content_suggestions`
+
+### Keyword Research
+`keyword_research_jobs`, `keyword_clusters`, `keyword_items`, `page_mappings`
+
+### Competitor Benchmark
+`competitor_benchmarks`, `benchmark_metrics`, `benchmark_findings`
+
+### Content
+`seo_briefs`, `seo_brief_drafts`, `draft_review_checks`, `seo_articles`, `cms_connections`, `publishing_jobs`, `social_posts`, `video_assets`
+
+### Analytics
+`analytics_connections`, `performance_snapshots`, `performance_insights`
+
+### Attribution (analytics-only)
+`lead_capture_events`, `attribution_records`
+
+### Local SEO
+`gbp_connections`, `gbp_profile_snapshots`, `gbp_post_drafts`, `gbp_reviews`, `gbp_qna`, `local_seo_insights`
+
+### Creative
+`creative_assets`, `brand_profiles`
+
+### Ads
+`google_ads_accounts`, `ads_campaigns`, `ads_recommendations`, `ads_copy_drafts`, `ads_insights`
+
+### Command Center
+`command_priorities`, `command_recommendations`, `weekly_action_plans`, `weekly_action_items`, `marketing_goals`
+
+### Reports
+`report_templates`, `scheduled_reports`, `report_runs`
+
+### AI Visibility
+`ai_vis_prompt_sets`, `ai_vis_prompts`, `ai_vis_runs`, `ai_vis_observations`
+
+### Content Engine
+`content_scores`, `topical_maps`, `bulk_content_jobs`
+
+### Onboarding
+`onboarding_sessions`, `setup_templates`, `activation_checklist_items`
+
+### SaaS
+`subscription_plans`, `workspace_subscriptions`, `usage_records`
+
+### Activity & Notifications
+`activity_log`, `notifications`
+
+**Removed tables** (CRM/inbox — fully de-scoped in v6.0):
 - ~~`crm_contacts`~~, ~~`crm_deals`~~, ~~`crm_activities`~~, ~~`crm_insights`~~
 - ~~`conversations`~~, ~~`messages`~~, ~~`inboxes`~~
 - ~~`automation_rules`~~, ~~`canned_responses`~~
@@ -279,10 +407,10 @@ Tables needed (from existing migrations 001–040):
 
 ---
 
-## 8. Demo Mode
+## 10. Demo Mode
 
 - Frontend-only mock data in `src/lib/demo-data.ts`
-- Intercepts all failed API calls and returns realistic demo data
+- `matchDemoRoute(path, method, body)` intercepts all failed API calls and returns realistic demo data
 - Same schema as live API endpoints
 - Auth fallback to demo user (`demo@webby.seo`) when no backend token
 - `isDemoMode` flag in AuthContext
@@ -290,28 +418,17 @@ Tables needed (from existing migrations 001–040):
 
 ---
 
-## 9. Design System
+## 11. What Is Fully Built (Frontend)
 
-- HSL semantic color tokens in `index.css`
-- Dark/light mode via ThemeProvider
-- Module accent colors: SEO=emerald, Content=blue, Social=purple, Video=pink, GBP=amber, Analytics=cyan, Ads=orange, Command=indigo
-- Framer Motion page transitions and stagger animations
-- Full shadcn/ui component library
-- Recharts for data visualization
-
----
-
-## 10. What Is Fully Built (Frontend)
-
-1. ✅ Dashboard with KPIs, charts, quick actions
+1. ✅ Dashboard with KPIs, charts, quick actions, mascot hero banner
 2. ✅ Command Center with priorities and recommendations
-3. ✅ Keyword Research with clustering, page mapping, structure view
+3. ✅ Keyword Research with service-page-first clustering, page mapping, structure view
 4. ✅ Rankings tracking
 5. ✅ Technical SEO Audit with issues, rechecks, evidence, internal links
-6. ✅ Competitor Benchmark with gap analysis
+6. ✅ Competitor Benchmark with gap analysis and strategic recommendations
 7. ✅ Opportunities management
-8. ✅ Brief Workflow (create → edit → generate draft → review → approve)
-9. ✅ Articles management
+8. ✅ Brief Workflow (create → edit → generate draft → review → approve → ready for publishing)
+9. ✅ Articles management with status workflow
 10. ✅ Content Studio (scoring + rewriter)
 11. ✅ Topical Maps
 12. ✅ Bulk Content
@@ -333,63 +450,95 @@ Tables needed (from existing migrations 001–040):
 28. ✅ Attribution reporting (analytics-only)
 29. ✅ Backlinks, Site Explorer, SERP Checker, Schema Creator
 30. ✅ Demo mode with comprehensive mock data
+31. ✅ Mascot cast system (Sera, Max, Kai) with ambient glow effects
 
 ---
 
-## 11. Removed (v6.0)
+## 12. Removed (v6.0)
 
 - CRM module (contacts, deals, activities, pipeline)
-- Inbox/conversation module
+- Inbox/conversation module (Chatwoot-style)
 - Knowledge Base
 - Automations (event-driven rules)
 - CSAT Dashboard
 - All CRM-related sidebar navigation, dashboard widgets, routes
 - CRM permissions (`view_crm`, `manage_crm`)
+- All Chatwoot integration code and references
 
 ---
 
-## 12. Backend Tasks for Claude
+## 13. Backend Tasks for Claude
 
 ### Priority 1: Core API
 - Express server with JWT auth, role-based permissions
-- PostgreSQL with migrations
-- Client CRUD
+- PostgreSQL with migrations (clean — no CRM tables)
+- Client CRUD with workspace isolation
 - Keyword tracking + rank snapshots
 
 ### Priority 2: Audit & Research
 - Technical audit engine (mock → DataForSEO provider)
-- Competitor benchmark engine
-- Keyword research engine with clustering
+- Competitor benchmark engine with gap analysis
+- Keyword research engine with service-page-first clustering and page mapping
+- Internal link suggestion engine
 
 ### Priority 3: Content Pipeline
-- Brief generation and management
+- Brief generation from keyword mappings (service-page-first)
 - Draft generation via AI (OpenAI/Anthropic)
-- Article CRUD with status workflow
-- Approval workflow
-- Publishing to WordPress
+- Article CRUD with status workflow (draft → review → approved → published)
+- Approval workflow with review checks
+- Publishing to WordPress via application passwords
+- Social post generation from articles
+- Video script generation
 
 ### Priority 4: Channels
-- Analytics sync (GA4/GSC)
-- GBP management
-- Google Ads integration
-- Social/video generation
+- Analytics sync (GA4/GSC via OAuth)
+- GBP management (profile, posts, reviews, Q&A)
+- Google Ads integration (campaigns, recommendations, ad copy)
+- Creative asset generation (AI image providers)
 
 ### Priority 5: Infrastructure
-- Background worker with cron jobs
-- Report generation
-- Command Center scoring engine
-- Attribution engine (analytics-only)
+- Background worker with cron jobs (rank tracking, analytics sync, scheduled publishing)
+- Report generation with PDF/HTML output and share tokens
+- Command Center scoring engine (cross-channel priority computation)
+- Attribution engine (analytics-only, lightweight)
+- AI Visibility run engine (prompt → LLM → observation)
+- Activity logging middleware
+- Notification system
+
+### Priority 6: Backend Cleanup
+- Remove all CRM-related backend files: `backend/src/services/crm/`, `backend/src/routes/crm.ts`
+- Remove inbox/automations/knowledge-base/csat routes
+- Remove Chatwoot/SearchAtlas migration (`037_chatwoot_searchatlas.sql`)
+- Clean CRM references from seed data
 
 ---
 
-## 13. Remaining Frontend Technical Debt
+## 14. Remaining Frontend Technical Debt
 
-- Stub page files still exist for CRM.tsx, Inbox.tsx, Automations.tsx, KnowledgeBase.tsx, CSATDashboard.tsx (redirect-only)
-- Some pages reference `crm` in module badge color maps (harmless, just unused keys)
 - Attribution types still reference `deal_name`/`deal_stage` — acceptable for analytics reporting but naming could be refined
-- Backend service files in `/backend/src/services/crm/` still exist on disk (backend cleanup for Claude)
+- Some backend service/route files on disk reference removed modules (CRM, inbox) — backend cleanup for Claude
+- Portal sub-routes (`/portal/articles`, `/portal/social`, etc.) currently render `PortalOverview` as placeholder
+
+---
+
+## 15. Key Files Reference
+
+| File | Purpose |
+|------|---------|
+| `src/App.tsx` | Route definitions, auth guards |
+| `src/lib/api.ts` | All TypeScript interfaces + API client functions (464 lines) |
+| `src/lib/demo-data.ts` | Mock data layer with `matchDemoRoute()` |
+| `src/contexts/AuthContext.tsx` | Auth state, demo mode flag |
+| `src/contexts/ClientContext.tsx` | Global client selection |
+| `src/components/AppSidebar.tsx` | Navigation structure with module groups |
+| `src/components/MascotCast.tsx` | Mascot system (Sera, Max, Kai) |
+| `src/components/AppLayout.tsx` | Main layout wrapper |
+| `src/index.css` | Design tokens (HSL semantic colors) |
+| `tailwind.config.ts` | Tailwind theme extensions |
+| `backend/src/index.ts` | Express server entry point |
+| `backend/db/migrations/` | 40 migration files (includes deprecated CRM ones to clean) |
 
 ---
 
 *Last updated: 2026-03-27*
-*Version: v6.1 — Frontend-only, backend-ready*
+*Version: v7.1 — Frontend complete, backend handoff ready*
