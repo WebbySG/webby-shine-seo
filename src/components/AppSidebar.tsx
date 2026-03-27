@@ -34,6 +34,7 @@ const contentNav = [
   { title: "Articles", url: "/articles", icon: FileText, color: "text-content-primary", perm: "manage_articles" },
   { title: "Content Studio", url: "/content-studio", icon: Gauge, color: "text-content-primary", perm: "manage_articles" },
   { title: "Bulk Content", url: "/bulk-content", icon: Layers, color: "text-content-primary", perm: "manage_articles" },
+  { title: "Calendar", url: "/calendar", icon: CalendarDays, color: "text-content-primary", perm: "manage_articles" },
   { title: "Creative", url: "/creative", icon: Paintbrush, color: "text-content-primary", perm: "manage_articles" },
 ];
 

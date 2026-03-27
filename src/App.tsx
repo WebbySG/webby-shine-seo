@@ -94,6 +94,7 @@ const App = () => (
                 <Route path="/topical-maps" element={<TopicalMaps />} />
                 <Route path="/content-studio" element={<ContentStudio />} />
                 <Route path="/bulk-content" element={<BulkContent />} />
+                <Route path="/calendar" element={<ContentCalendar />} />
                 <Route path="/articles" element={<Articles />} />
                 <Route path="/social-media" element={<SocialMedia />} />
                 <Route path="/videos" element={<VideoAssets />} />
