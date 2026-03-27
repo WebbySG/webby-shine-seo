@@ -112,7 +112,7 @@ const categoryIcons: Record<string, any> = {
   "Analytics": TrendingUp,
   "Local SEO": MapPin,
   "Google Ads": DollarSign,
-  "CRM": Handshake,
+  
   "Command Center": Command,
   "Settings": ClipboardList,
   "Client Portal": Users,

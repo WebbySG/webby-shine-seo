@@ -47,9 +47,7 @@ const MODULE_BADGE_STYLES: Record<string, string> = {
   analytics: "bg-analytics-background text-analytics-primary border-analytics-border",
   gbp: "bg-gbp-background text-gbp-primary border-gbp-border",
   ads: "bg-ads-background text-ads-primary border-ads-border",
-  crm: "bg-crm-background text-crm-primary border-crm-border",
   core: "bg-primary/10 text-primary border-primary/20",
-  support: "bg-primary/10 text-primary border-primary/20",
 };
 
 export function AppLayout() {
