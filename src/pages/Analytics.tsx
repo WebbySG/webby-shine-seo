@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useClients } from "@/hooks/use-api";
+import { useActiveClient } from "@/contexts/ClientContext";
 import { usePerformanceSummary, usePagePerformance, useKeywordPerformance, useAssetPerformance, usePerformanceInsights, useUpdateInsightStatus, useAnalyticsConnections, useSyncAnalytics } from "@/hooks/use-api";
 import { BarChart3, TrendingUp, MousePointerClick, Eye, Target, Lightbulb, RefreshCw, Loader2, Check, ArrowUpRight, ArrowDownRight, Minus, Link2, Layers } from "lucide-react";
 import {
