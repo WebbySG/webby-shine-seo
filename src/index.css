@@ -66,11 +66,10 @@
     --ads-background: 48 100% 96%;
     --ads-border: 48 97% 77%;
     
-    /* CRM - Teal */
-    --crm-primary: 168 76% 42%;
-    --crm-secondary: 170 85% 78%;
-    --crm-background: 166 76% 97%;
-    --crm-border: 170 80% 83%;
+    /* AI Accent - Cyan */
+    --ai-accent: 192 91% 52%;
+    --ai-accent-muted: 192 60% 90%;
+    --ai-glow: 239 84% 67%;
     
     /* Analytics - Indigo */
     --analytics-primary: 235 82% 76%;
