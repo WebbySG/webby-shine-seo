@@ -359,3 +359,19 @@ export function useStartAiVisRun(clientId: string) { const qc = useQueryClient()
 export function useAiVisObservations(runId: string) { return useQuery({ queryKey: ["ai-vis-observations", runId], queryFn: () => api.getAiVisObservations(runId), enabled: !!runId }); }
 export function useUpdateAiVisObservation(runId: string) { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, data }: { id: string; data: any }) => api.updateAiVisObservation(id, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-vis-observations", runId] }) }); }
 export function useAiVisOverview(clientId: string) { return useQuery({ queryKey: ["ai-vis-overview", clientId], queryFn: () => api.getAiVisOverview(clientId), enabled: !!clientId }); }
+
+// ---------- Competitor Benchmarks ----------
+export function useCompetitorBenchmarks(clientId: string) {
+  return useQuery({ queryKey: ["competitor-benchmarks", clientId], queryFn: () => api.getCompetitorBenchmarks(clientId), enabled: !!clientId });
+}
+export function useCompetitorBenchmarkDetail(id: string) {
+  return useQuery({ queryKey: ["competitor-benchmark", id], queryFn: () => api.getCompetitorBenchmarkDetail(id), enabled: !!id });
+}
+export function useStartCompetitorBenchmark(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<Parameters<typeof api.startCompetitorBenchmark>[0], "client_id">) =>
+      api.startCompetitorBenchmark({ ...data, client_id: clientId }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["competitor-benchmarks", clientId] }),
+  });
+}
