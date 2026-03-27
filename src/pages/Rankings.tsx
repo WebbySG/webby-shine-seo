@@ -2,10 +2,10 @@ import { useState, useMemo } from "react";
 import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { useClients, useKeywords } from "@/hooks/use-api";
+import { useKeywords } from "@/hooks/use-api";
+import { useActiveClient } from "@/contexts/ClientContext";
 
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, TrendingUp, TrendingDown, BarChart3, Target, RefreshCw } from "lucide-react";
@@ -17,10 +17,7 @@ type SortKey = "keyword" | "current_position" | "change";
 type SortDir = "asc" | "desc";
 
 export default function Rankings() {
-  const { data: apiClients } = useClients();
-  const clients = apiClients ?? [];
-
-  const [clientId, setClientId] = useState(clients[0]?.id ?? "");
+  const { activeClientId: clientId } = useActiveClient();
   const { data: apiKeywords, isLoading } = useKeywords(clientId);
 
   const [sortKey, setSortKey] = useState<SortKey>("current_position");
@@ -55,12 +52,6 @@ export default function Rankings() {
           <p className="text-muted-foreground text-sm mt-1.5">Weekly position tracking across all keywords</p>
         </div>
         <div className="flex items-center gap-3">
-          <Select value={clientId} onValueChange={setClientId}>
-            <SelectTrigger className="w-[200px]"><SelectValue placeholder="Select client" /></SelectTrigger>
-            <SelectContent>
-              {clients.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
-            </SelectContent>
-          </Select>
           <Button size="sm" variant="outline" disabled title="Rankings are auto-tracked weekly">
             <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
           </Button>

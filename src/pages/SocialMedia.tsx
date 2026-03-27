@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { request } from "@/lib/api";
-import { useClients } from "@/hooks/use-api";
+import { useActiveClient } from "@/contexts/ClientContext";
 import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,9 +26,7 @@ const statusConfig: Record<string, { color: string; label: string }> = {
 };
 
 export default function SocialMedia() {
-  const { data: clients } = useClients();
-  const [selectedClient, setSelectedClient] = useState("");
-  const clientId = selectedClient || clients?.[0]?.id || "";
+  const { activeClientId: clientId } = useActiveClient();
 
   const { data: posts = [], isLoading } = useQuery<any[]>({
     queryKey: ["social-posts", clientId],
@@ -53,12 +51,6 @@ export default function SocialMedia() {
           <p className="text-sm text-muted-foreground mt-1">Create, schedule, and publish social media content across platforms</p>
         </div>
         <div className="flex items-center gap-2">
-          {clients && clients.length > 1 && (
-            <Select value={selectedClient} onValueChange={setSelectedClient}>
-              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Select client" /></SelectTrigger>
-              <SelectContent>{clients.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-            </Select>
-          )}
           <Button className="gap-2"><Plus className="h-4 w-4" /> New Post</Button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { request } from "@/lib/api";
-import { useClients } from "@/hooks/use-api";
+import { useActiveClient } from "@/contexts/ClientContext";
 import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,10 +22,7 @@ const statusConfig: Record<string, { color: string; label: string }> = {
 };
 
 export default function Articles() {
-  const { data: clients } = useClients();
-  const [selectedClient, setSelectedClient] = useState("");
-  const clientId = selectedClient || clients?.[0]?.id || "";
-
+  const { activeClientId: clientId } = useActiveClient();
   const { data: articles = [], isLoading } = useQuery<any[]>({
     queryKey: ["articles", clientId],
     queryFn: () => request(`/clients/${clientId}/articles`),
@@ -55,12 +52,6 @@ export default function Articles() {
           <p className="text-sm text-muted-foreground mt-1">Manage content briefs, drafts, and published articles</p>
         </div>
         <div className="flex items-center gap-2">
-          {clients && clients.length > 1 && (
-            <Select value={selectedClient} onValueChange={setSelectedClient}>
-              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Select client" /></SelectTrigger>
-              <SelectContent>{clients.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-            </Select>
-          )}
           <Button className="gap-2"><Plus className="h-4 w-4" /> New Article</Button>
         </div>
       </div>

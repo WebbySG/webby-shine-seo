@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useClients } from "@/hooks/use-api";
+import { useActiveClient } from "@/contexts/ClientContext";
 import { usePerformanceSummary, usePagePerformance, useKeywordPerformance, useAssetPerformance, usePerformanceInsights, useUpdateInsightStatus, useAnalyticsConnections, useSyncAnalytics } from "@/hooks/use-api";
 import { BarChart3, TrendingUp, MousePointerClick, Eye, Target, Lightbulb, RefreshCw, Loader2, Check, ArrowUpRight, ArrowDownRight, Minus, Link2, Layers } from "lucide-react";
 import {
@@ -59,9 +59,8 @@ function generateKwChart(keywords: any[]) {
 }
 
 export default function Analytics() {
-  const [selectedClient, setSelectedClient] = useState<string>("");
+  const { activeClientId: selectedClient } = useActiveClient();
   const [days, setDays] = useState(14);
-  const { data: clients } = useClients();
   const { data: summary, isLoading: summaryLoading } = usePerformanceSummary(selectedClient, days);
   const { data: pagePerf, isLoading: pagesLoading } = usePagePerformance(selectedClient, days);
   const { data: kwPerf, isLoading: kwLoading } = useKeywordPerformance(selectedClient, days);
@@ -104,14 +103,6 @@ export default function Analytics() {
               <SelectItem value="7">Last 7 days</SelectItem>
               <SelectItem value="14">Last 14 days</SelectItem>
               <SelectItem value="30">Last 30 days</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={selectedClient} onValueChange={setSelectedClient}>
-            <SelectTrigger className="w-[200px]"><SelectValue placeholder="Select client" /></SelectTrigger>
-            <SelectContent>
-              {(clients ?? []).map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-              ))}
             </SelectContent>
           </Select>
           {selectedClient && (

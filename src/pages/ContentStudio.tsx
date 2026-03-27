@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { request } from "@/lib/api";
-import { useClients } from "@/hooks/use-api";
-import { useAuth } from "@/contexts/AuthContext";
+import { useActiveClient } from "@/contexts/ClientContext";
 import { PageTransition, FadeIn } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -156,10 +155,7 @@ function ScoreDetail({ score: s, onBack }: { score: ContentScore; onBack: () => 
 }
 
 export default function ContentStudio() {
-  const { clientId } = useAuth();
-  const { data: clients } = useClients();
-  const [selectedClient, setSelectedClient] = useState("");
-  const cId = selectedClient || clients?.[0]?.id || clientId || "";
+  const { activeClientId: cId } = useActiveClient();
   const queryClient = useQueryClient();
 
   // ─── Score state ───
@@ -238,12 +234,6 @@ export default function ContentStudio() {
           </h1>
           <p className="text-sm text-muted-foreground mt-1">Score, optimize, and rewrite content — all in one place</p>
         </div>
-        {clients && clients.length > 1 && (
-          <Select value={selectedClient} onValueChange={setSelectedClient}>
-            <SelectTrigger className="w-[180px]"><SelectValue placeholder="Select client" /></SelectTrigger>
-            <SelectContent>{clients.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-          </Select>
-        )}
       </div>
 
       <Tabs defaultValue="score" className="space-y-4">
