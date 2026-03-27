@@ -5,6 +5,7 @@ import {
   Network, Gauge, Layers, Link2, Code,
   Globe, Share2, Video, Briefcase, CalendarDays,
 } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -113,14 +114,14 @@ export function AppSidebar() {
           {workspace?.logo_url ? (
             <img src={workspace.logo_url} alt={brandName} className="h-8 w-8 rounded-lg object-contain shrink-0" />
           ) : (
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md">
-              <Search className="h-4 w-4" />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md">
+              <Sparkles className="h-4 w-4" />
             </div>
           )}
           {!collapsed && (
             <div className="flex flex-col">
               <span className="text-sm font-bold tracking-tight text-foreground">{brandName}</span>
-              <span className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase">Operating System</span>
+              <span className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase">AI Control Tower</span>
             </div>
           )}
         </div>
@@ -149,7 +150,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="rounded-lg bg-muted/50 p-3 border border-border/30">
             <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Version</p>
-            <p className="text-xs font-mono text-muted-foreground">v6.0 — SEO Focus</p>
+            <p className="text-xs font-mono text-muted-foreground">v7.0 — AI Control Tower</p>
           </div>
         )}
       </SidebarFooter>

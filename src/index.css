@@ -66,11 +66,10 @@
     --ads-background: 48 100% 96%;
     --ads-border: 48 97% 77%;
     
-    /* CRM - Teal */
-    --crm-primary: 168 76% 42%;
-    --crm-secondary: 170 85% 78%;
-    --crm-background: 166 76% 97%;
-    --crm-border: 170 80% 83%;
+    /* AI Accent - Cyan */
+    --ai-accent: 192 91% 52%;
+    --ai-accent-muted: 192 60% 90%;
+    --ai-glow: 239 84% 67%;
     
     /* Analytics - Indigo */
     --analytics-primary: 235 82% 76%;
@@ -84,7 +83,7 @@
     --gradient-seo: linear-gradient(135deg, hsl(var(--seo-primary)), hsl(var(--seo-secondary)));
     --gradient-content: linear-gradient(135deg, hsl(var(--content-primary)), hsl(var(--content-secondary)));
     --gradient-social: linear-gradient(135deg, hsl(var(--social-primary)), hsl(var(--social-secondary)));
-    --gradient-crm: linear-gradient(135deg, hsl(var(--crm-primary)), hsl(var(--crm-secondary)));
+    --gradient-ai: linear-gradient(135deg, hsl(239 84% 67%), hsl(192 91% 52%));
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -166,10 +165,9 @@
     --ads-background: 45 40% 12%;
     --ads-border: 45 35% 22%;
     
-    --crm-primary: 172 66% 50%;
-    --crm-secondary: 172 55% 40%;
-    --crm-background: 172 40% 12%;
-    --crm-border: 172 35% 22%;
+    --ai-accent: 192 80% 60%;
+    --ai-accent-muted: 192 40% 20%;
+    --ai-glow: 235 82% 76%;
     
     --analytics-primary: 235 91% 82%;
     --analytics-secondary: 235 70% 60%;
@@ -277,8 +275,9 @@
     @apply bg-gradient-to-br from-amber-50 to-yellow-50/50 border-ads-border/30 text-amber-900;
   }
   
-  .crm-card {
-    @apply bg-gradient-to-br from-teal-50 to-cyan-50/50 border-crm-border/30 text-teal-900;
+  .ai-card {
+    @apply bg-gradient-to-br from-indigo-50 to-cyan-50/30 border-primary/20;
+    box-shadow: 0 0 0 1px hsl(var(--ai-glow) / 0.05), 0 4px 12px -4px hsl(var(--ai-glow) / 0.1);
   }
   
   .analytics-card {
