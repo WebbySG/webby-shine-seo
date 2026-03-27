@@ -49,6 +49,7 @@ import VideoAssets from "@/pages/VideoAssets";
 import ContentCalendar from "@/pages/ContentCalendar";
 import KeywordResearch from "@/pages/KeywordResearch";
 import CompetitorBenchmark from "@/pages/CompetitorBenchmark";
+import BriefWorkflow from "@/pages/BriefWorkflow";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -100,6 +101,7 @@ const App = () => (
                 <Route path="/bulk-content" element={<BulkContent />} />
                 <Route path="/calendar" element={<ContentCalendar />} />
                 <Route path="/articles" element={<Articles />} />
+                <Route path="/brief-workflow" element={<BriefWorkflow />} />
                 <Route path="/social-media" element={<SocialMedia />} />
                 <Route path="/videos" element={<VideoAssets />} />
                 <Route path="/inbox" element={<Inbox />} />

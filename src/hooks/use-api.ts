@@ -97,9 +97,35 @@ export function useContentPlan(clientId: string) {
 export function useBriefs(clientId: string) {
   return useQuery({ queryKey: ["briefs", clientId], queryFn: () => api.getBriefs(clientId), enabled: !!clientId });
 }
+export function useBriefDetail(briefId: string) {
+  return useQuery({ queryKey: ["brief", briefId], queryFn: () => api.getBriefDetail(briefId), enabled: !!briefId });
+}
 export function useGenerateBrief(clientId: string) {
   const qc = useQueryClient();
   return useMutation({ mutationFn: (keyword: string) => api.generateBrief(clientId, keyword), onSuccess: () => qc.invalidateQueries({ queryKey: ["briefs", clientId] }) });
+}
+export function useCreateBriefFromMapping(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (data: Parameters<typeof api.createBriefFromMapping>[0]) => api.createBriefFromMapping(data), onSuccess: () => qc.invalidateQueries({ queryKey: ["briefs", clientId] }) });
+}
+export function useUpdateBrief(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: ({ briefId, data }: { briefId: string; data: Partial<api.SeoBrief> }) => api.updateBrief(briefId, data), onSuccess: (_d, vars) => { qc.invalidateQueries({ queryKey: ["briefs", clientId] }); qc.invalidateQueries({ queryKey: ["brief", vars.briefId] }); } });
+}
+export function useGenerateDraft(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (briefId: string) => api.generateDraftFromBrief(briefId), onSuccess: (_d, briefId) => { qc.invalidateQueries({ queryKey: ["brief-drafts", briefId] }); qc.invalidateQueries({ queryKey: ["briefs", clientId] }); } });
+}
+export function useBriefDrafts(briefId: string) {
+  return useQuery({ queryKey: ["brief-drafts", briefId], queryFn: () => api.getBriefDrafts(briefId), enabled: !!briefId });
+}
+export function useUpdateDraft(briefId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: ({ draftId, data }: { draftId: string; data: Partial<api.SeoBriefDraft> }) => api.updateDraft(draftId, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["brief-drafts", briefId] }) });
+}
+export function useUpdateDraftStatus(briefId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: ({ draftId, status }: { draftId: string; status: string }) => api.updateDraftStatus(draftId, status), onSuccess: () => { qc.invalidateQueries({ queryKey: ["brief-drafts", briefId] }); qc.invalidateQueries({ queryKey: ["briefs"] }); } });
 }
 
 // ---------- SEO Articles ----------

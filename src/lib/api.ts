@@ -143,16 +143,47 @@ export const updateContentSuggestionStatus = (clientId: string, suggestionId: st
 export interface SeoBriefHeading { level: string; text: string; }
 export interface SeoBriefFaq { question: string; answer: string; }
 export interface SeoBriefLink { from: string; to: string; anchor: string; }
+export interface SeoBriefSection { title: string; guidance: string; word_count_target?: number; }
+export interface SeoBriefEvidence { type: "keyword" | "competitor" | "audit"; source: string; detail: string; }
 export interface SeoBrief {
   id: string; keyword: string; title: string; meta_description: string; headings: SeoBriefHeading[];
   faq: SeoBriefFaq[]; entities: string[]; internal_links: SeoBriefLink[];
-  status: "draft" | "approved" | "published"; created_at: string;
+  status: "draft" | "approved" | "published" | "under_review" | "changes_requested" | "rejected" | "ready_for_publishing";
+  created_at: string;
+  // Enhanced fields
+  page_type?: string; secondary_keywords?: string[]; search_intent?: string;
+  target_audience?: string; page_goal?: string; recommended_slug?: string;
+  suggested_h1?: string; cta_angle?: string; sections?: SeoBriefSection[];
+  competitor_context?: string[]; audit_context?: string[]; evidence?: SeoBriefEvidence[];
+  priority?: "high" | "medium" | "low"; source_mapping_id?: string;
+}
+export interface SeoBriefDraft {
+  id: string; brief_id: string; title: string; slug: string; content: string;
+  meta_description: string; version: number; status: "draft" | "under_review" | "changes_requested" | "approved" | "rejected" | "ready_for_publishing";
+  review_checks?: DraftReviewCheck[]; internal_link_suggestions?: SeoBriefLink[];
+  created_at: string; updated_at: string;
+}
+export interface DraftReviewCheck {
+  id: string; check_type: string; label: string; status: "pass" | "fail" | "warning" | "pending";
+  detail: string;
 }
 export const getBriefs = (clientId: string) => request<SeoBrief[]>(`/clients/${clientId}/briefs`);
+export const getBriefDetail = (briefId: string) => request<SeoBrief>(`/briefs/${briefId}`);
 export const generateBrief = (clientId: string, keyword: string) =>
   request<SeoBrief>(`/briefs/generate`, { method: "POST", body: JSON.stringify({ client_id: clientId, keyword }) });
+export const createBriefFromMapping = (data: { client_id: string; mapping_id: string; page_type: string; primary_keyword: string; secondary_keywords: string[]; search_intent?: string; target_audience?: string; page_goal?: string; cta_angle?: string; priority?: string }) =>
+  request<SeoBrief>(`/briefs/from-mapping`, { method: "POST", body: JSON.stringify(data) });
+export const updateBrief = (briefId: string, data: Partial<SeoBrief>) =>
+  request<SeoBrief>(`/briefs/${briefId}`, { method: "PUT", body: JSON.stringify(data) });
 export const updateBriefStatus = (clientId: string, briefId: string, status: string) =>
   request<SeoBrief>(`/clients/${clientId}/briefs/${briefId}`, { method: "PATCH", body: JSON.stringify({ status }) });
+export const generateDraftFromBrief = (briefId: string) =>
+  request<SeoBriefDraft>(`/briefs/${briefId}/generate-draft`, { method: "POST" });
+export const getBriefDrafts = (briefId: string) => request<SeoBriefDraft[]>(`/briefs/${briefId}/drafts`);
+export const updateDraft = (draftId: string, data: Partial<SeoBriefDraft>) =>
+  request<SeoBriefDraft>(`/drafts/${draftId}`, { method: "PUT", body: JSON.stringify(data) });
+export const updateDraftStatus = (draftId: string, status: string) =>
+  request<SeoBriefDraft>(`/drafts/${draftId}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
 
 // ---------- SEO Articles ----------
 export interface SeoArticle {
