@@ -788,61 +788,8 @@ const routes: DemoRoute[] = [
   // ── Rankings (standalone) ──
   { pattern: /^\/rankings/, handler: () => keywords },
 
-  // ── Inbox / Conversations ──
-  { pattern: /^\/inbox\/conversations\/[^/]+\/messages$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), conversation_id: body?.conversation_id, message_type: "outgoing", content: body?.content, is_private: false, sender_name: "Demo Admin", time: "Just now", created_at: now }) },
-  { pattern: /^\/inbox\/conversations\/[^/]+$/, method: "PATCH", handler: (_m, body) => ({ status: body?.status || "resolved" }) },
-  { pattern: /^\/inbox\/conversations\/[^/]+$/, handler: () => ({
-    id: "conv1", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "Michael Chen", contact_email: "michael@techcorp.sg", channel: "live_chat", status: "open", priority: "high", messages_count: 4, assignee_name: "Demo Admin", tags: ["SEO", "Lead"], previous_count: 2, subject: "SEO pricing inquiry",
-    messages: [
-      { id: "m1", message_type: "incoming", content: "Hi, I'd like to know about your SEO services pricing for a medium-sized e-commerce site.", sender_name: "Michael Chen", time: "10:32 AM", is_private: false },
-      { id: "m2", message_type: "outgoing", content: "Hi Michael! Thanks for reaching out. For e-commerce SEO, we offer packages starting from $2,500/month. Could you share your website URL so I can provide a more accurate quote?", sender_name: "Demo Admin", time: "10:35 AM", is_private: false },
-      { id: "m3", message_type: "incoming", content: "Sure, it's techcorp.sg. We have about 500 product pages and target Singapore + Malaysia markets.", sender_name: "Michael Chen", time: "10:38 AM", is_private: false },
-      { id: "m4", message_type: "note", content: "Check competitor pricing for similar scope. Reviewed their site — good technical foundation, needs content strategy.", sender_name: "Demo Admin", time: "10:42 AM", is_private: true },
-    ],
-  }) },
-  { pattern: /^\/inbox\/conversations/, handler: () => [
-    { id: "conv1", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "Michael Chen", contact_email: "michael@techcorp.sg", channel: "live_chat", status: "open", priority: "high", subject: "SEO pricing inquiry", last_message: "Sure, it's techcorp.sg...", messages_count: 4, assignee_name: "Demo Admin", time_ago: "5m", tags: ["SEO", "Lead"], created_at: daysAgo(0) },
-    { id: "conv2", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb2", contact_name: "Lisa Wong", contact_email: "lisa@greenstart.co", channel: "email", status: "pending", priority: "medium", subject: "Monthly report request", last_message: "Could you send the latest performance report?", messages_count: 2, assignee_name: null, time_ago: "2h", tags: ["Report"], created_at: daysAgo(0) },
-    { id: "conv3", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "David Tan", contact_email: "david@retailhub.sg", channel: "live_chat", status: "resolved", priority: "low", subject: "GBP listing update", last_message: "Thanks, the update looks great!", messages_count: 6, assignee_name: "Demo Admin", time_ago: "1d", tags: ["GBP"], created_at: daysAgo(1) },
-    { id: "conv4", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb3", contact_name: "Rachel Lim", contact_email: "rachel@beautyhq.sg", channel: "whatsapp", status: "open", priority: "medium", subject: "Social media ad inquiry", last_message: "Can you help with Instagram ads?", messages_count: 1, assignee_name: null, time_ago: "30m", tags: [], created_at: daysAgo(0) },
-    { id: "conv5", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "James Ng", contact_email: "james@lawfirm.sg", channel: "live_chat", status: "snoozed", priority: "low", subject: "Content strategy discussion", last_message: "I'll get back to you next week.", messages_count: 3, assignee_name: "Demo Admin", time_ago: "3d", tags: ["Content"], created_at: daysAgo(3) },
-  ] },
-  { pattern: /^\/inbox$/, handler: () => [
-    { id: "inb1", workspace_id: DEMO_WORKSPACE_ID, name: "Website Chat", channel: "live_chat", status: "active", widget_color: "#2563eb", welcome_message: "Hi! How can we help you?" },
-    { id: "inb2", workspace_id: DEMO_WORKSPACE_ID, name: "Support Email", channel: "email", status: "active" },
-    { id: "inb3", workspace_id: DEMO_WORKSPACE_ID, name: "WhatsApp Business", channel: "whatsapp", status: "active" },
-  ] },
-  { pattern: /^\/inbox\/canned-responses/, handler: () => [
-    { id: "cr1", short_code: "greeting", title: "Welcome Greeting", content: "Hi there! Thanks for reaching out. How can I help you today?", category: "General" },
-    { id: "cr2", short_code: "pricing", title: "Pricing Info", content: "Our SEO packages start from $1,500/month. Would you like me to prepare a custom quote based on your needs?", category: "Sales" },
-    { id: "cr3", short_code: "follow-up", title: "Follow Up", content: "Just checking in on our previous conversation. Do you have any questions?", category: "Sales" },
-  ] },
 
-  // ── Automations ──
-  { pattern: /^\/automations$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, is_active: true, execution_count: 0, created_at: now }) },
-  { pattern: /^\/automations\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
-  { pattern: /^\/automations/, handler: () => [
-    { id: "ar1", workspace_id: DEMO_WORKSPACE_ID, name: "Auto-assign SEO inquiries", description: "Route conversations mentioning SEO to the SEO team", event_type: "message_created", conditions: [{ attribute: "content", operator: "contains", value: "SEO" }], actions: [{ type: "assign", params: { team: "SEO Team" } }, { type: "add_tag", params: { tag: "SEO" } }], is_active: true, execution_count: 23, last_executed_at: daysAgo(0), created_at: daysAgo(30) },
-    { id: "ar2", workspace_id: DEMO_WORKSPACE_ID, name: "Welcome new contacts", description: "Send welcome message to new contacts", event_type: "contact_created", conditions: [], actions: [{ type: "send_message", params: { content: "Welcome! How can we help?" } }], is_active: true, execution_count: 15, last_executed_at: daysAgo(1), created_at: daysAgo(45) },
-    { id: "ar3", workspace_id: DEMO_WORKSPACE_ID, name: "Escalate urgent conversations", description: "Notify admin for urgent priority conversations", event_type: "conversation_created", conditions: [{ attribute: "priority", operator: "equals", value: "urgent" }], actions: [{ type: "notify", params: { channel: "slack" } }, { type: "assign", params: { user: "admin" } }], is_active: false, execution_count: 5, last_executed_at: daysAgo(7), created_at: daysAgo(20) },
-  ] },
 
-  // ── Knowledge Base ──
-  { pattern: /^\/knowledge-base\/articles\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...body, updated_at: now }) },
-  { pattern: /^\/knowledge-base\/articles\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
-  { pattern: /^\/knowledge-base\/articles$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, views_count: 0, helpful_count: 0, not_helpful_count: 0, status: "draft", created_at: now }) },
-  { pattern: /^\/knowledge-base\/articles/, handler: () => [
-    { id: "kb1", title: "How to Track Your SEO Rankings", slug: "track-seo-rankings", category_id: "kbc1", category_name: "Getting Started", status: "published", content: "# How to Track Your SEO Rankings\n\nSEO rankings...", views_count: 245, helpful_count: 32, not_helpful_count: 3, created_at: daysAgo(30) },
-    { id: "kb2", title: "Understanding Your Performance Reports", slug: "performance-reports", category_id: "kbc1", category_name: "Getting Started", status: "published", content: "# Performance Reports\n\nYour monthly reports...", views_count: 189, helpful_count: 28, not_helpful_count: 1, created_at: daysAgo(25) },
-    { id: "kb3", title: "Setting Up Google Business Profile", slug: "setup-gbp", category_id: "kbc2", category_name: "Local SEO", status: "published", content: "# GBP Setup Guide\n\n...", views_count: 312, helpful_count: 45, not_helpful_count: 5, created_at: daysAgo(20) },
-    { id: "kb4", title: "Content Brief Guidelines", slug: "content-briefs", category_id: "kbc3", category_name: "Content", status: "draft", content: "# Content Brief Guidelines\n\n...", views_count: 0, helpful_count: 0, not_helpful_count: 0, created_at: daysAgo(2) },
-  ] },
-  { pattern: /^\/knowledge-base\/categories$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, articles_count: 0, created_at: now }) },
-  { pattern: /^\/knowledge-base\/categories/, handler: () => [
-    { id: "kbc1", name: "Getting Started", description: "Basics for new clients", icon: "book", articles_count: 2 },
-    { id: "kbc2", name: "Local SEO", description: "GBP and local search guides", icon: "map-pin", articles_count: 1 },
-    { id: "kbc3", name: "Content", description: "Content creation and optimization", icon: "file-text", articles_count: 1 },
-  ] },
 
   // ── Backlinks ──
   { pattern: /^\/clients\/[^/]+\/backlinks\/summary$/, handler: () => ({ total: 156, referring_domains: 89, dofollow: 112, nofollow: 44, lost: 8, avg_da: 38.5 }) },
