@@ -31,20 +31,21 @@ import SetupComplete from "@/pages/SetupComplete";
 import DemoQA from "@/pages/DemoQA";
 import Reports from "@/pages/Reports";
 import AiVisibility from "@/pages/AiVisibility";
-import JobCenter from "@/pages/JobCenter";
-import ActivityLog from "@/pages/ActivityLog";
 import TopicalMaps from "@/pages/TopicalMaps";
-import ContentOptimizer from "@/pages/ContentOptimizer";
 import BulkContent from "@/pages/BulkContent";
 import Inbox from "@/pages/Inbox";
 import Automations from "@/pages/Automations";
 import KnowledgeBase from "@/pages/KnowledgeBase";
 import Backlinks from "@/pages/Backlinks";
 import SchemaCreator from "@/pages/SchemaCreator";
-import ContentRewriter from "@/pages/ContentRewriter";
 import SiteExplorer from "@/pages/SiteExplorer";
 import SerpChecker from "@/pages/SerpChecker";
 import CSATDashboard from "@/pages/CSATDashboard";
+import ContentStudio from "@/pages/ContentStudio";
+import Operations from "@/pages/Operations";
+import Articles from "@/pages/Articles";
+import SocialMedia from "@/pages/SocialMedia";
+import VideoAssets from "@/pages/VideoAssets";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -89,21 +90,27 @@ const App = () => (
                 <Route path="/settings" element={<WorkspaceSettings />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/ai-visibility" element={<AiVisibility />} />
-                <Route path="/jobs" element={<JobCenter />} />
-                <Route path="/activity" element={<ActivityLog />} />
                 <Route path="/topical-maps" element={<TopicalMaps />} />
-                <Route path="/content-optimizer" element={<ContentOptimizer />} />
+                <Route path="/content-studio" element={<ContentStudio />} />
                 <Route path="/bulk-content" element={<BulkContent />} />
+                <Route path="/articles" element={<Articles />} />
+                <Route path="/social-media" element={<SocialMedia />} />
+                <Route path="/videos" element={<VideoAssets />} />
                 <Route path="/inbox" element={<Inbox />} />
                 <Route path="/automations" element={<Automations />} />
                 <Route path="/knowledge-base" element={<KnowledgeBase />} />
                 <Route path="/backlinks" element={<Backlinks />} />
                 <Route path="/schema-creator" element={<SchemaCreator />} />
-                <Route path="/content-rewriter" element={<ContentRewriter />} />
                 <Route path="/site-explorer" element={<SiteExplorer />} />
                 <Route path="/serp-checker" element={<SerpChecker />} />
                 <Route path="/csat" element={<CSATDashboard />} />
+                <Route path="/operations" element={<Operations />} />
                 <Route path="/qa" element={<DemoQA />} />
+                {/* Redirects for old routes */}
+                <Route path="/content-optimizer" element={<Navigate to="/content-studio" replace />} />
+                <Route path="/content-rewriter" element={<Navigate to="/content-studio" replace />} />
+                <Route path="/jobs" element={<Navigate to="/operations" replace />} />
+                <Route path="/activity" element={<Navigate to="/operations" replace />} />
               </Route>
 
               {/* Client Portal routes */}

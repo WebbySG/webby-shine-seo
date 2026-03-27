@@ -1,9 +1,9 @@
 import {
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, Search, TrendingUp,
   MapPin, Paintbrush, DollarSign, Command, Handshake, Settings, LogOut,
-  ClipboardList, FlaskConical, FileText, Eye, Briefcase, ScrollText,
+  ClipboardList, FlaskConical, FileText, Eye, ScrollText,
   Network, Gauge, Layers, MessageSquare, Zap, Book, Link2, Code,
-  RefreshCw, Globe, Star, Wand2,
+  Globe, Star, Share2, Video, Briefcase,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -31,10 +31,15 @@ const seoNav = [
 
 const contentNav = [
   { title: "Topical Maps", url: "/topical-maps", icon: Network, color: "text-content-primary", perm: "manage_articles" },
-  { title: "Content Score", url: "/content-optimizer", icon: Gauge, color: "text-content-primary", perm: "manage_articles" },
+  { title: "Articles", url: "/articles", icon: FileText, color: "text-content-primary", perm: "manage_articles" },
+  { title: "Content Studio", url: "/content-studio", icon: Gauge, color: "text-content-primary", perm: "manage_articles" },
   { title: "Bulk Content", url: "/bulk-content", icon: Layers, color: "text-content-primary", perm: "manage_articles" },
-  { title: "Rewriter", url: "/content-rewriter", icon: Wand2, color: "text-content-primary", perm: "manage_articles" },
   { title: "Creative", url: "/creative", icon: Paintbrush, color: "text-content-primary", perm: "manage_articles" },
+];
+
+const publishNav = [
+  { title: "Social Media", url: "/social-media", icon: Share2, color: "text-primary", perm: "manage_articles" },
+  { title: "Videos", url: "/videos", icon: Video, color: "text-primary", perm: "manage_articles" },
 ];
 
 const channelNav = [
@@ -58,8 +63,7 @@ const businessNav = [
 ];
 
 const settingsNav = [
-  { title: "Job Center", url: "/jobs", icon: Briefcase, color: "text-foreground", perm: "view_dashboard" },
-  { title: "Activity Log", url: "/activity", icon: ScrollText, color: "text-foreground", perm: "view_dashboard" },
+  { title: "Operations", url: "/operations", icon: Briefcase, color: "text-foreground", perm: "view_dashboard" },
   { title: "Settings", url: "/settings", icon: Settings, color: "text-foreground", perm: "manage_settings" },
   { title: "QA Checklist", url: "/qa", icon: ClipboardList, color: "text-muted-foreground", perm: "view_dashboard" },
 ];
@@ -129,6 +133,7 @@ export function AppSidebar() {
         {renderGroup("Core", coreNav)}
         {renderGroup("SEO", seoNav)}
         {renderGroup("Content", contentNav)}
+        {renderGroup("Publish", publishNav)}
         {renderGroup("Channels", channelNav)}
         {renderGroup("Support", supportNav)}
         {renderGroup("Business", businessNav)}
@@ -149,7 +154,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="rounded-lg bg-muted/50 p-3 border border-border/30">
             <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Version</p>
-            <p className="text-xs font-mono text-muted-foreground">v4.0 — Phase 24</p>
+            <p className="text-xs font-mono text-muted-foreground">v5.1 — Phase 25</p>
           </div>
         )}
       </SidebarFooter>
