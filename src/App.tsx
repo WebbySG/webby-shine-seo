@@ -94,6 +94,15 @@ const App = () => (
                 <Route path="/topical-maps" element={<TopicalMaps />} />
                 <Route path="/content-optimizer" element={<ContentOptimizer />} />
                 <Route path="/bulk-content" element={<BulkContent />} />
+                <Route path="/inbox" element={<Inbox />} />
+                <Route path="/automations" element={<Automations />} />
+                <Route path="/knowledge-base" element={<KnowledgeBase />} />
+                <Route path="/backlinks" element={<Backlinks />} />
+                <Route path="/schema-creator" element={<SchemaCreator />} />
+                <Route path="/content-rewriter" element={<ContentRewriter />} />
+                <Route path="/site-explorer" element={<SiteExplorer />} />
+                <Route path="/serp-checker" element={<SerpChecker />} />
+                <Route path="/csat" element={<CSATDashboard />} />
                 <Route path="/qa" element={<DemoQA />} />
               </Route>
 
