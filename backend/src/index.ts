@@ -112,6 +112,18 @@ app.use("/api/content-score", contentScoreRouter);
 app.use("/api/clients", contentScoreRouter);
 app.use("/api/bulk-content", aiLimiter, bulkContentRouter);
 app.use("/api/clients", bulkContentRouter);
+app.use("/api/inbox", inboxRouter);
+app.use("/api/automations", automationsRouter);
+app.use("/api/knowledge-base", knowledgeBaseRouter);
+app.use("/api/clients", backlinksRouter);
+app.use("/api/clients", schemaMarkupRouter);
+app.use("/api", schemaMarkupRouter);
+app.use("/api/content-rewriter", contentRewriterRouter);
+app.use("/api/clients", contentRewriterRouter);
+app.use("/api/clients", siteExplorerRouter);
+app.use("/api/serp-checker", serpCheckerRouter);
+app.use("/api/clients", serpCheckerRouter);
+app.use("/api/csat", csatRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
