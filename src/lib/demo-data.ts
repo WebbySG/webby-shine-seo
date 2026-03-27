@@ -912,6 +912,65 @@ const routes: DemoRoute[] = [
 
   // ── Health check ──
   { pattern: /^\/health$/, handler: () => ({ status: "ok", timestamp: now, demo: true }) },
+
+  // ── Competitor Benchmarks ──
+  { pattern: /^\/competitor-benchmarks$/, method: "POST", handler: (_m, body) => ({
+    id: crypto.randomUUID(), client_id: body?.client_id, target_domain: body?.target_domain || "webby.sg",
+    competitor_domain: body?.competitor_domain, scope: body?.scope || "full_crawl", provider: body?.provider || "mock",
+    status: "completed", own_audit_run_id: body?.own_audit_run_id || null,
+    pages_crawled: 62, indexable_pages: 55, avg_crawl_depth: 3.2,
+    broken_links: 3, redirect_issues: 2, duplicate_titles: 4, missing_titles: 1,
+    missing_meta: 5, missing_h1: 2, canonical_issues: 3, avg_load_time_ms: 1850,
+    lcp_avg_ms: 2200, cls_avg: 0.08, fid_avg_ms: 120,
+    started_at: now, completed_at: now, created_at: now,
+  }) },
+  { pattern: /^\/competitor-benchmarks\/[^/]+$/, handler: () => {
+    const pages = [
+      { id: "cbp1", url: "https://competitor-one.com/", page_type: "homepage", title: "Competitor One — Digital Agency", meta_description: "Leading digital agency", h1: "Full-Service Digital Agency", word_count: 1800, status_code: 200, load_time_ms: 1500, internal_links_count: 24, classification_confidence: 0.95 },
+      { id: "cbp2", url: "https://competitor-one.com/seo-services", page_type: "core_service", title: "SEO Services", meta_description: "Expert SEO services", h1: "SEO Services", word_count: 2200, status_code: 200, load_time_ms: 1700, internal_links_count: 18, classification_confidence: 0.92 },
+      { id: "cbp3", url: "https://competitor-one.com/local-seo", page_type: "core_service", title: "Local SEO Services", meta_description: "Local SEO for businesses", h1: "Local SEO", word_count: 1900, status_code: 200, load_time_ms: 1600, internal_links_count: 15, classification_confidence: 0.90 },
+      { id: "cbp4", url: "https://competitor-one.com/ecommerce-seo", page_type: "sub_service", title: "E-commerce SEO", meta_description: "SEO for online stores", h1: "E-commerce SEO Services", word_count: 1700, status_code: 200, load_time_ms: 1800, internal_links_count: 12, classification_confidence: 0.88 },
+      { id: "cbp5", url: "https://competitor-one.com/technical-seo", page_type: "sub_service", title: "Technical SEO Audit", meta_description: "Technical SEO services", h1: "Technical SEO", word_count: 1500, status_code: 200, load_time_ms: 1650, internal_links_count: 10, classification_confidence: 0.87 },
+      { id: "cbp6", url: "https://competitor-one.com/web-design", page_type: "core_service", title: "Web Design Singapore", meta_description: "Professional web design", h1: "Web Design Services", word_count: 2000, status_code: 200, load_time_ms: 1900, internal_links_count: 16, classification_confidence: 0.91 },
+      { id: "cbp7", url: "https://competitor-one.com/ppc-management", page_type: "core_service", title: "PPC Management", meta_description: "Google Ads management", h1: "PPC Management", word_count: 1600, status_code: 200, load_time_ms: 1750, internal_links_count: 14, classification_confidence: 0.89 },
+      { id: "cbp8", url: "https://competitor-one.com/content-marketing", page_type: "core_service", title: "Content Marketing", meta_description: null, h1: "Content Marketing Agency", word_count: 1800, status_code: 200, load_time_ms: 1700, internal_links_count: 13, classification_confidence: 0.88 },
+      { id: "cbp9", url: "https://competitor-one.com/seo-singapore", page_type: "location", title: "SEO Agency Singapore", meta_description: "Best SEO in Singapore", h1: "SEO Agency in Singapore", word_count: 1400, status_code: 200, load_time_ms: 1600, internal_links_count: 11, classification_confidence: 0.85 },
+      { id: "cbp10", url: "https://competitor-one.com/seo-malaysia", page_type: "location", title: "SEO Services Malaysia", meta_description: "SEO for Malaysian businesses", h1: "Malaysia SEO Services", word_count: 1300, status_code: 200, load_time_ms: 1550, internal_links_count: 9, classification_confidence: 0.83 },
+      { id: "cbp11", url: "https://competitor-one.com/seo-hong-kong", page_type: "location", title: "SEO Hong Kong", meta_description: "Hong Kong SEO agency", h1: "Hong Kong SEO", word_count: 1200, status_code: 200, load_time_ms: 1500, internal_links_count: 8, classification_confidence: 0.82 },
+      { id: "cbp12", url: "https://competitor-one.com/blog/seo-guide-2025", page_type: "blog_article", title: "SEO Guide 2025", meta_description: "Complete SEO guide", h1: "The Complete SEO Guide for 2025", word_count: 4500, status_code: 200, load_time_ms: 2200, internal_links_count: 22, classification_confidence: 0.95 },
+      { id: "cbp13", url: "https://competitor-one.com/blog/local-seo-tips", page_type: "blog_article", title: "Local SEO Tips", meta_description: "Tips for local SEO", h1: "10 Local SEO Tips", word_count: 2800, status_code: 200, load_time_ms: 1900, internal_links_count: 15, classification_confidence: 0.93 },
+      { id: "cbp14", url: "https://competitor-one.com/blog/technical-seo-checklist", page_type: "blog_article", title: "Technical SEO Checklist", meta_description: "Complete checklist", h1: "Technical SEO Checklist", word_count: 3200, status_code: 200, load_time_ms: 2000, internal_links_count: 18, classification_confidence: 0.92 },
+      { id: "cbp15", url: "https://competitor-one.com/blog/ppc-vs-seo", page_type: "comparison", title: "PPC vs SEO", meta_description: "Comparing PPC and SEO", h1: "PPC vs SEO: Which Is Better?", word_count: 2600, status_code: 200, load_time_ms: 1800, internal_links_count: 12, classification_confidence: 0.90 },
+      { id: "cbp16", url: "https://competitor-one.com/faq", page_type: "faq", title: "Frequently Asked Questions", meta_description: "Common questions", h1: "FAQ", word_count: 1800, status_code: 200, load_time_ms: 1400, internal_links_count: 8, classification_confidence: 0.94 },
+      { id: "cbp17", url: "https://competitor-one.com/contact", page_type: "contact_conversion", title: "Contact Us", meta_description: "Get in touch", h1: "Contact Our Team", word_count: 400, status_code: 200, load_time_ms: 1200, internal_links_count: 5, classification_confidence: 0.96 },
+      { id: "cbp18", url: "https://competitor-one.com/get-quote", page_type: "contact_conversion", title: "Get a Free Quote", meta_description: "Free SEO quote", h1: "Get Your Free SEO Quote", word_count: 600, status_code: 200, load_time_ms: 1300, internal_links_count: 6, classification_confidence: 0.94 },
+      { id: "cbp19", url: "https://competitor-one.com/privacy-policy", page_type: "utility", title: "Privacy Policy", meta_description: null, h1: null, word_count: 2200, status_code: 200, load_time_ms: 1100, internal_links_count: 2, classification_confidence: 0.97 },
+      { id: "cbp20", url: "https://competitor-one.com/terms", page_type: "utility", title: "Terms of Service", meta_description: null, h1: null, word_count: 3000, status_code: 200, load_time_ms: 1050, internal_links_count: 2, classification_confidence: 0.97 },
+    ];
+    const recommendations = [
+      { id: "cgr1", priority: "high", title: "Missing dedicated E-commerce SEO page", why_it_matters: "Competitor has a dedicated e-commerce SEO page targeting high-intent commercial keywords. Your site groups this under generic services, losing ranking specificity.", evidence: "Competitor has /ecommerce-seo (1,700 words, 12 internal links). Your site has no equivalent page.", recommended_action: "Create a dedicated /ecommerce-seo service page with 1,500+ words covering e-commerce SEO strategies, platform-specific optimization, and case studies.", recommended_page_type: "sub_service", impact_area: "service_rankings" },
+      { id: "cgr2", priority: "high", title: "No location pages beyond Singapore", why_it_matters: "Competitor targets 3 locations (Singapore, Malaysia, Hong Kong) with dedicated pages. You only cover Singapore, missing regional search traffic.", evidence: "Competitor has 3 location pages with unique content. Your site has 1 location-focused page.", recommended_action: "Create location pages for Malaysia and Hong Kong markets with localized content, testimonials, and pricing.", recommended_page_type: "location", impact_area: "local_rankings" },
+      { id: "cgr3", priority: "high", title: "Missing Technical SEO sub-service page", why_it_matters: "Competitor has a standalone technical SEO page that ranks independently. Your audit page is functional but not positioned as a service offering.", evidence: "Competitor's /technical-seo has 1,500 words with service pricing. Your /audit focuses on tool functionality.", recommended_action: "Create a /technical-seo-services page positioned as a service offering with deliverables, process, and pricing.", recommended_page_type: "sub_service", impact_area: "service_rankings" },
+      { id: "cgr4", priority: "medium", title: "Competitor has a PPC vs SEO comparison page", why_it_matters: "Comparison pages capture high-intent users deciding between services. This page type ranks well for 'ppc vs seo' queries.", evidence: "Competitor has /blog/ppc-vs-seo (2,600 words). No equivalent on your site.", recommended_action: "Create a comparison article covering PPC vs SEO with pros/cons, cost analysis, and recommendation framework.", recommended_page_type: "comparison", impact_area: "content_support" },
+      { id: "cgr5", priority: "medium", title: "Competitor has stronger internal linking to service pages", why_it_matters: "Competitor's service pages average 14 internal links vs your estimated 8. Stronger internal linking boosts crawlability and ranking signals.", evidence: "Competitor service pages avg 14 internal links. Blog posts link back to services 3x more frequently.", recommended_action: "Add contextual internal links from blog posts to relevant service pages. Target 12+ internal links per money page.", recommended_page_type: null, impact_area: "service_rankings" },
+      { id: "cgr6", priority: "medium", title: "Missing dedicated FAQ page", why_it_matters: "Competitor has a standalone FAQ page with schema markup, enabling rich snippets in search results.", evidence: "Competitor has /faq with 1,800 words covering 20+ questions. Your FAQ content is scattered across pages.", recommended_action: "Create a central /faq page with FAQ schema markup, organized by service category.", recommended_page_type: "faq", impact_area: "content_support" },
+      { id: "cgr7", priority: "low", title: "Competitor has a second conversion page (quote form)", why_it_matters: "Having both a contact page and a quote-specific page increases conversion pathways for different user intents.", evidence: "Competitor has /contact and /get-quote. Your site only has /contact.", recommended_action: "Create a /free-seo-audit or /get-quote landing page optimized for conversion.", recommended_page_type: "contact_conversion", impact_area: "service_rankings" },
+    ];
+    return {
+      id: "cbr1", client_id: "00000000-0000-0000-0000-000000000001", target_domain: "webby.sg", competitor_domain: "competitor-one.com",
+      scope: "full_crawl", provider: "mock", status: "completed", own_audit_run_id: "arun1",
+      pages_crawled: 62, indexable_pages: 55, avg_crawl_depth: 3.2,
+      broken_links: 3, redirect_issues: 2, duplicate_titles: 4, missing_titles: 1,
+      missing_meta: 5, missing_h1: 2, canonical_issues: 3, avg_load_time_ms: 1850,
+      lcp_avg_ms: 2200, cls_avg: 0.08, fid_avg_ms: 120,
+      started_at: daysAgo(5), completed_at: daysAgo(5), created_at: daysAgo(5),
+      pages, recommendations,
+    };
+  } },
+  { pattern: /^\/competitor-benchmarks/, handler: () => [
+    { id: "cbr1", client_id: "00000000-0000-0000-0000-000000000001", target_domain: "webby.sg", competitor_domain: "competitor-one.com", scope: "full_crawl", provider: "mock", status: "completed", own_audit_run_id: "arun1", pages_crawled: 62, indexable_pages: 55, broken_links: 3, redirect_issues: 2, missing_titles: 1, missing_meta: 5, created_at: daysAgo(5) },
+    { id: "cbr2", client_id: "00000000-0000-0000-0000-000000000001", target_domain: "webby.sg", competitor_domain: "rival-agency.sg", scope: "top_pages", provider: "mock", status: "completed", own_audit_run_id: null, pages_crawled: 28, indexable_pages: 24, broken_links: 1, redirect_issues: 0, missing_titles: 0, missing_meta: 2, created_at: daysAgo(3) },
+  ] },
 ];
 
 /**

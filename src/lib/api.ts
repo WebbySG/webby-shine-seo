@@ -435,3 +435,19 @@ export const getAiVisOverview = (clientId: string) => request<AiVisOverview>(`/c
 
 export const getAiVisCompetitors = (clientId: string) => request<any[]>(`/clients/${clientId}/ai-visibility/competitors`);
 export const createAiVisCompetitor = (data: { client_id: string; competitor_name: string; competitor_domain?: string }) => request<any>(`/ai-visibility/competitors`, { method: "POST", body: JSON.stringify(data) });
+
+// ---------- Competitor Benchmarks ----------
+export interface CompetitorBenchmarkRun {
+  id: string; client_id: string; target_domain: string; competitor_domain: string;
+  scope: string; provider: string; status: string; own_audit_run_id: string | null;
+  pages_crawled: number; indexable_pages: number; avg_crawl_depth: number | null;
+  broken_links: number; redirect_issues: number; duplicate_titles: number;
+  missing_titles: number; missing_meta: number; missing_h1: number; canonical_issues: number;
+  avg_load_time_ms: number | null; lcp_avg_ms: number | null; cls_avg: number | null; fid_avg_ms: number | null;
+  started_at: string | null; completed_at: string | null; created_at: string;
+  pages?: any[]; recommendations?: any[];
+}
+export const getCompetitorBenchmarks = (clientId: string) => request<CompetitorBenchmarkRun[]>(`/competitor-benchmarks?client_id=${clientId}`);
+export const getCompetitorBenchmarkDetail = (id: string) => request<CompetitorBenchmarkRun>(`/competitor-benchmarks/${id}`);
+export const startCompetitorBenchmark = (data: { client_id: string; target_domain: string; competitor_domain: string; scope?: string; provider?: string; own_audit_run_id?: string }) =>
+  request<CompetitorBenchmarkRun>(`/competitor-benchmarks`, { method: "POST", body: JSON.stringify(data) });

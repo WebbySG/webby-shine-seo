@@ -48,6 +48,7 @@ import SocialMedia from "@/pages/SocialMedia";
 import VideoAssets from "@/pages/VideoAssets";
 import ContentCalendar from "@/pages/ContentCalendar";
 import KeywordResearch from "@/pages/KeywordResearch";
+import CompetitorBenchmark from "@/pages/CompetitorBenchmark";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -83,6 +84,7 @@ const App = () => (
                 <Route path="/clients/:id" element={<ClientDetail />} />
                 <Route path="/rankings" element={<Rankings />} />
                 <Route path="/keyword-research" element={<KeywordResearch />} />
+                <Route path="/competitor-benchmark" element={<CompetitorBenchmark />} />
                 <Route path="/audit" element={<Audit />} />
                 <Route path="/opportunities" element={<Opportunities />} />
                 <Route path="/analytics" element={<Analytics />} />
