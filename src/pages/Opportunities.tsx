@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { SourceBadge } from "@/components/SourceBadge";
 import { ConfidenceChip } from "@/components/ConfidenceChip";
 import { FreshnessIndicator } from "@/components/FreshnessIndicator";
+import { MascotSectionHeader, MascotBanner } from "@/components/MascotCast";
 import { useClients, useOpportunities } from "@/hooks/use-api";
-import { Target, FileSearch, Layers, Wrench, TrendingUp, ArrowRight, Sparkles, Zap, Eye } from "lucide-react";
+import { Target, FileSearch, Layers, Wrench, TrendingUp, ArrowRight, Zap, Eye } from "lucide-react";
 import type { Opportunity } from "@/lib/api";
 
 // Enhanced opportunity with AI fields
@@ -47,22 +48,13 @@ export default function Opportunities() {
   const totalImpact = opportunities.length;
 
   return (
-    <PageTransition className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-md">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">AI Opportunities</h1>
-          </div>
-          <p className="text-muted-foreground text-sm">
-            Surfaced from audit, rankings, keywords & competitor data ·
-            <span className="font-medium text-foreground ml-1">{highCount} high priority</span>
-          </p>
-        </div>
-      </div>
+    <PageTransition className="space-y-5">
+      {/* Mascot header */}
+      <MascotSectionHeader
+        role="seo"
+        title="AI Opportunities"
+        subtitle={`Surfaced from audit, rankings, keywords & competitor data · ${highCount} high priority`}
+      />
 
       {/* Summary strip */}
       <StaggerContainer className="grid gap-3 grid-cols-2 lg:grid-cols-4">

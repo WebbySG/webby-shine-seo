@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { MascotSectionHeader } from "@/components/MascotCast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { request } from "@/lib/api";
 import type { SeoBrief, SeoBriefDraft, DraftReviewCheck } from "@/lib/api";
@@ -504,14 +505,7 @@ export default function BriefWorkflow() {
   // ─── Queue List View ───
   return (
     <PageTransition className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <FileText className="h-6 w-6 text-content-primary" /> Brief Workflow
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">Service page briefs → drafts → review → approval → publishing</p>
-        </div>
-      </div>
+      <MascotSectionHeader role="content" title="Brief Workflow" subtitle="Service page briefs → drafts → review → approval → publishing" />
 
       {/* Stats */}
       <StaggerContainer className="grid gap-4 grid-cols-2 lg:grid-cols-4">

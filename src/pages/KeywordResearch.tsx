@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { MascotSectionHeader } from "@/components/MascotCast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { request } from "@/lib/api";
 import { useActiveClient } from "@/contexts/ClientContext";
@@ -754,15 +755,9 @@ export default function KeywordResearch() {
   // ─── Jobs List ───
   return (
     <PageTransition className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Search className="h-6 w-6 text-seo-primary" /> Keyword Research
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Research, score, cluster, and map keywords to pages
-          </p>
-        </div>
+      <MascotSectionHeader role="seo" title="Keyword Research" subtitle="Research, score, cluster, and map keywords to pages">
+      </MascotSectionHeader>
+      <div className="flex items-center justify-end flex-wrap gap-3">
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> New Research</Button>

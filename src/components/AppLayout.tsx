@@ -1,6 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { AiMascot } from "@/components/AiMascot";
+
 import { Outlet, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -102,7 +102,7 @@ export function AppLayout() {
               <Outlet />
             </main>
           </div>
-          <AiMascot />
+          
         </div>
       </SidebarProvider>
     </ClientProvider>
