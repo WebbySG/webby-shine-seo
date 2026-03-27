@@ -399,7 +399,56 @@ const routes: DemoRoute[] = [
   { pattern: /^\/clients\/[^/]+\/competitors$/, handler: () => competitors },
   { pattern: /^\/clients\/[^/]+\/competitors$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), domain: body?.domain, label: body?.label || null, source: "manual", confirmed: true }) },
 
-  // ── Audit ──
+  // ── Audit (extended) ──
+  // POST /api/audit/runs — start new audit
+  { pattern: /^\/audit\/runs$/, method: "POST", handler: (_m, body) => {
+    const newRun = {
+      id: crypto.randomUUID(), client_id: body?.client_id, domain: body?.domain, scope: body?.scope || "full_crawl",
+      provider: body?.provider || "mock", pages_crawled: body?.scope === "homepage_only" ? 1 : body?.scope === "top_pages" ? 12 : 47,
+      pages_limit: body?.scope === "homepage_only" ? 1 : body?.scope === "top_pages" ? 50 : 500,
+      score: 72, status: "completed", total_issues: 10, critical_count: 3, warning_count: 5, info_count: 2,
+      started_at: now, completed_at: now, created_at: now,
+    };
+    return newRun;
+  } },
+  // POST /api/audit/runs/:id/recheck
+  { pattern: /^\/audit\/runs\/[^/]+\/recheck$/, method: "POST", handler: () => ({
+    rechecked: 5, rechecks: auditIssues.filter(i => i.status !== "fixed").slice(0, 5).map(i => ({
+      id: crypto.randomUUID(), audit_issue_id: i.id, provider: "mock",
+      previous_status: i.status, new_status: Math.random() > 0.3 ? i.status : "fixed",
+      previous_evidence: { status: i.status }, new_evidence: { status: Math.random() > 0.3 ? i.status : "fixed" },
+      diff_summary: Math.random() > 0.3 ? "Issue persists." : "Issue resolved!", checked_at: now,
+    })),
+  }) },
+  // GET /api/audit/runs/:id — run detail
+  { pattern: /^\/audit\/runs\/[^/]+$/, handler: (m) => {
+    const runId = m[0].split("/").pop();
+    const run = auditRuns.find(r => r.id === runId) || auditRuns[0];
+    return { ...run, issues: auditIssues.filter(i => i.audit_run_id === run.id), pages: auditPages.filter(p => p.audit_run_id === run.id) };
+  } },
+  // GET /api/audit/runs — list runs
+  { pattern: /^\/audit\/runs/, handler: () => auditRuns },
+  // POST /api/audit/issues/:id/recheck
+  { pattern: /^\/audit\/issues\/[^/]+\/recheck$/, method: "POST", handler: (m) => {
+    const issueId = m[0].split("/")[3];
+    const issue = auditIssues.find(i => i.id === issueId);
+    return {
+      id: crypto.randomUUID(), audit_issue_id: issueId, provider: "mock",
+      previous_status: issue?.status || "open", new_status: Math.random() > 0.5 ? "fixed" : issue?.status || "open",
+      previous_evidence: { value: "old" }, new_evidence: { value: Math.random() > 0.5 ? "resolved" : "unchanged" },
+      diff_summary: Math.random() > 0.5 ? "Issue has been resolved." : "Issue still persists.",
+      checked_at: now,
+    };
+  } },
+  // PATCH /api/audit/issues/:id — update status
+  { pattern: /^\/audit\/issues\/[^/]+$/, method: "PATCH", handler: (_m, body) => ({ status: body?.status || "open" }) },
+  // GET /api/audit/issues/:id — issue detail
+  { pattern: /^\/audit\/issues\/[^/]+$/, handler: (m) => {
+    const issueId = m[0].split("/").pop();
+    const issue = auditIssues.find(i => i.id === issueId) || auditIssues[0];
+    return { ...issue, evidence: auditEvidence[issue.id] || [], rechecks: auditRechecks[issue.id] || [] };
+  } },
+  // GET /api/audit/issues — all issues
   { pattern: /^\/audit\/issues/, handler: () => auditIssues },
 
   // ── Opportunities ──
