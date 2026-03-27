@@ -675,5 +675,5 @@ docker compose exec db psql -U postgres -d webbyseo -f /docker-entrypoint-initdb
 
 ---
 
-*Last updated: 2026-03-25*
-*Version: v3.2*
+*Last updated: 2026-03-27*
+*Version: v5.0*
