@@ -66,7 +66,7 @@ const DEMO_TEMPLATES = [
     { key: "content_published", title: "Content Published", enabled: true, order: 4 },
     { key: "gbp_activity", title: "GBP Activity", enabled: true, order: 5 },
     { key: "analytics_performance", title: "Analytics Performance", enabled: true, order: 6 },
-    { key: "leads_crm_summary", title: "Leads & CRM Summary", enabled: true, order: 7 },
+    { key: "leads_attribution", title: "Leads & Attribution", enabled: true, order: 7 },
     { key: "ads_summary", title: "Ads Performance", enabled: true, order: 8 },
     { key: "next_priorities", title: "Next Priorities", enabled: true, order: 9 },
   ], is_default: true },
