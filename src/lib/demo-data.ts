@@ -623,6 +623,150 @@ const routes: DemoRoute[] = [
   // ── Rankings (standalone) ──
   { pattern: /^\/rankings/, handler: () => keywords },
 
+  // ── Inbox / Conversations ──
+  { pattern: /^\/inbox\/conversations\/[^/]+\/messages$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), conversation_id: body?.conversation_id, message_type: "outgoing", content: body?.content, is_private: false, sender_name: "Demo Admin", time: "Just now", created_at: now }) },
+  { pattern: /^\/inbox\/conversations\/[^/]+$/, method: "PATCH", handler: (_m, body) => ({ status: body?.status || "resolved" }) },
+  { pattern: /^\/inbox\/conversations\/[^/]+$/, handler: () => ({
+    id: "conv1", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "Michael Chen", contact_email: "michael@techcorp.sg", channel: "live_chat", status: "open", priority: "high", messages_count: 4, assignee_name: "Demo Admin", tags: ["SEO", "Lead"], previous_count: 2, subject: "SEO pricing inquiry",
+    messages: [
+      { id: "m1", message_type: "incoming", content: "Hi, I'd like to know about your SEO services pricing for a medium-sized e-commerce site.", sender_name: "Michael Chen", time: "10:32 AM", is_private: false },
+      { id: "m2", message_type: "outgoing", content: "Hi Michael! Thanks for reaching out. For e-commerce SEO, we offer packages starting from $2,500/month. Could you share your website URL so I can provide a more accurate quote?", sender_name: "Demo Admin", time: "10:35 AM", is_private: false },
+      { id: "m3", message_type: "incoming", content: "Sure, it's techcorp.sg. We have about 500 product pages and target Singapore + Malaysia markets.", sender_name: "Michael Chen", time: "10:38 AM", is_private: false },
+      { id: "m4", message_type: "note", content: "Check competitor pricing for similar scope. Reviewed their site — good technical foundation, needs content strategy.", sender_name: "Demo Admin", time: "10:42 AM", is_private: true },
+    ],
+  }) },
+  { pattern: /^\/inbox\/conversations/, handler: () => [
+    { id: "conv1", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "Michael Chen", contact_email: "michael@techcorp.sg", channel: "live_chat", status: "open", priority: "high", subject: "SEO pricing inquiry", last_message: "Sure, it's techcorp.sg...", messages_count: 4, assignee_name: "Demo Admin", time_ago: "5m", tags: ["SEO", "Lead"], created_at: daysAgo(0) },
+    { id: "conv2", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb2", contact_name: "Lisa Wong", contact_email: "lisa@greenstart.co", channel: "email", status: "pending", priority: "medium", subject: "Monthly report request", last_message: "Could you send the latest performance report?", messages_count: 2, assignee_name: null, time_ago: "2h", tags: ["Report"], created_at: daysAgo(0) },
+    { id: "conv3", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "David Tan", contact_email: "david@retailhub.sg", channel: "live_chat", status: "resolved", priority: "low", subject: "GBP listing update", last_message: "Thanks, the update looks great!", messages_count: 6, assignee_name: "Demo Admin", time_ago: "1d", tags: ["GBP"], created_at: daysAgo(1) },
+    { id: "conv4", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb3", contact_name: "Rachel Lim", contact_email: "rachel@beautyhq.sg", channel: "whatsapp", status: "open", priority: "medium", subject: "Social media ad inquiry", last_message: "Can you help with Instagram ads?", messages_count: 1, assignee_name: null, time_ago: "30m", tags: [], created_at: daysAgo(0) },
+    { id: "conv5", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "James Ng", contact_email: "james@lawfirm.sg", channel: "live_chat", status: "snoozed", priority: "low", subject: "Content strategy discussion", last_message: "I'll get back to you next week.", messages_count: 3, assignee_name: "Demo Admin", time_ago: "3d", tags: ["Content"], created_at: daysAgo(3) },
+  ] },
+  { pattern: /^\/inbox$/, handler: () => [
+    { id: "inb1", workspace_id: DEMO_WORKSPACE_ID, name: "Website Chat", channel: "live_chat", status: "active", widget_color: "#2563eb", welcome_message: "Hi! How can we help you?" },
+    { id: "inb2", workspace_id: DEMO_WORKSPACE_ID, name: "Support Email", channel: "email", status: "active" },
+    { id: "inb3", workspace_id: DEMO_WORKSPACE_ID, name: "WhatsApp Business", channel: "whatsapp", status: "active" },
+  ] },
+  { pattern: /^\/inbox\/canned-responses/, handler: () => [
+    { id: "cr1", short_code: "greeting", title: "Welcome Greeting", content: "Hi there! Thanks for reaching out. How can I help you today?", category: "General" },
+    { id: "cr2", short_code: "pricing", title: "Pricing Info", content: "Our SEO packages start from $1,500/month. Would you like me to prepare a custom quote based on your needs?", category: "Sales" },
+    { id: "cr3", short_code: "follow-up", title: "Follow Up", content: "Just checking in on our previous conversation. Do you have any questions?", category: "Sales" },
+  ] },
+
+  // ── Automations ──
+  { pattern: /^\/automations$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, is_active: true, execution_count: 0, created_at: now }) },
+  { pattern: /^\/automations\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
+  { pattern: /^\/automations/, handler: () => [
+    { id: "ar1", workspace_id: DEMO_WORKSPACE_ID, name: "Auto-assign SEO inquiries", description: "Route conversations mentioning SEO to the SEO team", event_type: "message_created", conditions: [{ attribute: "content", operator: "contains", value: "SEO" }], actions: [{ type: "assign", params: { team: "SEO Team" } }, { type: "add_tag", params: { tag: "SEO" } }], is_active: true, execution_count: 23, last_executed_at: daysAgo(0), created_at: daysAgo(30) },
+    { id: "ar2", workspace_id: DEMO_WORKSPACE_ID, name: "Welcome new contacts", description: "Send welcome message to new contacts", event_type: "contact_created", conditions: [], actions: [{ type: "send_message", params: { content: "Welcome! How can we help?" } }], is_active: true, execution_count: 15, last_executed_at: daysAgo(1), created_at: daysAgo(45) },
+    { id: "ar3", workspace_id: DEMO_WORKSPACE_ID, name: "Escalate urgent conversations", description: "Notify admin for urgent priority conversations", event_type: "conversation_created", conditions: [{ attribute: "priority", operator: "equals", value: "urgent" }], actions: [{ type: "notify", params: { channel: "slack" } }, { type: "assign", params: { user: "admin" } }], is_active: false, execution_count: 5, last_executed_at: daysAgo(7), created_at: daysAgo(20) },
+  ] },
+
+  // ── Knowledge Base ──
+  { pattern: /^\/knowledge-base\/articles\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...body, updated_at: now }) },
+  { pattern: /^\/knowledge-base\/articles\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
+  { pattern: /^\/knowledge-base\/articles$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, views_count: 0, helpful_count: 0, not_helpful_count: 0, status: "draft", created_at: now }) },
+  { pattern: /^\/knowledge-base\/articles/, handler: () => [
+    { id: "kb1", title: "How to Track Your SEO Rankings", slug: "track-seo-rankings", category_id: "kbc1", category_name: "Getting Started", status: "published", content: "# How to Track Your SEO Rankings\n\nSEO rankings...", views_count: 245, helpful_count: 32, not_helpful_count: 3, created_at: daysAgo(30) },
+    { id: "kb2", title: "Understanding Your Performance Reports", slug: "performance-reports", category_id: "kbc1", category_name: "Getting Started", status: "published", content: "# Performance Reports\n\nYour monthly reports...", views_count: 189, helpful_count: 28, not_helpful_count: 1, created_at: daysAgo(25) },
+    { id: "kb3", title: "Setting Up Google Business Profile", slug: "setup-gbp", category_id: "kbc2", category_name: "Local SEO", status: "published", content: "# GBP Setup Guide\n\n...", views_count: 312, helpful_count: 45, not_helpful_count: 5, created_at: daysAgo(20) },
+    { id: "kb4", title: "Content Brief Guidelines", slug: "content-briefs", category_id: "kbc3", category_name: "Content", status: "draft", content: "# Content Brief Guidelines\n\n...", views_count: 0, helpful_count: 0, not_helpful_count: 0, created_at: daysAgo(2) },
+  ] },
+  { pattern: /^\/knowledge-base\/categories$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, articles_count: 0, created_at: now }) },
+  { pattern: /^\/knowledge-base\/categories/, handler: () => [
+    { id: "kbc1", name: "Getting Started", description: "Basics for new clients", icon: "book", articles_count: 2 },
+    { id: "kbc2", name: "Local SEO", description: "GBP and local search guides", icon: "map-pin", articles_count: 1 },
+    { id: "kbc3", name: "Content", description: "Content creation and optimization", icon: "file-text", articles_count: 1 },
+  ] },
+
+  // ── Backlinks ──
+  { pattern: /^\/clients\/[^/]+\/backlinks\/summary$/, handler: () => ({ total: 156, referring_domains: 89, dofollow: 112, nofollow: 44, lost: 8, avg_da: 38.5 }) },
+  { pattern: /^\/clients\/[^/]+\/backlinks$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, first_seen: now, last_seen: now, status: "active", created_at: now }) },
+  { pattern: /^\/clients\/[^/]+\/backlinks$/, handler: () => [
+    { id: "bl1", source_url: "https://techblog.asia/best-seo-tools-2025", target_url: "/seo-agency", anchor_text: "top SEO agency Singapore", link_type: "dofollow", domain_authority: 62, page_authority: 45, source_domain: "techblog.asia", first_seen: daysAgo(45), last_seen: daysAgo(1), status: "active" },
+    { id: "bl2", source_url: "https://marketingweekly.com/agency-directory", target_url: "/", anchor_text: "Webby SG", link_type: "dofollow", domain_authority: 55, page_authority: 38, source_domain: "marketingweekly.com", first_seen: daysAgo(90), last_seen: daysAgo(1), status: "active" },
+    { id: "bl3", source_url: "https://singaporebiz.sg/digital-marketing-guide", target_url: "/services", anchor_text: "digital marketing services", link_type: "dofollow", domain_authority: 48, page_authority: 32, source_domain: "singaporebiz.sg", first_seen: daysAgo(60), last_seen: daysAgo(1), status: "active" },
+    { id: "bl4", source_url: "https://forums.webmaster.com/t/seo-agencies", target_url: "/about", anchor_text: "webby.sg", link_type: "nofollow", domain_authority: 72, page_authority: 28, source_domain: "forums.webmaster.com", first_seen: daysAgo(120), last_seen: daysAgo(3), status: "active" },
+    { id: "bl5", source_url: "https://old-partner.com/resources", target_url: "/blog/seo-tips", anchor_text: "SEO tips", link_type: "dofollow", domain_authority: 35, page_authority: 22, source_domain: "old-partner.com", first_seen: daysAgo(180), last_seen: daysAgo(30), status: "lost" },
+    { id: "bl6", source_url: "https://business-directory.sg/webby", target_url: "/", anchor_text: "Webby SEO", link_type: "dofollow", domain_authority: 42, page_authority: 18, source_domain: "business-directory.sg", first_seen: daysAgo(200), last_seen: daysAgo(1), status: "active" },
+  ] },
+
+  // ── Schema Markup ──
+  { pattern: /^\/clients\/[^/]+\/schema-markups$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, status: "draft", validation_errors: [], created_at: now }) },
+  { pattern: /^\/schema-markups\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...body, updated_at: now }) },
+  { pattern: /^\/schema-markups\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
+  { pattern: /^\/clients\/[^/]+\/schema-markups$/, handler: () => [
+    { id: "sm1", page_url: "/seo-agency", schema_type: "FAQ", status: "deployed", created_at: daysAgo(30), updated_at: daysAgo(5) },
+    { id: "sm2", page_url: "/", schema_type: "LocalBusiness", status: "validated", created_at: daysAgo(20), updated_at: daysAgo(10) },
+    { id: "sm3", page_url: "/blog/seo-tips", schema_type: "Article", status: "draft", created_at: daysAgo(5), updated_at: daysAgo(5) },
+  ] },
+
+  // ── Content Rewriter ──
+  { pattern: /^\/content-rewriter\/rewrite$/, method: "POST", handler: (_m, body) => ({
+    id: crypto.randomUUID(), client_id: body?.client_id, original_text: body?.original_text,
+    rewritten_text: body?.rewrite_mode === "simplify" ? body?.original_text?.replace(/\b\w{10,}\b/g, (w: string) => w.slice(0, 6)) + "\n\n[Simplified version — AI would produce a more readable rewrite]" :
+      body?.rewrite_mode === "expand" ? body?.original_text + "\n\nAdditionally, it's important to consider the broader context and implications of these points. Research indicates that a comprehensive approach yields better long-term results." :
+      body?.rewrite_mode === "shorten" ? body?.original_text?.split(". ").slice(0, 2).join(". ") + "." :
+      `${body?.original_text}\n\n[AI-improved version with better flow, clarity, and engagement. The rewriter would optimize sentence structure, eliminate redundancy, and strengthen key points.]`,
+    rewrite_mode: body?.rewrite_mode || "improve", target_tone: body?.target_tone, status: "completed", created_at: now,
+  }) },
+  { pattern: /^\/clients\/[^/]+\/rewrites$/, handler: () => [
+    { id: "rw1", original_text: "SEO is good for business. It helps you rank higher.", rewritten_text: "Search engine optimization is a powerful growth driver for businesses, enabling higher search rankings and increased organic visibility.", rewrite_mode: "improve", status: "completed", created_at: daysAgo(3) },
+    { id: "rw2", original_text: "Our comprehensive suite of digital marketing services...", rewritten_text: "We offer digital marketing services that...", rewrite_mode: "simplify", status: "completed", created_at: daysAgo(5) },
+  ] },
+
+  // ── Site Explorer ──
+  { pattern: /^\/clients\/[^/]+\/domain-overview\/history$/, handler: () => [] },
+  { pattern: /^\/clients\/[^/]+\/domain-overview\/refresh$/, method: "POST", handler: () => ({ id: crypto.randomUUID(), domain: "webby.sg", domain_authority: 45, organic_keywords: 320, organic_traffic: 8500, backlinks_total: 1200, referring_domains: 180 }) },
+  { pattern: /^\/clients\/[^/]+\/domain-overview$/, handler: () => ({
+    id: "do1", domain: "webby.sg", domain_authority: 45, page_authority: 52, organic_keywords: 320, organic_traffic: 8500, backlinks_total: 1200, referring_domains: 180,
+    top_keywords: [
+      { keyword: "seo agency singapore", position: 4, volume: 2400 },
+      { keyword: "web design singapore", position: 12, volume: 1800 },
+      { keyword: "local seo services", position: 3, volume: 1200 },
+      { keyword: "digital marketing agency", position: 8, volume: 3200 },
+      { keyword: "google ads management", position: 6, volume: 900 },
+    ],
+    traffic_trend: Array.from({ length: 12 }, (_, i) => ({ month: new Date(2025, i).toLocaleString("default", { month: "short" }), traffic: Math.round(5000 + Math.random() * 5000) })),
+    competitor_overlap: [
+      { domain: "competitor-one.com", shared_keywords: 85, overlap_pct: 42 },
+      { domain: "rival-agency.sg", shared_keywords: 62, overlap_pct: 31 },
+      { domain: "seo-pros.asia", shared_keywords: 48, overlap_pct: 24 },
+    ],
+  }) },
+
+  // ── SERP Checker ──
+  { pattern: /^\/serp-checker\/check$/, method: "POST", handler: (_m, body) => ({
+    id: crypto.randomUUID(), keyword: body?.keyword, location: body?.location || "Singapore", device: body?.device || "desktop",
+    results: Array.from({ length: 10 }, (_, i) => ({
+      position: i + 1, url: `https://example${i + 1}.com/${(body?.keyword || "seo").replace(/\s+/g, "-")}`,
+      title: `${body?.keyword || "SEO"} - ${["Complete Guide", "Best Practices", "Expert Tips", "2025 Update", "How To", "Top 10", "Review", "Comparison", "Tutorial", "Resource"][i]}`,
+      description: `Comprehensive resource about ${body?.keyword || "SEO"} covering everything you need to know. Updated for 2025.`,
+      domain: `example${i + 1}.com`,
+    })),
+    featured_snippet: { title: `What is ${body?.keyword}?`, text: `${body?.keyword} is a key aspect of digital marketing that focuses on improving online visibility and driving organic results.` },
+    people_also_ask: [`What is ${body?.keyword}?`, `How does ${body?.keyword} work?`, `Is ${body?.keyword} worth it?`, `Best ${body?.keyword} tools?`],
+    related_searches: [`${body?.keyword} services`, `${body?.keyword} pricing`, `best ${body?.keyword} agency`, `${body?.keyword} tools 2025`],
+    checked_at: now,
+  }) },
+  { pattern: /^\/clients\/[^/]+\/serp-checks$/, handler: () => [
+    { id: "sc1", keyword: "seo agency singapore", location: "Singapore", device: "desktop", checked_at: daysAgo(1) },
+    { id: "sc2", keyword: "web design services", location: "Singapore", device: "desktop", checked_at: daysAgo(3) },
+  ] },
+
+  // ── CSAT ──
+  { pattern: /^\/csat\/summary/, handler: () => ({ total: 24, avg_rating: 4.3, satisfied: 19, unsatisfied: 2 }) },
+  { pattern: /^\/csat$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, created_at: now }) },
+  { pattern: /^\/csat/, handler: () => [
+    { id: "csat1", rating: 5, feedback: "Excellent support! Quick response and very knowledgeable.", conversation_subject: "SEO pricing inquiry", created_at: daysAgo(2) },
+    { id: "csat2", rating: 4, feedback: "Good service, would appreciate faster turnaround on reports.", conversation_subject: "Monthly report request", created_at: daysAgo(5) },
+    { id: "csat3", rating: 5, feedback: "Love the detailed insights in the audit report!", conversation_subject: "Technical audit review", created_at: daysAgo(8) },
+    { id: "csat4", rating: 3, feedback: "Support was okay but took a while to resolve my issue.", conversation_subject: "GBP listing issue", created_at: daysAgo(12) },
+    { id: "csat5", rating: 5, feedback: null, conversation_subject: "Content strategy call", created_at: daysAgo(15) },
+    { id: "csat6", rating: 2, feedback: "Had to follow up multiple times. Not great experience.", conversation_subject: "Billing question", created_at: daysAgo(18) },
+    { id: "csat7", rating: 4, feedback: "Very professional team. Clear communication.", conversation_subject: "New project setup", created_at: daysAgo(20) },
+  ] },
+
   // ── Health check ──
   { pattern: /^\/health$/, handler: () => ({ status: "ok", timestamp: now, demo: true }) },
 ];

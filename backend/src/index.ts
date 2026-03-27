@@ -34,6 +34,15 @@ import aiVisibilityRouter from "./routes/ai-visibility.js";
 import topicalMapsRouter from "./routes/topical-maps.js";
 import contentScoreRouter from "./routes/content-score.js";
 import bulkContentRouter from "./routes/bulk-content.js";
+import inboxRouter from "./routes/inbox.js";
+import automationsRouter from "./routes/automations.js";
+import knowledgeBaseRouter from "./routes/knowledge-base.js";
+import backlinksRouter from "./routes/backlinks.js";
+import schemaMarkupRouter from "./routes/schema-markup.js";
+import contentRewriterRouter from "./routes/content-rewriter.js";
+import siteExplorerRouter from "./routes/site-explorer.js";
+import serpCheckerRouter from "./routes/serp-checker.js";
+import csatRouter from "./routes/csat.js";
 import { authLimiter, aiLimiter, publishLimiter, generalLimiter } from "./middleware/rateLimiter.js";
 
 dotenv.config();
@@ -103,6 +112,18 @@ app.use("/api/content-score", contentScoreRouter);
 app.use("/api/clients", contentScoreRouter);
 app.use("/api/bulk-content", aiLimiter, bulkContentRouter);
 app.use("/api/clients", bulkContentRouter);
+app.use("/api/inbox", inboxRouter);
+app.use("/api/automations", automationsRouter);
+app.use("/api/knowledge-base", knowledgeBaseRouter);
+app.use("/api/clients", backlinksRouter);
+app.use("/api/clients", schemaMarkupRouter);
+app.use("/api", schemaMarkupRouter);
+app.use("/api/content-rewriter", contentRewriterRouter);
+app.use("/api/clients", contentRewriterRouter);
+app.use("/api/clients", siteExplorerRouter);
+app.use("/api/serp-checker", serpCheckerRouter);
+app.use("/api/clients", serpCheckerRouter);
+app.use("/api/csat", csatRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });

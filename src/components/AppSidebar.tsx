@@ -2,7 +2,8 @@ import {
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, Search, TrendingUp,
   MapPin, Paintbrush, DollarSign, Command, Handshake, Settings, LogOut,
   ClipboardList, FlaskConical, FileText, Eye, Briefcase, ScrollText,
-  Network, Gauge, Layers,
+  Network, Gauge, Layers, MessageSquare, Zap, Book, Link2, Code,
+  RefreshCw, Globe, Star, Wand2,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -22,12 +23,17 @@ const seoNav = [
   { title: "Rankings", url: "/rankings", icon: BarChart3, color: "text-seo-primary", perm: "view_dashboard" },
   { title: "Audit", url: "/audit", icon: Shield, color: "text-seo-primary", perm: "view_dashboard" },
   { title: "Opportunities", url: "/opportunities", icon: Lightbulb, color: "text-seo-primary", perm: "view_dashboard" },
+  { title: "Backlinks", url: "/backlinks", icon: Link2, color: "text-seo-primary", perm: "view_dashboard" },
+  { title: "Site Explorer", url: "/site-explorer", icon: Globe, color: "text-seo-primary", perm: "view_dashboard" },
+  { title: "SERP Checker", url: "/serp-checker", icon: Search, color: "text-seo-primary", perm: "view_dashboard" },
+  { title: "Schema Creator", url: "/schema-creator", icon: Code, color: "text-seo-primary", perm: "view_dashboard" },
 ];
 
 const contentNav = [
   { title: "Topical Maps", url: "/topical-maps", icon: Network, color: "text-content-primary", perm: "manage_articles" },
   { title: "Content Score", url: "/content-optimizer", icon: Gauge, color: "text-content-primary", perm: "manage_articles" },
   { title: "Bulk Content", url: "/bulk-content", icon: Layers, color: "text-content-primary", perm: "manage_articles" },
+  { title: "Rewriter", url: "/content-rewriter", icon: Wand2, color: "text-content-primary", perm: "manage_articles" },
   { title: "Creative", url: "/creative", icon: Paintbrush, color: "text-content-primary", perm: "manage_articles" },
 ];
 
@@ -36,6 +42,13 @@ const channelNav = [
   { title: "AI Visibility", url: "/ai-visibility", icon: Eye, color: "text-primary", perm: "view_analytics" },
   { title: "Local SEO", url: "/local-seo", icon: MapPin, color: "text-gbp-primary", perm: "manage_gbp" },
   { title: "Google Ads", url: "/google-ads", icon: DollarSign, color: "text-ads-primary", perm: "manage_ads" },
+];
+
+const supportNav = [
+  { title: "Inbox", url: "/inbox", icon: MessageSquare, color: "text-primary", perm: "view_dashboard" },
+  { title: "Knowledge Base", url: "/knowledge-base", icon: Book, color: "text-primary", perm: "view_dashboard" },
+  { title: "Automations", url: "/automations", icon: Zap, color: "text-primary", perm: "view_dashboard" },
+  { title: "CSAT", url: "/csat", icon: Star, color: "text-primary", perm: "view_dashboard" },
 ];
 
 const businessNav = [
@@ -117,6 +130,7 @@ export function AppSidebar() {
         {renderGroup("SEO", seoNav)}
         {renderGroup("Content", contentNav)}
         {renderGroup("Channels", channelNav)}
+        {renderGroup("Support", supportNav)}
         {renderGroup("Business", businessNav)}
         {renderGroup("System", settingsNav)}
       </SidebarContent>
