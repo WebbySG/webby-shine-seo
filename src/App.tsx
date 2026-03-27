@@ -47,6 +47,7 @@ import Articles from "@/pages/Articles";
 import SocialMedia from "@/pages/SocialMedia";
 import VideoAssets from "@/pages/VideoAssets";
 import ContentCalendar from "@/pages/ContentCalendar";
+import KeywordResearch from "@/pages/KeywordResearch";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -81,6 +82,7 @@ const App = () => (
                 <Route path="/clients" element={<ClientList />} />
                 <Route path="/clients/:id" element={<ClientDetail />} />
                 <Route path="/rankings" element={<Rankings />} />
+                <Route path="/keyword-research" element={<KeywordResearch />} />
                 <Route path="/audit" element={<Audit />} />
                 <Route path="/opportunities" element={<Opportunities />} />
                 <Route path="/analytics" element={<Analytics />} />
