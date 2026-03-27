@@ -20,6 +20,7 @@ import {
   Search, Sparkles, Target, FileText, BarChart3, Layers, Network, Map,
   ChevronRight, ArrowUpDown, Filter, Plus, Zap, Globe, BookOpen,
   HelpCircle, MapPin, TrendingUp, ArrowRight, CheckCircle, Clock,
+  Shield, AlertTriangle, ArrowLeftRight, Info,
 } from "lucide-react";
 
 // ─── Types ───
@@ -62,6 +63,7 @@ const intentColors: Record<string, string> = {
   commercial: "bg-content-background text-content-primary border-content-border",
   transactional: "bg-status-success-bg text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300",
   navigational: "bg-status-warning-bg text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300",
+  local: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300",
 };
 const priorityColors: Record<string, string> = {
   high: "bg-destructive/10 text-destructive border-destructive/30",
@@ -69,12 +71,14 @@ const priorityColors: Record<string, string> = {
   low: "bg-muted text-muted-foreground border-border",
 };
 const pageTypeIcons: Record<string, typeof FileText> = {
-  service_page: Globe, location_page: MapPin, blog_post: FileText,
+  core_service: Target, sub_service: Globe, service_page: Globe,
+  location_page: MapPin, blog_post: FileText,
   comparison_page: BarChart3, faq_page: HelpCircle, pillar_page: Layers,
   category_page: Network,
 };
 const pageTypeLabels: Record<string, string> = {
-  service_page: "Service Page", location_page: "Location Page", blog_post: "Blog Post",
+  core_service: "Core Service", sub_service: "Sub-Service", service_page: "Service Page",
+  location_page: "Location Page", blog_post: "Blog Post",
   comparison_page: "Comparison", faq_page: "FAQ Page", pillar_page: "Pillar Page",
   category_page: "Category Page",
 };
@@ -110,9 +114,12 @@ export default function KeywordResearch() {
 
   // Form state
   const [seedTopics, setSeedTopics] = useState("");
+  const [competitorDomains, setCompetitorDomains] = useState("");
   const [targetCount, setTargetCount] = useState("20");
+  const [customCount, setCustomCount] = useState("");
   const [targetLocation, setTargetLocation] = useState("Singapore");
-  const [businessPriority, setBusinessPriority] = useState("authority");
+  const [targetLanguage, setTargetLanguage] = useState("en");
+  const [businessPriority, setBusinessPriority] = useState("leads");
   const [providerMode, setProviderMode] = useState("mock");
 
   // ─── Queries ───
@@ -228,11 +235,12 @@ export default function KeywordResearch() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 max-w-[600px]">
+          <TabsList className="grid w-full grid-cols-6 max-w-[720px]">
             <TabsTrigger value="keywords" className="gap-1"><Search className="h-3.5 w-3.5" /> Keywords</TabsTrigger>
             <TabsTrigger value="clusters" className="gap-1"><Network className="h-3.5 w-3.5" /> Clusters</TabsTrigger>
             <TabsTrigger value="mapping" className="gap-1"><Map className="h-3.5 w-3.5" /> Page Map</TabsTrigger>
             <TabsTrigger value="structure" className="gap-1"><Layers className="h-3.5 w-3.5" /> Structure</TabsTrigger>
+            <TabsTrigger value="context" className="gap-1"><Shield className="h-3.5 w-3.5" /> Context</TabsTrigger>
             <TabsTrigger value="briefs" className="gap-1"><FileText className="h-3.5 w-3.5" /> Briefs</TabsTrigger>
           </TabsList>
 
@@ -451,7 +459,7 @@ export default function KeywordResearch() {
                     acc[type].push(m);
                     return acc;
                   }, {});
-                  const typeOrder = ["pillar_page", "service_page", "location_page", "category_page", "comparison_page", "blog_post", "faq_page"];
+                  const typeOrder = ["core_service", "sub_service", "pillar_page", "service_page", "location_page", "category_page", "comparison_page", "faq_page", "blog_post"];
                   const sorted = Object.entries(typeGroups).sort(([a], [b]) => typeOrder.indexOf(a) - typeOrder.indexOf(b));
 
                   return (
@@ -480,6 +488,114 @@ export default function KeywordResearch() {
                       {sorted.length === 0 && (
                         <p className="text-sm text-muted-foreground text-center py-8">No structure recommendations yet</p>
                       )}
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ─── Context Insights (Competitor + Audit) ─── */}
+          <TabsContent value="context" className="space-y-4">
+            {/* Competitor insights */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <ArrowLeftRight className="h-4 w-4 text-primary" /> Competitor Context
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(selectedJob as any)?.competitor_insights?.length > 0 ? (
+                  <div className="space-y-3">
+                    {((selectedJob as any).competitor_insights as Array<{ domain: string; finding: string; impact: string; priority: string }>).map((ins, i) => (
+                      <div key={i} className={`p-3 rounded-lg border-l-4 ${ins.priority === "high" ? "border-l-destructive bg-destructive/5" : ins.priority === "medium" ? "border-l-amber-500 bg-amber-500/5" : "border-l-muted-foreground bg-muted/30"}`}>
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{ins.finding}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{ins.impact}</p>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Badge variant="outline" className="text-[10px]">{ins.domain}</Badge>
+                            <Badge variant="outline" className={priorityColors[ins.priority]}>{ins.priority}</Badge>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Shield className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">No competitor context available. Add competitor domains when starting research to get gap insights.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Own-site audit insights */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-500" /> Own-Site Audit Insights
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(selectedJob as any)?.audit_insights?.length > 0 ? (
+                  <div className="space-y-3">
+                    {((selectedJob as any).audit_insights as Array<{ page: string; issue: string; recommendation: string; severity: string }>).map((ins, i) => (
+                      <div key={i} className="p-3 rounded-lg border hover:bg-muted/30 transition-colors">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{ins.issue}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{ins.recommendation}</p>
+                            <p className="text-xs font-mono text-muted-foreground/70 mt-1">{ins.page}</p>
+                          </div>
+                          <Badge variant="outline" className={ins.severity === "critical" ? "text-destructive border-destructive/30" : ins.severity === "warning" ? "text-amber-600 border-amber-300" : ""}>{ins.severity}</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Info className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">No audit insights available. Run a technical audit for this domain to surface page-level issues.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Service page priority summary */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" /> Service Page Priority Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  const serviceTypes = ["core_service", "sub_service", "service_page"];
+                  const serviceMappings = mappings.filter(m => serviceTypes.includes(m.page_type));
+                  const locationMappings = mappings.filter(m => m.page_type === "location_page");
+                  const supportMappings = mappings.filter(m => !serviceTypes.includes(m.page_type) && m.page_type !== "location_page");
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 text-center">
+                        <Target className="h-6 w-6 mx-auto text-primary mb-2" />
+                        <p className="text-2xl font-bold text-foreground">{serviceMappings.length}</p>
+                        <p className="text-xs text-muted-foreground">Service Pages</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">{serviceMappings.filter(m => m.is_existing).length} existing · {serviceMappings.filter(m => !m.is_existing).length} new</p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20 text-center">
+                        <MapPin className="h-6 w-6 mx-auto text-amber-500 mb-2" />
+                        <p className="text-2xl font-bold text-foreground">{locationMappings.length}</p>
+                        <p className="text-xs text-muted-foreground">Location Pages</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">{locationMappings.filter(m => m.is_existing).length} existing · {locationMappings.filter(m => !m.is_existing).length} new</p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-muted/50 border text-center">
+                        <FileText className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+                        <p className="text-2xl font-bold text-foreground">{supportMappings.length}</p>
+                        <p className="text-xs text-muted-foreground">Support Content</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">Blog, FAQ, Comparison</p>
+                      </div>
                     </div>
                   );
                 })()}
@@ -659,33 +775,60 @@ export default function KeywordResearch() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
-                <label className="text-sm font-medium block mb-1.5">Seed Topics / Keywords *</label>
+                <label className="text-sm font-medium block mb-1.5">Seed Services / Keywords *</label>
                 <Input
                   placeholder="e.g., seo agency, web design, digital marketing"
                   value={seedTopics}
                   onChange={e => setSeedTopics(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground mt-1">Comma-separated topics to research</p>
+                <p className="text-xs text-muted-foreground mt-1">Comma-separated services or topics — service pages are prioritized first</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium block mb-1.5">Competitor Domains (optional)</label>
+                <Input
+                  placeholder="e.g., competitor-one.com, rival-agency.sg"
+                  value={competitorDomains}
+                  onChange={e => setCompetitorDomains(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Comma-separated — used for gap analysis and page structure comparison</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-sm font-medium block mb-1.5">Target Count</label>
-                  <Select value={targetCount} onValueChange={setTargetCount}>
+                  <Select value={targetCount} onValueChange={v => { setTargetCount(v); if (v !== "custom") setCustomCount(""); }}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="10">10 keywords</SelectItem>
                       <SelectItem value="20">20 keywords</SelectItem>
                       <SelectItem value="40">40 keywords</SelectItem>
                       <SelectItem value="100">100 keywords</SelectItem>
+                      <SelectItem value="custom">Custom</SelectItem>
                     </SelectContent>
                   </Select>
+                  {targetCount === "custom" && (
+                    <Input type="number" min={5} max={500} placeholder="Enter count" value={customCount} onChange={e => setCustomCount(e.target.value)} className="mt-2" />
+                  )}
                 </div>
                 <div>
                   <label className="text-sm font-medium block mb-1.5">Location</label>
                   <Input value={targetLocation} onChange={e => setTargetLocation(e.target.value)} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-sm font-medium block mb-1.5">Language</label>
+                  <Select value={targetLanguage} onValueChange={setTargetLanguage}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="zh">Chinese</SelectItem>
+                      <SelectItem value="ms">Malay</SelectItem>
+                      <SelectItem value="ta">Tamil</SelectItem>
+                      <SelectItem value="es">Spanish</SelectItem>
+                      <SelectItem value="fr">French</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div>
                   <label className="text-sm font-medium block mb-1.5">Business Priority</label>
                   <Select value={businessPriority} onValueChange={setBusinessPriority}>
@@ -717,8 +860,10 @@ export default function KeywordResearch() {
                   client_id: clientId,
                   domain: activeClient?.domain || "",
                   seed_topics: seedTopics.split(",").map(s => s.trim()).filter(Boolean),
-                  target_count: Number(targetCount),
+                  competitor_domains: competitorDomains ? competitorDomains.split(",").map(s => s.trim()).filter(Boolean) : [],
+                  target_count: targetCount === "custom" ? Number(customCount) || 20 : Number(targetCount),
                   target_location: targetLocation,
+                  target_language: targetLanguage,
                   business_priority: businessPriority,
                   provider: providerMode,
                 })}
