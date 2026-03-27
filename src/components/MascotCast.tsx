@@ -71,14 +71,17 @@ export function MascotHeroBanner({
                   animate={{ y: [0, -3, 0] }}
                   transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <div className="h-28 w-28 lg:h-32 lg:w-32 overflow-hidden shrink-0 drop-shadow-xl group-hover:drop-shadow-2xl transition-all duration-300 group-hover:scale-105">
-                    <img
-                      src={m.img}
-                      alt={`${m.name} – ${m.role}`}
-                      className="h-full w-full object-cover object-top"
-                      width={1024}
-                      height={1024}
-                    />
+                  <div className="relative h-28 w-28 lg:h-32 lg:w-32 shrink-0 group-hover:scale-105 transition-all duration-300">
+                    <div className={`absolute inset-2 rounded-full bg-gradient-to-t ${m.bgGradient} blur-xl opacity-60 group-hover:opacity-80 transition-opacity`} />
+                    <div className="relative h-full w-full overflow-hidden drop-shadow-xl group-hover:drop-shadow-2xl">
+                      <img
+                        src={m.img}
+                        alt={`${m.name} – ${m.role}`}
+                        className="h-full w-full object-cover object-top"
+                        width={1024}
+                        height={1024}
+                      />
+                    </div>
                   </div>
                   {/* Name tag */}
                   <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap">
@@ -142,15 +145,18 @@ export function MascotSectionHeader({
             animate={{ y: [0, -2, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="h-16 w-16 lg:h-20 lg:w-20 overflow-hidden shrink-0 drop-shadow-lg">
-              <img
-                src={m.img}
-                alt={`${m.name} – ${m.role}`}
-                className="h-full w-full object-cover object-top"
-                loading="lazy"
-                width={1024}
-                height={1024}
-              />
+            <div className="relative h-16 w-16 lg:h-20 lg:w-20 shrink-0">
+              <div className={`absolute inset-1 rounded-full bg-gradient-to-t ${m.bgGradient} blur-lg opacity-50`} />
+              <div className="relative h-full w-full overflow-hidden drop-shadow-lg">
+                <img
+                  src={m.img}
+                  alt={`${m.name} – ${m.role}`}
+                  className="h-full w-full object-cover object-top"
+                  loading="lazy"
+                  width={1024}
+                  height={1024}
+                />
+              </div>
             </div>
           </motion.div>
         </motion.div>
@@ -194,15 +200,18 @@ export function MascotEmptyState({
           animate={{ y: [0, -4, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          <div className="h-28 w-28 overflow-hidden mx-auto mb-4 drop-shadow-xl">
-            <img
-              src={m.img}
-              alt={m.name}
-              className="h-full w-full object-cover object-top"
-              loading="lazy"
-              width={1024}
-              height={1024}
-            />
+          <div className="relative h-28 w-28 mx-auto mb-4">
+            <div className={`absolute inset-2 rounded-full bg-gradient-to-t ${m.bgGradient} blur-xl opacity-60`} />
+            <div className="relative h-full w-full overflow-hidden drop-shadow-xl">
+              <img
+                src={m.img}
+                alt={m.name}
+                className="h-full w-full object-cover object-top"
+                loading="lazy"
+                width={1024}
+                height={1024}
+              />
+            </div>
           </div>
         </motion.div>
       </motion.div>
