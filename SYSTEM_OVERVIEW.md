@@ -14,7 +14,7 @@
 - **Content** — briefs, drafts, approvals, publishing
 - **Analytics & Reporting** — GA4/GSC performance, attribution, scheduled reports
 
-**NOT in scope:** CRM, helpdesk, inbox, Chatwoot-style conversations, deal pipelines, contact management, support ticketing. These were removed in v6.0.
+**NOT in scope:** CRM, helpdesk, inbox, deal pipelines, contact management, support ticketing. These were removed in v6.0.
 
 ---
 
@@ -270,7 +270,7 @@ Tables needed (from existing migrations 001–040):
 ### Onboarding: `onboarding_sessions`, `setup_templates`, `activation_checklist_items`
 ### SaaS: `subscription_plans`, `workspace_subscriptions`, `usage_records`
 
-**Removed tables** (CRM/inbox/Chatwoot):
+**Removed tables** (CRM/inbox — fully de-scoped):
 - ~~`crm_contacts`~~, ~~`crm_deals`~~, ~~`crm_activities`~~, ~~`crm_insights`~~
 - ~~`conversations`~~, ~~`messages`~~, ~~`inboxes`~~
 - ~~`automation_rules`~~, ~~`canned_responses`~~
@@ -339,7 +339,7 @@ Tables needed (from existing migrations 001–040):
 ## 11. Removed (v6.0)
 
 - CRM module (contacts, deals, activities, pipeline)
-- Inbox/conversation module (Chatwoot-style)
+- Inbox/conversation module
 - Knowledge Base
 - Automations (event-driven rules)
 - CSAT Dashboard

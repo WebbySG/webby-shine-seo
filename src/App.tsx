@@ -88,7 +88,7 @@ const App = () => (
                 <Route path="/local-seo" element={<LocalSEO />} />
                 <Route path="/creative" element={<CreativeAssets />} />
                 <Route path="/google-ads" element={<GoogleAds />} />
-                <Route path="/crm" element={<Navigate to="/analytics" replace />} />
+                
                 <Route path="/settings" element={<WorkspaceSettings />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/ai-visibility" element={<AiVisibility />} />
@@ -100,14 +100,12 @@ const App = () => (
                 <Route path="/brief-workflow" element={<BriefWorkflow />} />
                 <Route path="/social-media" element={<SocialMedia />} />
                 <Route path="/videos" element={<VideoAssets />} />
-                <Route path="/inbox" element={<Navigate to="/" replace />} />
-                <Route path="/automations" element={<Navigate to="/" replace />} />
-                <Route path="/knowledge-base" element={<Navigate to="/" replace />} />
+                
                 <Route path="/backlinks" element={<Backlinks />} />
                 <Route path="/schema-creator" element={<SchemaCreator />} />
                 <Route path="/site-explorer" element={<SiteExplorer />} />
                 <Route path="/serp-checker" element={<SerpChecker />} />
-                <Route path="/csat" element={<Navigate to="/" replace />} />
+                
                 <Route path="/operations" element={<Operations />} />
                 <Route path="/qa" element={<DemoQA />} />
                 {/* Redirects for old routes */}

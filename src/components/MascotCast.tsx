@@ -15,7 +15,7 @@ interface MascotInfo {
 
 export const MASCOTS: Record<MascotRole, MascotInfo> = {
   seo: {
-    name: "Sera",
+    name: "Leo",
     role: "SEO Director",
     img: seoDirectorImg,
     accent: "text-primary",

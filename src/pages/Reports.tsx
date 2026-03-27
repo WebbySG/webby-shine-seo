@@ -26,7 +26,7 @@ const SECTION_ICONS: Record<string, any> = {
   content_published: FileText,
   gbp_activity: MapPin,
   analytics_performance: BarChart3,
-  leads_crm_summary: Users,
+  leads_attribution: Users,
   ads_summary: Megaphone,
   next_priorities: Target,
 };
@@ -38,7 +38,7 @@ const SECTION_COLORS: Record<string, string> = {
   content_published: "text-content-primary",
   gbp_activity: "text-gbp-primary",
   analytics_performance: "text-analytics-primary",
-  leads_crm_summary: "text-crm-primary",
+  leads_attribution: "text-analytics-primary",
   ads_summary: "text-ads-primary",
   next_priorities: "text-primary",
 };
@@ -59,14 +59,14 @@ const DEMO_TEMPLATES = [
     { key: "content_published", title: "Content & Posts Published", enabled: true, order: 4 },
     { key: "next_priorities", title: "Next Priorities", enabled: true, order: 5 },
   ], is_default: true },
-  { id: "t3", name: "Full Marketing Performance Report", template_type: "full_marketing", description: "Complete report covering SEO, content, GBP, analytics, CRM, and ads.", sections: [
+  { id: "t3", name: "Full Marketing Performance Report", template_type: "full_marketing", description: "Complete report covering SEO, content, GBP, analytics, attribution, and ads.", sections: [
     { key: "keyword_movement", title: "Keyword Rankings", enabled: true, order: 1 },
     { key: "top_gainers_losers", title: "Top Gainers & Losers", enabled: true, order: 2 },
     { key: "technical_fixes", title: "Technical Fixes", enabled: true, order: 3 },
     { key: "content_published", title: "Content Published", enabled: true, order: 4 },
     { key: "gbp_activity", title: "GBP Activity", enabled: true, order: 5 },
     { key: "analytics_performance", title: "Analytics Performance", enabled: true, order: 6 },
-    { key: "leads_crm_summary", title: "Leads & CRM Summary", enabled: true, order: 7 },
+    { key: "leads_attribution", title: "Leads & Attribution", enabled: true, order: 7 },
     { key: "ads_summary", title: "Ads Performance", enabled: true, order: 8 },
     { key: "next_priorities", title: "Next Priorities", enabled: true, order: 9 },
   ], is_default: true },

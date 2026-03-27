@@ -370,17 +370,8 @@ export default function OnboardingWizard() {
                               </PreviewSection>
                             )}
 
-                            {config.crm_pipeline?.length > 0 && (
-                              <PreviewSection icon={Users} title="CRM Pipeline">
-                                <div className="flex flex-wrap gap-1.5">
-                                  {config.crm_pipeline.map((s: any, i: number) => (
-                                    <Badge key={s.stage} variant="outline" className="text-xs font-normal">
-                                      {i + 1}. {s.stage}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </PreviewSection>
-                            )}
+
+
 
                             {config.weekly_plan_defaults?.length > 0 && (
                               <PreviewSection icon={CheckCircle2} title="Weekly Action Plan">
@@ -443,9 +434,8 @@ export default function OnboardingWizard() {
                         {selectedTemplate.config_json.ads_suggestions && (
                           <div className="flex items-center gap-1.5"><Megaphone className="h-3.5 w-3.5 text-primary" /> {selectedTemplate.config_json.ads_suggestions.length} ad campaigns</div>
                         )}
-                        {selectedTemplate.config_json.crm_pipeline && (
-                          <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-primary" /> {selectedTemplate.config_json.crm_pipeline.length}-stage CRM pipeline</div>
-                        )}
+
+
                         {selectedTemplate.config_json.weekly_plan_defaults && (
                           <div className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Weekly action plan</div>
                         )}
@@ -464,8 +454,7 @@ export default function OnboardingWizard() {
                     <li>• Starter keywords will be seeded</li>
                     <li>• Content topics will be generated</li>
                     <li>• Service pages will be recommended</li>
-                    <li>• Ad campaigns will be configured</li>
-                    <li>• CRM pipeline will be initialized</li>
+                    <li>• Activation checklist will be ready</li>
                     <li>• Activation checklist will be ready</li>
                   </ul>
                 </div>
