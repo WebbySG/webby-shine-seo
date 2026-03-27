@@ -569,6 +569,23 @@ The background worker (`backend/src/worker.ts`) runs scheduled jobs:
 36. ✅ Premium dark/light UI with animations
 37. ✅ Background worker with 14 scheduled jobs
 38. ✅ Docker Compose deployment
+39. ✅ Omnichannel inbox (Chatwoot-style conversations)
+40. ✅ Knowledge base with categories
+41. ✅ Event-driven automation rules
+42. ✅ CSAT survey dashboard
+43. ✅ Backlink monitoring
+44. ✅ Site explorer / domain overview
+45. ✅ SERP position checker
+46. ✅ Schema markup generator
+47. ✅ AI content rewriter
+48. ✅ Content scoring engine (NLP-based)
+49. ✅ Topical map creator with clustering
+50. ✅ Bulk AI content generation
+51. ✅ AI visibility tracking (LLM citations)
+52. ✅ Content calendar with drag-and-drop rescheduling
+53. ✅ Global client context (persistent selection across all modules)
+54. ✅ Consolidated Operations page (jobs + activity log)
+55. ✅ Consolidated Content Studio (scoring + rewriter)
 
 ---
 
