@@ -235,8 +235,8 @@ export function MascotBanner({
       exit={{ opacity: 0, y: -8 }}
       className={`flex items-center gap-3 rounded-xl border ${borderColor} border-l-4 bg-card/80 backdrop-blur-sm p-3 shadow-sm`}
     >
-      <div className="h-10 w-10 rounded-lg bg-muted/30 overflow-hidden shrink-0">
-        <img src={m.img} alt={m.name} className="h-full w-full object-cover object-top" loading="lazy" width={512} height={512} />
+      <div className="h-12 w-12 overflow-hidden shrink-0 drop-shadow-md">
+        <img src={m.img} alt={m.name} className="h-full w-full object-cover object-top" loading="lazy" width={1024} height={1024} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs text-foreground leading-relaxed">{message}</p>
