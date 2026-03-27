@@ -1,5 +1,0 @@
-// Inbox module removed — product refocused on SEO/SEM/SMM.
-import { Navigate } from "react-router-dom";
-export default function Inbox() {
-  return <Navigate to="/" replace />;
-}
