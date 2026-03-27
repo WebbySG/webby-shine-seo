@@ -102,6 +102,7 @@ export function AppLayout() {
               <Outlet />
             </main>
           </div>
+          <AiMascot />
         </div>
       </SidebarProvider>
     </ClientProvider>

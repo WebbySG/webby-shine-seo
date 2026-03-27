@@ -105,11 +105,10 @@ export default {
           background: "hsl(var(--ads-background))",
           border: "hsl(var(--ads-border))",
         },
-        crm: {
-          primary: "hsl(var(--crm-primary))",
-          secondary: "hsl(var(--crm-secondary))",
-          background: "hsl(var(--crm-background))",
-          border: "hsl(var(--crm-border))",
+        ai: {
+          accent: "hsl(var(--ai-accent))",
+          "accent-muted": "hsl(var(--ai-accent-muted))",
+          glow: "hsl(var(--ai-glow))",
         },
         analytics: {
           primary: "hsl(var(--analytics-primary))",
