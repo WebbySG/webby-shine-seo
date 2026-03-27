@@ -200,15 +200,18 @@ export function MascotEmptyState({
           animate={{ y: [0, -4, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          <div className="h-28 w-28 overflow-hidden mx-auto mb-4 drop-shadow-xl">
-            <img
-              src={m.img}
-              alt={m.name}
-              className="h-full w-full object-cover object-top"
-              loading="lazy"
-              width={1024}
-              height={1024}
-            />
+          <div className="relative h-28 w-28 mx-auto mb-4">
+            <div className={`absolute inset-2 rounded-full bg-gradient-to-t ${m.bgGradient} blur-xl opacity-60`} />
+            <div className="relative h-full w-full overflow-hidden drop-shadow-xl">
+              <img
+                src={m.img}
+                alt={m.name}
+                className="h-full w-full object-cover object-top"
+                loading="lazy"
+                width={1024}
+                height={1024}
+              />
+            </div>
           </div>
         </motion.div>
       </motion.div>
