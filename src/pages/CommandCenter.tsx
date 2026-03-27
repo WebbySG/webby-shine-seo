@@ -29,7 +29,7 @@ const MODULE_COLORS: Record<string, string> = {
   paid_ads: "bg-ads-background text-ads-primary border-ads-border",
   analytics: "bg-analytics-background text-analytics-primary border-analytics-border",
   social: "bg-social-background text-social-primary border-social-border",
-  crm: "bg-crm-background text-crm-primary border-crm-border",
+  
 };
 
 export default function CommandCenter() {

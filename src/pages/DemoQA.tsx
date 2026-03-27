@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   CheckCircle2, Circle, AlertTriangle, RotateCcw, ClipboardList,
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, TrendingUp,
-  MapPin, Paintbrush, DollarSign, Command, Handshake, FileText,
+  MapPin, Paintbrush, DollarSign, Command, FileText,
   Share2, Video, LogIn, Rocket,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -79,11 +79,6 @@ const qaChecklist: CheckItem[] = [
   { id: "ads-page", label: "Google Ads page loads", route: "/google-ads", category: "Google Ads" },
   { id: "ads-recs", label: "Recommendations display", route: "/google-ads", category: "Google Ads" },
 
-  // CRM
-  { id: "crm-contacts", label: "CRM contacts list with 5 leads", route: "/crm", category: "CRM" },
-  { id: "crm-deals", label: "Deals pipeline with stages", route: "/crm", category: "CRM" },
-  { id: "crm-activities", label: "Activity feed loads", route: "/crm", category: "CRM" },
-
   // Command Center
   { id: "cmd-priorities", label: "Marketing priorities ranked", route: "/command-center", category: "Command Center" },
   { id: "cmd-plan", label: "Weekly action plan visible", route: "/command-center", category: "Command Center" },
@@ -117,7 +112,7 @@ const categoryIcons: Record<string, any> = {
   "Analytics": TrendingUp,
   "Local SEO": MapPin,
   "Google Ads": DollarSign,
-  "CRM": Handshake,
+  
   "Command Center": Command,
   "Settings": ClipboardList,
   "Client Portal": Users,

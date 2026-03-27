@@ -24,7 +24,6 @@ const PAGE_TITLES: Record<string, { label: string; module?: string }> = {
   "/local-seo": { label: "Local SEO", module: "gbp" },
   "/creative": { label: "Creative Assets", module: "content" },
   "/google-ads": { label: "Google Ads", module: "ads" },
-  "/crm": { label: "CRM", module: "crm" },
   "/settings": { label: "Settings" },
   "/content-studio": { label: "Content Studio", module: "content" },
   "/articles": { label: "Articles", module: "content" },
@@ -36,10 +35,6 @@ const PAGE_TITLES: Record<string, { label: string; module?: string }> = {
   "/schema-creator": { label: "Schema Creator", module: "seo" },
   "/topical-maps": { label: "Topical Maps", module: "content" },
   "/bulk-content": { label: "Bulk Content", module: "content" },
-  "/inbox": { label: "Inbox", module: "support" },
-  "/knowledge-base": { label: "Knowledge Base", module: "support" },
-  "/automations": { label: "Automations", module: "support" },
-  "/csat": { label: "CSAT", module: "support" },
   "/operations": { label: "Operations" },
   "/reports": { label: "Reports", module: "analytics" },
   "/ai-visibility": { label: "AI Visibility", module: "analytics" },
@@ -52,9 +47,7 @@ const MODULE_BADGE_STYLES: Record<string, string> = {
   analytics: "bg-analytics-background text-analytics-primary border-analytics-border",
   gbp: "bg-gbp-background text-gbp-primary border-gbp-border",
   ads: "bg-ads-background text-ads-primary border-ads-border",
-  crm: "bg-crm-background text-crm-primary border-crm-border",
   core: "bg-primary/10 text-primary border-primary/20",
-  support: "bg-primary/10 text-primary border-primary/20",
 };
 
 export function AppLayout() {
