@@ -866,18 +866,8 @@ const routes: DemoRoute[] = [
     { id: "sc2", keyword: "web design services", location: "Singapore", device: "desktop", checked_at: daysAgo(3) },
   ] },
 
-  // ── CSAT ──
-  { pattern: /^\/csat\/summary/, handler: () => ({ total: 24, avg_rating: 4.3, satisfied: 19, unsatisfied: 2 }) },
-  { pattern: /^\/csat$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, created_at: now }) },
-  { pattern: /^\/csat/, handler: () => [
-    { id: "csat1", rating: 5, feedback: "Excellent support! Quick response and very knowledgeable.", conversation_subject: "SEO pricing inquiry", created_at: daysAgo(2) },
-    { id: "csat2", rating: 4, feedback: "Good service, would appreciate faster turnaround on reports.", conversation_subject: "Monthly report request", created_at: daysAgo(5) },
-    { id: "csat3", rating: 5, feedback: "Love the detailed insights in the audit report!", conversation_subject: "Technical audit review", created_at: daysAgo(8) },
-    { id: "csat4", rating: 3, feedback: "Support was okay but took a while to resolve my issue.", conversation_subject: "GBP listing issue", created_at: daysAgo(12) },
-    { id: "csat5", rating: 5, feedback: null, conversation_subject: "Content strategy call", created_at: daysAgo(15) },
-    { id: "csat6", rating: 2, feedback: "Had to follow up multiple times. Not great experience.", conversation_subject: "Billing question", created_at: daysAgo(18) },
-    { id: "csat7", rating: 4, feedback: "Very professional team. Clear communication.", conversation_subject: "New project setup", created_at: daysAgo(20) },
-  ] },
+
+
 
   // ── Health check ──
   { pattern: /^\/health$/, handler: () => ({ status: "ok", timestamp: now, demo: true }) },
