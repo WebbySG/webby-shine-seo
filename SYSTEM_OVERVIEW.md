@@ -434,8 +434,9 @@ The platform uses a persistent `activeClientId` managed via `ClientContext` (`sr
 ### Key Components
 | Component | Purpose |
 |-----------|---------|
-| `AppLayout.tsx` | Main authenticated layout with sidebar |
-| `AppSidebar.tsx` | Navigation sidebar with module groups |
+| `AppLayout.tsx` | Main authenticated layout with sidebar + global client selector |
+| `AppSidebar.tsx` | Navigation sidebar with 8 module groups |
+| `GlobalClientSelector.tsx` | Persistent client dropdown in header |
 | `ClientPortalLayout.tsx` | Client portal layout wrapper |
 | `ThemeProvider.tsx` | Dark/light theme management |
 | `ThemeToggle.tsx` | Theme switch button |
@@ -443,6 +444,18 @@ The platform uses a persistent `activeClientId` managed via `ClientContext` (`sr
 | `motion.tsx` | Framer Motion animation primitives (FadeIn, StaggerContainer, SlideIn, ScaleIn, PageTransition) |
 | `NavLink.tsx` | Navigation link component |
 | `RankChangeIndicator.tsx` | Rank position change display |
+
+### Navigation Groups (AppSidebar)
+| Group | Modules |
+|-------|---------|
+| Core | Dashboard, Command Center |
+| SEO | Rankings, Audit, Opportunities, Backlinks, Site Explorer, SERP Checker, AI Visibility |
+| Content | Content Studio, Topical Maps, Bulk Content, Articles |
+| Publish | Social Media, Videos, Calendar, Schema Creator |
+| Channels | Creative Assets, Local SEO, Google Ads |
+| Support | Inbox, Knowledge Base, Automations, CSAT |
+| Business | CRM, Clients, Reports |
+| System | Operations, Settings |
 
 ---
 
