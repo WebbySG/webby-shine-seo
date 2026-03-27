@@ -83,7 +83,7 @@
     --gradient-seo: linear-gradient(135deg, hsl(var(--seo-primary)), hsl(var(--seo-secondary)));
     --gradient-content: linear-gradient(135deg, hsl(var(--content-primary)), hsl(var(--content-secondary)));
     --gradient-social: linear-gradient(135deg, hsl(var(--social-primary)), hsl(var(--social-secondary)));
-    --gradient-crm: linear-gradient(135deg, hsl(var(--crm-primary)), hsl(var(--crm-secondary)));
+    --gradient-ai: linear-gradient(135deg, hsl(239 84% 67%), hsl(192 91% 52%));
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
