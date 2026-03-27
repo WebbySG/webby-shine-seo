@@ -141,6 +141,36 @@
 | `scheduled_reports` | Recurring report schedules |
 | `report_runs` | Generated report instances |
 
+### AI Visibility (Migration 035)
+| Table | Purpose |
+|-------|---------|
+| `ai_visibility_snapshots` | AI citation tracking across LLMs |
+| `ai_visibility_queries` | Tracked queries for AI search engines |
+
+### Content Engine (Migration 036)
+| Table | Purpose |
+|-------|---------|
+| `content_scores` | NLP-based content quality scores |
+| `topical_maps` | Seed-to-cluster topic strategy maps |
+| `bulk_content_jobs` | Batch article generation job queue |
+
+### Omnichannel Support (Migration 037)
+| Table | Purpose |
+|-------|---------|
+| `conversations` | Multi-channel inbox threads |
+| `messages` | Individual messages within conversations |
+| `inboxes` | Channel configurations (email, chat, social) |
+| `automation_rules` | Event-driven workflow automations |
+| `canned_responses` | Reusable reply templates |
+| `kb_categories` | Knowledge base category hierarchy |
+| `kb_articles` | Knowledge base articles |
+| `backlinks` | Backlink monitoring records |
+| `schema_markups` | Structured data / schema markup templates |
+| `content_rewrites` | AI content rewriting history |
+| `domain_overviews` | Site explorer domain analysis cache |
+| `serp_checks` | SERP position checker results |
+| `csat_responses` | Customer satisfaction survey responses |
+
 ---
 
 ## 4. Backend Services
