@@ -270,7 +270,7 @@ Tables needed (from existing migrations 001–040):
 ### Onboarding: `onboarding_sessions`, `setup_templates`, `activation_checklist_items`
 ### SaaS: `subscription_plans`, `workspace_subscriptions`, `usage_records`
 
-**Removed tables** (CRM/inbox/Chatwoot):
+**Removed tables** (CRM/inbox — fully de-scoped):
 - ~~`crm_contacts`~~, ~~`crm_deals`~~, ~~`crm_activities`~~, ~~`crm_insights`~~
 - ~~`conversations`~~, ~~`messages`~~, ~~`inboxes`~~
 - ~~`automation_rules`~~, ~~`canned_responses`~~
