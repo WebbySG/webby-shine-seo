@@ -196,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, workspace, roles, permissions, token, isLoading, isAuthenticated, isAgency, isClientUser, isDemoMode, login, register, logout, hasPermission, hasRole, toggleDemoMode }}
+      value={{ user, workspace, clientId: workspace?.id || "00000000-0000-0000-0000-000000000001", roles, permissions, token, isLoading, isAuthenticated, isAgency, isClientUser, isDemoMode, login, register, logout, hasPermission, hasRole, toggleDemoMode }}
     >
       {children}
     </AuthContext.Provider>
