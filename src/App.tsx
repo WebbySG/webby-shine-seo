@@ -47,6 +47,7 @@ import Articles from "@/pages/Articles";
 import SocialMedia from "@/pages/SocialMedia";
 import VideoAssets from "@/pages/VideoAssets";
 import ContentCalendar from "@/pages/ContentCalendar";
+import KeywordResearch from "@/pages/KeywordResearch";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
