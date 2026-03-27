@@ -34,6 +34,15 @@ import aiVisibilityRouter from "./routes/ai-visibility.js";
 import topicalMapsRouter from "./routes/topical-maps.js";
 import contentScoreRouter from "./routes/content-score.js";
 import bulkContentRouter from "./routes/bulk-content.js";
+import inboxRouter from "./routes/inbox.js";
+import automationsRouter from "./routes/automations.js";
+import knowledgeBaseRouter from "./routes/knowledge-base.js";
+import backlinksRouter from "./routes/backlinks.js";
+import schemaMarkupRouter from "./routes/schema-markup.js";
+import contentRewriterRouter from "./routes/content-rewriter.js";
+import siteExplorerRouter from "./routes/site-explorer.js";
+import serpCheckerRouter from "./routes/serp-checker.js";
+import csatRouter from "./routes/csat.js";
 import { authLimiter, aiLimiter, publishLimiter, generalLimiter } from "./middleware/rateLimiter.js";
 
 dotenv.config();
