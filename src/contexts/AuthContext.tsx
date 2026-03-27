@@ -64,7 +64,7 @@ const DEMO_WORKSPACE: Workspace = {
 const ALL_PERMISSIONS = [
   "view_dashboard", "manage_clients", "manage_articles", "approve_articles",
   "publish_articles", "manage_social", "manage_videos", "manage_gbp",
-  "manage_ads", "view_analytics", "view_crm", "manage_crm", "view_billing",
+  "manage_ads", "view_analytics", "view_billing",
   "manage_branding", "manage_team", "manage_settings",
 ];
 

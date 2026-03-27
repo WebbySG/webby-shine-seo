@@ -242,38 +242,8 @@ const gbpReviews = [
   { id: "gbp-r2", client_id: DEMO_CLIENT_ID, review_id: "rev-2", reviewer_name: "Sarah L.", rating: 4, review_text: "Good service, communication could be faster.", review_date: daysAgo(3), response_draft: null, response_status: "pending", created_at: daysAgo(3) },
 ];
 
-// ─── CRM ───
-// 🔌 API: GET /api/clients/:id/crm/contacts, crm/deals, crm/activities, crm/insights
-const crmContacts = [
-  { id: "crm-c1", client_id: DEMO_CLIENT_ID, first_name: "Michael", last_name: "Chen", full_name: "Michael Chen", email: "michael@techcorp.sg", phone: "+65 9123 4567", company_name: "TechCorp SG", job_title: "Marketing Director", status: "qualified", source_type: "organic", lead_source: "Website Contact Form", notes: "Interested in monthly SEO retainer", created_at: daysAgo(20), updated_at: daysAgo(5) },
-  { id: "crm-c2", client_id: DEMO_CLIENT_ID, first_name: "Lisa", last_name: "Wong", full_name: "Lisa Wong", email: "lisa@greenstart.co", phone: "+65 8765 4321", company_name: "GreenStart Co", job_title: "CEO", status: "lead", source_type: "referral", lead_source: "Partner Referral", notes: "Needs local SEO + GBP management", created_at: daysAgo(7), updated_at: daysAgo(2) },
-  { id: "crm-c3", client_id: DEMO_CLIENT_ID, first_name: "David", last_name: "Tan", full_name: "David Tan", email: "david@retailhub.sg", phone: null, company_name: "RetailHub SG", job_title: "E-commerce Manager", status: "customer", source_type: "paid", lead_source: "Google Ads", notes: null, created_at: daysAgo(45), updated_at: daysAgo(10) },
-  { id: "crm-c4", client_id: DEMO_CLIENT_ID, first_name: "Rachel", last_name: "Lim", full_name: "Rachel Lim", email: "rachel@beautyhq.sg", phone: "+65 9876 5432", company_name: "BeautyHQ SG", job_title: "Owner", status: "new", source_type: "organic", lead_source: "Website Contact Form", notes: "Interested in social media marketing", created_at: daysAgo(2), updated_at: daysAgo(1) },
-  { id: "crm-c5", client_id: DEMO_CLIENT_ID, first_name: "James", last_name: "Ng", full_name: "James Ng", email: "james@lawfirm.sg", phone: "+65 8234 5678", company_name: "Ng & Associates", job_title: "Managing Partner", status: "contacted", source_type: "referral", lead_source: "Client Referral", notes: "Law firm, needs content marketing", created_at: daysAgo(10), updated_at: daysAgo(4) },
-];
-
-const crmDeals = [
-  { id: "crm-d1", client_id: DEMO_CLIENT_ID, contact_id: "crm-c1", deal_name: "TechCorp Monthly SEO", deal_value: 3500, deal_stage: "proposal_sent", pipeline_name: "Sales Pipeline", expected_close_date: daysAgo(-14), won_date: null, lost_reason: null, notes: "Proposal sent, awaiting feedback", contact_name: "Michael Chen", contact_email: "michael@techcorp.sg", created_at: daysAgo(15), updated_at: daysAgo(3) },
-  { id: "crm-d2", client_id: DEMO_CLIENT_ID, contact_id: "crm-c3", deal_name: "RetailHub E-commerce SEO", deal_value: 5000, deal_stage: "won", pipeline_name: "Sales Pipeline", expected_close_date: daysAgo(10), won_date: daysAgo(10), lost_reason: null, notes: "6-month contract signed", contact_name: "David Tan", contact_email: "david@retailhub.sg", created_at: daysAgo(45), updated_at: daysAgo(10) },
-  { id: "crm-d3", client_id: DEMO_CLIENT_ID, contact_id: "crm-c2", deal_name: "GreenStart Local SEO Package", deal_value: 2000, deal_stage: "qualified", pipeline_name: "Sales Pipeline", expected_close_date: daysAgo(-30), won_date: null, lost_reason: null, notes: "Discovery call scheduled", contact_name: "Lisa Wong", contact_email: "lisa@greenstart.co", created_at: daysAgo(5), updated_at: daysAgo(1) },
-  { id: "crm-d4", client_id: DEMO_CLIENT_ID, contact_id: "crm-c4", deal_name: "BeautyHQ Social Media Package", deal_value: 1500, deal_stage: "lead", pipeline_name: "Sales Pipeline", expected_close_date: daysAgo(-21), won_date: null, lost_reason: null, notes: "Initial inquiry via website", contact_name: "Rachel Lim", contact_email: "rachel@beautyhq.sg", created_at: daysAgo(2), updated_at: daysAgo(1) },
-  { id: "crm-d5", client_id: DEMO_CLIENT_ID, contact_id: "crm-c5", deal_name: "Ng & Associates Content Marketing", deal_value: 4200, deal_stage: "negotiation", pipeline_name: "Sales Pipeline", expected_close_date: daysAgo(-7), won_date: null, lost_reason: null, notes: "Negotiating scope and pricing", contact_name: "James Ng", contact_email: "james@lawfirm.sg", created_at: daysAgo(8), updated_at: daysAgo(2) },
-];
-
-const crmActivities = [
-  { id: "crm-a1", client_id: DEMO_CLIENT_ID, contact_id: "crm-c1", deal_id: "crm-d1", activity_type: "call", title: "Follow-up call with Michael", description: "Discuss proposal details and pricing", due_date: daysAgo(-1), completed_at: null, created_at: daysAgo(3) },
-  { id: "crm-a2", client_id: DEMO_CLIENT_ID, contact_id: "crm-c2", deal_id: "crm-d3", activity_type: "meeting", title: "Discovery call with Lisa", description: "Initial consultation for local SEO needs", due_date: daysAgo(-3), completed_at: null, created_at: daysAgo(5) },
-  { id: "crm-a3", client_id: DEMO_CLIENT_ID, contact_id: "crm-c3", deal_id: "crm-d2", activity_type: "email", title: "Send onboarding materials to David", description: null, due_date: daysAgo(2), completed_at: daysAgo(2), created_at: daysAgo(8) },
-  { id: "crm-a4", client_id: DEMO_CLIENT_ID, contact_id: "crm-c5", deal_id: "crm-d5", activity_type: "follow_up", title: "Send revised proposal to James", description: "Updated scope based on negotiation call", due_date: daysAgo(-2), completed_at: null, created_at: daysAgo(4) },
-  { id: "crm-a5", client_id: DEMO_CLIENT_ID, contact_id: "crm-c4", deal_id: "crm-d4", activity_type: "email", title: "Welcome email to Rachel", description: "Send intro email with capabilities deck", due_date: daysAgo(-1), completed_at: null, created_at: daysAgo(1) },
-];
-
-const crmInsights = [
-  { id: "ci1", client_id: DEMO_CLIENT_ID, insight_type: "deal_velocity", priority: "high", title: "TechCorp deal stalled in proposal stage", description: "Deal has been in proposal stage for 12 days with no activity", recommended_action: "Schedule follow-up call this week", status: "open", created_at: daysAgo(2) },
-  { id: "ci2", client_id: DEMO_CLIENT_ID, insight_type: "lead_quality", priority: "medium", title: "2 leads from referrals converting well", description: "Referral leads have 50% higher qualification rate than organic leads", recommended_action: "Consider launching a formal referral program", status: "open", created_at: daysAgo(3) },
-  { id: "ci3", client_id: DEMO_CLIENT_ID, insight_type: "pipeline_health", priority: "low", title: "Pipeline weighted value is $16,200", description: "5 active deals in various stages with good distribution", recommended_action: "Focus on moving negotiation-stage deals to close", status: "open", created_at: daysAgo(1) },
-];
-
+// ─── Attribution (lightweight, analytics-only) ───
+// 🔌 API: GET /api/clients/:id/attribution/overview
 const attributionOverview = {
   byChannel: [
     { channel: "organic", attribution_model: "first_touch", total_credit: 4, contacts: 4 },
@@ -331,10 +301,10 @@ const creativeAssets = [
 const activityLog = [
   { id: "al1", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "Demo Admin", action: "article_published", entity_type: "article", entity_id: "art1", summary: "Published 'Best SEO Agency in Singapore' to WordPress", metadata_json: {}, created_at: daysAgo(7) },
   { id: "al2", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "System", action: "rank_check_completed", entity_type: "client", entity_id: DEMO_CLIENT_ID, summary: "Rank check completed: 42 keywords tracked, 6 improved", metadata_json: {}, created_at: daysAgo(1) },
-  { id: "al3", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "Demo Admin", action: "deal_created", entity_type: "deal", entity_id: "crm-d1", summary: "Created deal 'TechCorp Monthly SEO' worth $3,500", metadata_json: {}, created_at: daysAgo(15) },
+  { id: "al3", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "Demo Admin", action: "brief_created", entity_type: "brief", entity_id: "br1", summary: "Created SEO brief for 'seo agency singapore'", metadata_json: {}, created_at: daysAgo(15) },
   { id: "al4", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "System", action: "social_post_published", entity_type: "social_post", entity_id: "sp1", summary: "Published social post to Facebook", metadata_json: {}, created_at: daysAgo(6) },
   { id: "al5", workspace_id: DEMO_WORKSPACE_ID, client_id: null, user_id: null, actor_name: "Demo Admin", action: "client_created", entity_type: "client", entity_id: DEMO_CLIENT_3, summary: "Created client 'Green Living Co'", metadata_json: {}, created_at: daysAgo(30) },
-  { id: "al6", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "Demo Admin", action: "crm_lead_captured", entity_type: "contact", entity_id: "crm-c4", summary: "New lead captured: Rachel Lim from BeautyHQ SG", metadata_json: {}, created_at: daysAgo(2) },
+  { id: "al6", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "System", action: "audit_completed", entity_type: "audit_run", entity_id: "arun1", summary: "Technical audit completed: 72 score, 7 issues found", metadata_json: {}, created_at: daysAgo(2) },
 ];
 
 // ─── Notifications ───
@@ -342,7 +312,7 @@ const notifications = [
   { id: "n1", workspace_id: DEMO_WORKSPACE_ID, user_id: null, type: "info", category: "publishing", title: "Article Published Successfully", message: "'Best SEO Agency in Singapore' is now live on WordPress", entity_type: "article", entity_id: "art1", is_read: false, created_at: daysAgo(7) },
   { id: "n2", workspace_id: DEMO_WORKSPACE_ID, user_id: null, type: "warning", category: "publishing", title: "Publishing Job Failed", message: "WordPress connection refused for TechStart Asia article", entity_type: "publishing_job", entity_id: "pj4", is_read: false, created_at: daysAgo(2) },
   { id: "n3", workspace_id: DEMO_WORKSPACE_ID, user_id: null, type: "info", category: "seo", title: "Rank Check Complete", message: "42 keywords checked — 6 improved, 2 declined", entity_type: "client", entity_id: DEMO_CLIENT_ID, is_read: true, created_at: daysAgo(1) },
-  { id: "n4", workspace_id: DEMO_WORKSPACE_ID, user_id: null, type: "info", category: "crm", title: "New Lead Captured", message: "Rachel Lim from BeautyHQ SG submitted a contact form", entity_type: "contact", entity_id: "crm-c4", is_read: false, created_at: daysAgo(2) },
+  { id: "n4", workspace_id: DEMO_WORKSPACE_ID, user_id: null, type: "info", category: "seo", title: "Keyword Research Complete", message: "15 keywords analyzed, 7 pages mapped for webby.sg", entity_type: "keyword_research", entity_id: "krj1", is_read: false, created_at: daysAgo(2) },
 ];
 
 // ─── AI Visibility ───
@@ -380,7 +350,7 @@ const aiVisOverview = {
 // ─── Report Templates ───
 const reportTemplates = [
   { id: "rt1", workspace_id: DEMO_WORKSPACE_ID, name: "Monthly SEO Report", description: "Comprehensive SEO performance overview", report_type: "seo", sections: ["rankings", "traffic", "audit", "opportunities"], is_default: true, created_at: daysAgo(60) },
-  { id: "rt2", workspace_id: DEMO_WORKSPACE_ID, name: "Full Marketing Report", description: "Cross-channel marketing performance", report_type: "full", sections: ["rankings", "traffic", "content", "social", "ads", "crm"], is_default: false, created_at: daysAgo(60) },
+  { id: "rt2", workspace_id: DEMO_WORKSPACE_ID, name: "Full Marketing Report", description: "Cross-channel marketing performance", report_type: "full", sections: ["rankings", "traffic", "content", "social", "ads", "attribution"], is_default: false, created_at: daysAgo(60) },
 ];
 
 const reportRuns = [
@@ -624,27 +594,16 @@ const routes: DemoRoute[] = [
   { pattern: /^\/clients\/[^/]+\/marketing-goals$/, handler: () => [] },
   { pattern: /^\/clients\/[^/]+\/priorities\/recompute$/, method: "POST", handler: () => ({ success: true, priorities_generated: 5 }) },
 
-  // ── CRM ──
-  // 🔌 API: POST /api/crm/contacts, PUT /api/crm/contacts/:id, etc.
-  { pattern: /^\/crm\/contacts$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, full_name: `${body?.first_name || ""} ${body?.last_name || ""}`.trim(), status: body?.status || "lead", created_at: now, updated_at: now }) },
-  { pattern: /^\/crm\/contacts\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...crmContacts[0], ...body, updated_at: now }) },
-  { pattern: /^\/crm\/contacts\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
-  { pattern: /^\/crm\/deals$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, created_at: now, updated_at: now }) },
-  { pattern: /^\/crm\/deals\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...crmDeals[0], ...body, updated_at: now }) },
-  { pattern: /^\/crm\/deals\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
-  { pattern: /^\/crm\/activities$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, completed_at: null, created_at: now }) },
-  { pattern: /^\/crm\/activities\/[^/]+\/complete$/, method: "PUT", handler: () => ({ ...crmActivities[2], completed_at: now }) },
-  { pattern: /^\/crm\/activities\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
-  { pattern: /^\/crm\/leads\/capture$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, status: "lead", created_at: now }) },
-  { pattern: /^\/crm\/insights\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...crmInsights[0], status: body?.status }) },
-  { pattern: /^\/clients\/[^/]+\/crm\/contacts$/, handler: () => crmContacts },
-  { pattern: /^\/clients\/[^/]+\/crm\/deals$/, handler: () => crmDeals },
-  { pattern: /^\/clients\/[^/]+\/crm\/activities$/, handler: () => crmActivities },
-  { pattern: /^\/clients\/[^/]+\/crm\/insights/, handler: () => crmInsights },
-  { pattern: /^\/clients\/[^/]+\/crm\/insights\/recompute$/, method: "POST", handler: () => ({ success: true }) },
+  // ── Attribution (analytics-only) ──
   { pattern: /^\/clients\/[^/]+\/attribution\/overview$/, handler: () => attributionOverview },
-  { pattern: /^\/clients\/[^/]+\/attribution\/contacts$/, handler: () => crmContacts.map(c => ({ ...c, channel: c.source_type, attribution_model: "first_touch", credit: 1, campaign_name: null, contact_status: c.status })) },
-  { pattern: /^\/clients\/[^/]+\/attribution\/deals$/, handler: () => crmDeals.map(d => ({ channel: "organic", attribution_model: "first_touch", credit: 1, campaign_name: null, deal_name: d.deal_name, deal_value: d.deal_value, deal_stage: d.deal_stage, won_date: d.won_date, contact_name: d.contact_name })) },
+  { pattern: /^\/clients\/[^/]+\/attribution\/contacts$/, handler: () => [
+    { id: "ac1", channel: "organic", attribution_model: "first_touch", credit: 1, campaign_name: null, full_name: "Website Lead", email: null, contact_status: "converted" },
+    { id: "ac2", channel: "paid", attribution_model: "first_touch", credit: 1, campaign_name: "SEO Services SG", full_name: "Ads Lead", email: null, contact_status: "converted" },
+  ] },
+  { pattern: /^\/clients\/[^/]+\/attribution\/deals$/, handler: () => [
+    { channel: "organic", attribution_model: "first_touch", credit: 1, campaign_name: null, deal_name: "SEO Retainer", deal_value: 3500, deal_stage: "won", won_date: daysAgo(10), contact_name: "Website Lead" },
+    { channel: "paid", attribution_model: "first_touch", credit: 1, campaign_name: "SEO Services SG", deal_name: "Ads Conversion", deal_value: 5000, deal_stage: "won", won_date: daysAgo(5), contact_name: "Ads Lead" },
+  ] },
   { pattern: /^\/clients\/[^/]+\/attribution\/recompute$/, method: "POST", handler: () => ({ success: true }) },
 
   // ── Reports ──
@@ -829,61 +788,8 @@ const routes: DemoRoute[] = [
   // ── Rankings (standalone) ──
   { pattern: /^\/rankings/, handler: () => keywords },
 
-  // ── Inbox / Conversations ──
-  { pattern: /^\/inbox\/conversations\/[^/]+\/messages$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), conversation_id: body?.conversation_id, message_type: "outgoing", content: body?.content, is_private: false, sender_name: "Demo Admin", time: "Just now", created_at: now }) },
-  { pattern: /^\/inbox\/conversations\/[^/]+$/, method: "PATCH", handler: (_m, body) => ({ status: body?.status || "resolved" }) },
-  { pattern: /^\/inbox\/conversations\/[^/]+$/, handler: () => ({
-    id: "conv1", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "Michael Chen", contact_email: "michael@techcorp.sg", channel: "live_chat", status: "open", priority: "high", messages_count: 4, assignee_name: "Demo Admin", tags: ["SEO", "Lead"], previous_count: 2, subject: "SEO pricing inquiry",
-    messages: [
-      { id: "m1", message_type: "incoming", content: "Hi, I'd like to know about your SEO services pricing for a medium-sized e-commerce site.", sender_name: "Michael Chen", time: "10:32 AM", is_private: false },
-      { id: "m2", message_type: "outgoing", content: "Hi Michael! Thanks for reaching out. For e-commerce SEO, we offer packages starting from $2,500/month. Could you share your website URL so I can provide a more accurate quote?", sender_name: "Demo Admin", time: "10:35 AM", is_private: false },
-      { id: "m3", message_type: "incoming", content: "Sure, it's techcorp.sg. We have about 500 product pages and target Singapore + Malaysia markets.", sender_name: "Michael Chen", time: "10:38 AM", is_private: false },
-      { id: "m4", message_type: "note", content: "Check competitor pricing for similar scope. Reviewed their site — good technical foundation, needs content strategy.", sender_name: "Demo Admin", time: "10:42 AM", is_private: true },
-    ],
-  }) },
-  { pattern: /^\/inbox\/conversations/, handler: () => [
-    { id: "conv1", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "Michael Chen", contact_email: "michael@techcorp.sg", channel: "live_chat", status: "open", priority: "high", subject: "SEO pricing inquiry", last_message: "Sure, it's techcorp.sg...", messages_count: 4, assignee_name: "Demo Admin", time_ago: "5m", tags: ["SEO", "Lead"], created_at: daysAgo(0) },
-    { id: "conv2", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb2", contact_name: "Lisa Wong", contact_email: "lisa@greenstart.co", channel: "email", status: "pending", priority: "medium", subject: "Monthly report request", last_message: "Could you send the latest performance report?", messages_count: 2, assignee_name: null, time_ago: "2h", tags: ["Report"], created_at: daysAgo(0) },
-    { id: "conv3", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "David Tan", contact_email: "david@retailhub.sg", channel: "live_chat", status: "resolved", priority: "low", subject: "GBP listing update", last_message: "Thanks, the update looks great!", messages_count: 6, assignee_name: "Demo Admin", time_ago: "1d", tags: ["GBP"], created_at: daysAgo(1) },
-    { id: "conv4", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb3", contact_name: "Rachel Lim", contact_email: "rachel@beautyhq.sg", channel: "whatsapp", status: "open", priority: "medium", subject: "Social media ad inquiry", last_message: "Can you help with Instagram ads?", messages_count: 1, assignee_name: null, time_ago: "30m", tags: [], created_at: daysAgo(0) },
-    { id: "conv5", workspace_id: DEMO_WORKSPACE_ID, inbox_id: "inb1", contact_name: "James Ng", contact_email: "james@lawfirm.sg", channel: "live_chat", status: "snoozed", priority: "low", subject: "Content strategy discussion", last_message: "I'll get back to you next week.", messages_count: 3, assignee_name: "Demo Admin", time_ago: "3d", tags: ["Content"], created_at: daysAgo(3) },
-  ] },
-  { pattern: /^\/inbox$/, handler: () => [
-    { id: "inb1", workspace_id: DEMO_WORKSPACE_ID, name: "Website Chat", channel: "live_chat", status: "active", widget_color: "#2563eb", welcome_message: "Hi! How can we help you?" },
-    { id: "inb2", workspace_id: DEMO_WORKSPACE_ID, name: "Support Email", channel: "email", status: "active" },
-    { id: "inb3", workspace_id: DEMO_WORKSPACE_ID, name: "WhatsApp Business", channel: "whatsapp", status: "active" },
-  ] },
-  { pattern: /^\/inbox\/canned-responses/, handler: () => [
-    { id: "cr1", short_code: "greeting", title: "Welcome Greeting", content: "Hi there! Thanks for reaching out. How can I help you today?", category: "General" },
-    { id: "cr2", short_code: "pricing", title: "Pricing Info", content: "Our SEO packages start from $1,500/month. Would you like me to prepare a custom quote based on your needs?", category: "Sales" },
-    { id: "cr3", short_code: "follow-up", title: "Follow Up", content: "Just checking in on our previous conversation. Do you have any questions?", category: "Sales" },
-  ] },
 
-  // ── Automations ──
-  { pattern: /^\/automations$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, is_active: true, execution_count: 0, created_at: now }) },
-  { pattern: /^\/automations\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
-  { pattern: /^\/automations/, handler: () => [
-    { id: "ar1", workspace_id: DEMO_WORKSPACE_ID, name: "Auto-assign SEO inquiries", description: "Route conversations mentioning SEO to the SEO team", event_type: "message_created", conditions: [{ attribute: "content", operator: "contains", value: "SEO" }], actions: [{ type: "assign", params: { team: "SEO Team" } }, { type: "add_tag", params: { tag: "SEO" } }], is_active: true, execution_count: 23, last_executed_at: daysAgo(0), created_at: daysAgo(30) },
-    { id: "ar2", workspace_id: DEMO_WORKSPACE_ID, name: "Welcome new contacts", description: "Send welcome message to new contacts", event_type: "contact_created", conditions: [], actions: [{ type: "send_message", params: { content: "Welcome! How can we help?" } }], is_active: true, execution_count: 15, last_executed_at: daysAgo(1), created_at: daysAgo(45) },
-    { id: "ar3", workspace_id: DEMO_WORKSPACE_ID, name: "Escalate urgent conversations", description: "Notify admin for urgent priority conversations", event_type: "conversation_created", conditions: [{ attribute: "priority", operator: "equals", value: "urgent" }], actions: [{ type: "notify", params: { channel: "slack" } }, { type: "assign", params: { user: "admin" } }], is_active: false, execution_count: 5, last_executed_at: daysAgo(7), created_at: daysAgo(20) },
-  ] },
 
-  // ── Knowledge Base ──
-  { pattern: /^\/knowledge-base\/articles\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...body, updated_at: now }) },
-  { pattern: /^\/knowledge-base\/articles\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
-  { pattern: /^\/knowledge-base\/articles$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, views_count: 0, helpful_count: 0, not_helpful_count: 0, status: "draft", created_at: now }) },
-  { pattern: /^\/knowledge-base\/articles/, handler: () => [
-    { id: "kb1", title: "How to Track Your SEO Rankings", slug: "track-seo-rankings", category_id: "kbc1", category_name: "Getting Started", status: "published", content: "# How to Track Your SEO Rankings\n\nSEO rankings...", views_count: 245, helpful_count: 32, not_helpful_count: 3, created_at: daysAgo(30) },
-    { id: "kb2", title: "Understanding Your Performance Reports", slug: "performance-reports", category_id: "kbc1", category_name: "Getting Started", status: "published", content: "# Performance Reports\n\nYour monthly reports...", views_count: 189, helpful_count: 28, not_helpful_count: 1, created_at: daysAgo(25) },
-    { id: "kb3", title: "Setting Up Google Business Profile", slug: "setup-gbp", category_id: "kbc2", category_name: "Local SEO", status: "published", content: "# GBP Setup Guide\n\n...", views_count: 312, helpful_count: 45, not_helpful_count: 5, created_at: daysAgo(20) },
-    { id: "kb4", title: "Content Brief Guidelines", slug: "content-briefs", category_id: "kbc3", category_name: "Content", status: "draft", content: "# Content Brief Guidelines\n\n...", views_count: 0, helpful_count: 0, not_helpful_count: 0, created_at: daysAgo(2) },
-  ] },
-  { pattern: /^\/knowledge-base\/categories$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, articles_count: 0, created_at: now }) },
-  { pattern: /^\/knowledge-base\/categories/, handler: () => [
-    { id: "kbc1", name: "Getting Started", description: "Basics for new clients", icon: "book", articles_count: 2 },
-    { id: "kbc2", name: "Local SEO", description: "GBP and local search guides", icon: "map-pin", articles_count: 1 },
-    { id: "kbc3", name: "Content", description: "Content creation and optimization", icon: "file-text", articles_count: 1 },
-  ] },
 
   // ── Backlinks ──
   { pattern: /^\/clients\/[^/]+\/backlinks\/summary$/, handler: () => ({ total: 156, referring_domains: 89, dofollow: 112, nofollow: 44, lost: 8, avg_da: 38.5 }) },
@@ -960,18 +866,8 @@ const routes: DemoRoute[] = [
     { id: "sc2", keyword: "web design services", location: "Singapore", device: "desktop", checked_at: daysAgo(3) },
   ] },
 
-  // ── CSAT ──
-  { pattern: /^\/csat\/summary/, handler: () => ({ total: 24, avg_rating: 4.3, satisfied: 19, unsatisfied: 2 }) },
-  { pattern: /^\/csat$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, created_at: now }) },
-  { pattern: /^\/csat/, handler: () => [
-    { id: "csat1", rating: 5, feedback: "Excellent support! Quick response and very knowledgeable.", conversation_subject: "SEO pricing inquiry", created_at: daysAgo(2) },
-    { id: "csat2", rating: 4, feedback: "Good service, would appreciate faster turnaround on reports.", conversation_subject: "Monthly report request", created_at: daysAgo(5) },
-    { id: "csat3", rating: 5, feedback: "Love the detailed insights in the audit report!", conversation_subject: "Technical audit review", created_at: daysAgo(8) },
-    { id: "csat4", rating: 3, feedback: "Support was okay but took a while to resolve my issue.", conversation_subject: "GBP listing issue", created_at: daysAgo(12) },
-    { id: "csat5", rating: 5, feedback: null, conversation_subject: "Content strategy call", created_at: daysAgo(15) },
-    { id: "csat6", rating: 2, feedback: "Had to follow up multiple times. Not great experience.", conversation_subject: "Billing question", created_at: daysAgo(18) },
-    { id: "csat7", rating: 4, feedback: "Very professional team. Clear communication.", conversation_subject: "New project setup", created_at: daysAgo(20) },
-  ] },
+
+
 
   // ── Health check ──
   { pattern: /^\/health$/, handler: () => ({ status: "ok", timestamp: now, demo: true }) },

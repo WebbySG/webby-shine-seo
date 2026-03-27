@@ -1,9 +1,9 @@
 import {
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, Search, TrendingUp,
-  MapPin, Paintbrush, DollarSign, Command, Handshake, Settings, LogOut,
-  ClipboardList, FlaskConical, FileText, Eye, ScrollText,
-  Network, Gauge, Layers, MessageSquare, Zap, Book, Link2, Code,
-  Globe, Star, Share2, Video, Briefcase, CalendarDays,
+  MapPin, Paintbrush, DollarSign, Command, Settings, LogOut,
+  ClipboardList, FlaskConical, FileText, Eye,
+  Network, Gauge, Layers, Link2, Code,
+  Globe, Share2, Video, Briefcase, CalendarDays,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -53,16 +53,8 @@ const channelNav = [
   { title: "Google Ads", url: "/google-ads", icon: DollarSign, color: "text-ads-primary", perm: "manage_ads" },
 ];
 
-const supportNav = [
-  { title: "Inbox", url: "/inbox", icon: MessageSquare, color: "text-primary", perm: "view_dashboard" },
-  { title: "Knowledge Base", url: "/knowledge-base", icon: Book, color: "text-primary", perm: "view_dashboard" },
-  { title: "Automations", url: "/automations", icon: Zap, color: "text-primary", perm: "view_dashboard" },
-  { title: "CSAT", url: "/csat", icon: Star, color: "text-primary", perm: "view_dashboard" },
-];
-
 const businessNav = [
   { title: "Clients", url: "/clients", icon: Users, color: "text-foreground", perm: "manage_clients" },
-  { title: "CRM", url: "/crm", icon: Handshake, color: "text-crm-primary", perm: "view_crm" },
   { title: "Reports", url: "/reports", icon: FileText, color: "text-analytics-primary", perm: "view_analytics" },
 ];
 
@@ -139,7 +131,6 @@ export function AppSidebar() {
         {renderGroup("Content", contentNav)}
         {renderGroup("Publish", publishNav)}
         {renderGroup("Channels", channelNav)}
-        {renderGroup("Support", supportNav)}
         {renderGroup("Business", businessNav)}
         {renderGroup("System", settingsNav)}
       </SidebarContent>
@@ -158,7 +149,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="rounded-lg bg-muted/50 p-3 border border-border/30">
             <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Version</p>
-            <p className="text-xs font-mono text-muted-foreground">v5.1 — Phase 25</p>
+            <p className="text-xs font-mono text-muted-foreground">v6.0 — SEO Focus</p>
           </div>
         )}
       </SidebarFooter>

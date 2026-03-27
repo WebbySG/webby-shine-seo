@@ -18,7 +18,6 @@ import LocalSEO from "@/pages/LocalSEO";
 import CreativeAssets from "@/pages/CreativeAssets";
 import GoogleAds from "@/pages/GoogleAds";
 import CommandCenter from "@/pages/CommandCenter";
-import CRM from "@/pages/CRM";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
@@ -33,14 +32,11 @@ import Reports from "@/pages/Reports";
 import AiVisibility from "@/pages/AiVisibility";
 import TopicalMaps from "@/pages/TopicalMaps";
 import BulkContent from "@/pages/BulkContent";
-import Inbox from "@/pages/Inbox";
-import Automations from "@/pages/Automations";
-import KnowledgeBase from "@/pages/KnowledgeBase";
 import Backlinks from "@/pages/Backlinks";
 import SchemaCreator from "@/pages/SchemaCreator";
 import SiteExplorer from "@/pages/SiteExplorer";
 import SerpChecker from "@/pages/SerpChecker";
-import CSATDashboard from "@/pages/CSATDashboard";
+
 import ContentStudio from "@/pages/ContentStudio";
 import Operations from "@/pages/Operations";
 import Articles from "@/pages/Articles";
@@ -92,7 +88,7 @@ const App = () => (
                 <Route path="/local-seo" element={<LocalSEO />} />
                 <Route path="/creative" element={<CreativeAssets />} />
                 <Route path="/google-ads" element={<GoogleAds />} />
-                <Route path="/crm" element={<CRM />} />
+                <Route path="/crm" element={<Navigate to="/analytics" replace />} />
                 <Route path="/settings" element={<WorkspaceSettings />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/ai-visibility" element={<AiVisibility />} />
@@ -104,14 +100,14 @@ const App = () => (
                 <Route path="/brief-workflow" element={<BriefWorkflow />} />
                 <Route path="/social-media" element={<SocialMedia />} />
                 <Route path="/videos" element={<VideoAssets />} />
-                <Route path="/inbox" element={<Inbox />} />
-                <Route path="/automations" element={<Automations />} />
-                <Route path="/knowledge-base" element={<KnowledgeBase />} />
+                <Route path="/inbox" element={<Navigate to="/" replace />} />
+                <Route path="/automations" element={<Navigate to="/" replace />} />
+                <Route path="/knowledge-base" element={<Navigate to="/" replace />} />
                 <Route path="/backlinks" element={<Backlinks />} />
                 <Route path="/schema-creator" element={<SchemaCreator />} />
                 <Route path="/site-explorer" element={<SiteExplorer />} />
                 <Route path="/serp-checker" element={<SerpChecker />} />
-                <Route path="/csat" element={<CSATDashboard />} />
+                <Route path="/csat" element={<Navigate to="/" replace />} />
                 <Route path="/operations" element={<Operations />} />
                 <Route path="/qa" element={<DemoQA />} />
                 {/* Redirects for old routes */}
