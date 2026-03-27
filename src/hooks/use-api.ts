@@ -36,8 +36,46 @@ export function useCreateCompetitor(clientId: string) {
 }
 
 // ---------- Audit ----------
+export function useAuditRuns(clientId: string) {
+  return useQuery({ queryKey: ["audit-runs", clientId], queryFn: () => api.getAuditRuns(clientId), enabled: !!clientId });
+}
+export function useAuditRunDetail(runId: string) {
+  return useQuery({ queryKey: ["audit-run", runId], queryFn: () => api.getAuditRunDetail(runId), enabled: !!runId });
+}
 export function useAuditIssues(clientId: string) {
   return useQuery({ queryKey: ["audit-issues", clientId], queryFn: () => api.getAuditIssues(clientId), enabled: !!clientId });
+}
+export function useAuditIssueDetail(issueId: string) {
+  return useQuery({ queryKey: ["audit-issue", issueId], queryFn: () => api.getAuditIssueDetail(issueId), enabled: !!issueId });
+}
+export function useStartAudit(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { domain: string; scope?: string; provider?: string }) =>
+      api.startAudit({ ...data, client_id: clientId }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["audit-runs", clientId] }),
+  });
+}
+export function useUpdateAuditIssueStatus(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ issueId, status }: { issueId: string; status: string }) => api.updateAuditIssueStatus(issueId, status),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["audit-issues", clientId] }); qc.invalidateQueries({ queryKey: ["audit-runs", clientId] }); },
+  });
+}
+export function useRecheckIssue(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (issueId: string) => api.recheckAuditIssue(issueId),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["audit-issues", clientId] }); qc.invalidateQueries({ queryKey: ["audit-runs", clientId] }); },
+  });
+}
+export function useRecheckRun(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (runId: string) => api.recheckAuditRun(runId),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["audit-issues", clientId] }); qc.invalidateQueries({ queryKey: ["audit-runs", clientId] }); },
+  });
 }
 
 // ---------- Opportunities ----------
