@@ -59,9 +59,8 @@ function generateKwChart(keywords: any[]) {
 }
 
 export default function Analytics() {
-  const [selectedClient, setSelectedClient] = useState<string>("");
+  const { activeClientId: selectedClient } = useActiveClient();
   const [days, setDays] = useState(14);
-  const { data: clients } = useClients();
   const { data: summary, isLoading: summaryLoading } = usePerformanceSummary(selectedClient, days);
   const { data: pagePerf, isLoading: pagesLoading } = usePagePerformance(selectedClient, days);
   const { data: kwPerf, isLoading: kwLoading } = useKeywordPerformance(selectedClient, days);
