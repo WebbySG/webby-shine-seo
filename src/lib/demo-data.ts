@@ -594,27 +594,16 @@ const routes: DemoRoute[] = [
   { pattern: /^\/clients\/[^/]+\/marketing-goals$/, handler: () => [] },
   { pattern: /^\/clients\/[^/]+\/priorities\/recompute$/, method: "POST", handler: () => ({ success: true, priorities_generated: 5 }) },
 
-  // ── CRM ──
-  // 🔌 API: POST /api/crm/contacts, PUT /api/crm/contacts/:id, etc.
-  { pattern: /^\/crm\/contacts$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, full_name: `${body?.first_name || ""} ${body?.last_name || ""}`.trim(), status: body?.status || "lead", created_at: now, updated_at: now }) },
-  { pattern: /^\/crm\/contacts\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...crmContacts[0], ...body, updated_at: now }) },
-  { pattern: /^\/crm\/contacts\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
-  { pattern: /^\/crm\/deals$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, created_at: now, updated_at: now }) },
-  { pattern: /^\/crm\/deals\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...crmDeals[0], ...body, updated_at: now }) },
-  { pattern: /^\/crm\/deals\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
-  { pattern: /^\/crm\/activities$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, completed_at: null, created_at: now }) },
-  { pattern: /^\/crm\/activities\/[^/]+\/complete$/, method: "PUT", handler: () => ({ ...crmActivities[2], completed_at: now }) },
-  { pattern: /^\/crm\/activities\/[^/]+$/, method: "DELETE", handler: () => ({ deleted: true }) },
-  { pattern: /^\/crm\/leads\/capture$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), ...body, status: "lead", created_at: now }) },
-  { pattern: /^\/crm\/insights\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...crmInsights[0], status: body?.status }) },
-  { pattern: /^\/clients\/[^/]+\/crm\/contacts$/, handler: () => crmContacts },
-  { pattern: /^\/clients\/[^/]+\/crm\/deals$/, handler: () => crmDeals },
-  { pattern: /^\/clients\/[^/]+\/crm\/activities$/, handler: () => crmActivities },
-  { pattern: /^\/clients\/[^/]+\/crm\/insights/, handler: () => crmInsights },
-  { pattern: /^\/clients\/[^/]+\/crm\/insights\/recompute$/, method: "POST", handler: () => ({ success: true }) },
+  // ── Attribution (analytics-only) ──
   { pattern: /^\/clients\/[^/]+\/attribution\/overview$/, handler: () => attributionOverview },
-  { pattern: /^\/clients\/[^/]+\/attribution\/contacts$/, handler: () => crmContacts.map(c => ({ ...c, channel: c.source_type, attribution_model: "first_touch", credit: 1, campaign_name: null, contact_status: c.status })) },
-  { pattern: /^\/clients\/[^/]+\/attribution\/deals$/, handler: () => crmDeals.map(d => ({ channel: "organic", attribution_model: "first_touch", credit: 1, campaign_name: null, deal_name: d.deal_name, deal_value: d.deal_value, deal_stage: d.deal_stage, won_date: d.won_date, contact_name: d.contact_name })) },
+  { pattern: /^\/clients\/[^/]+\/attribution\/contacts$/, handler: () => [
+    { id: "ac1", channel: "organic", attribution_model: "first_touch", credit: 1, campaign_name: null, full_name: "Website Lead", email: null, contact_status: "converted" },
+    { id: "ac2", channel: "paid", attribution_model: "first_touch", credit: 1, campaign_name: "SEO Services SG", full_name: "Ads Lead", email: null, contact_status: "converted" },
+  ] },
+  { pattern: /^\/clients\/[^/]+\/attribution\/deals$/, handler: () => [
+    { channel: "organic", attribution_model: "first_touch", credit: 1, campaign_name: null, deal_name: "SEO Retainer", deal_value: 3500, deal_stage: "won", won_date: daysAgo(10), contact_name: "Website Lead" },
+    { channel: "paid", attribution_model: "first_touch", credit: 1, campaign_name: "SEO Services SG", deal_name: "Ads Conversion", deal_value: 5000, deal_stage: "won", won_date: daysAgo(5), contact_name: "Ads Lead" },
+  ] },
   { pattern: /^\/clients\/[^/]+\/attribution\/recompute$/, method: "POST", handler: () => ({ success: true }) },
 
   // ── Reports ──
