@@ -11,10 +11,11 @@ import { Label } from "@/components/ui/label";
 import { useClients, useCreateClient } from "@/hooks/use-api";
 import { SourceBadge } from "@/components/SourceBadge";
 import { FreshnessIndicator } from "@/components/FreshnessIndicator";
+import { MascotHeroBanner, MascotBanner } from "@/components/MascotCast";
 import {
   Users, TrendingUp, AlertTriangle, ArrowRight,
   BarChart3, Zap, Target, Activity, Plus, RefreshCw, Loader2,
-  Shield, FileText, Search, Sparkles, Clock, CheckCircle, Eye
+  Shield, FileText, Search, Clock, CheckCircle, Eye
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -68,7 +69,6 @@ function generateGrowthTrend(clients: any[]) {
   }));
 }
 
-// Mock "what changed" items
 const CHANGES = [
   { id: "wc1", text: "3 keywords moved to page 1", source: "rankings", time: new Date(Date.now() - 3600000).toISOString(), type: "positive" as const },
   { id: "wc2", text: "2 critical audit issues detected", source: "audit", time: new Date(Date.now() - 7200000).toISOString(), type: "negative" as const },
@@ -92,6 +92,7 @@ const CHANGE_TYPE_STYLES = {
 export default function Dashboard() {
   const { data: clients, isLoading, isError } = useClients();
   const navigate = useNavigate();
+  const [showBanner, setShowBanner] = useState(true);
   const allClients = clients ?? [];
 
   const avgHealth = allClients.length > 0
@@ -108,27 +109,29 @@ export default function Dashboard() {
   ];
 
   return (
-    <PageTransition className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">AI Control Tower</h1>
-          </div>
-          <p className="text-muted-foreground text-sm">
-            Your marketing operations at a glance
-            {isError && <span className="text-amber-500 ml-2 text-xs">(offline mode)</span>}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <AddClientDialog />
-          <Button size="sm" variant="outline" disabled title="Sync requires connected backend">
-            <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Sync
-          </Button>
-        </div>
+    <PageTransition className="space-y-5">
+      {/* Hero with cast */}
+      <MascotHeroBanner
+        greeting="Welcome to Webby AI Control Tower"
+        subtitle="Your digital strategy squad is here. Sera handles SEO, Max runs SEM, and Kai crafts your content."
+      />
+
+      {/* Event banner */}
+      {showBanner && (
+        <MascotBanner
+          role="seo"
+          message="I found 2 critical audit issues on your services page. You should prioritize these before publishing new content."
+          type="alert"
+          onDismiss={() => setShowBanner(false)}
+        />
+      )}
+
+      {/* Actions bar */}
+      <div className="flex items-center justify-end gap-2">
+        <AddClientDialog />
+        <Button size="sm" variant="outline" disabled title="Sync requires connected backend">
+          <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Sync
+        </Button>
       </div>
 
       {/* KPI Strip */}
@@ -160,7 +163,6 @@ export default function Dashboard() {
 
       {/* Two-column: What Changed + Priority Actions */}
       <div className="grid gap-4 lg:grid-cols-5">
-        {/* What Changed — 2 cols */}
         <Card className="lg:col-span-2 hover-lift">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
@@ -189,7 +191,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Priority Actions — 3 cols */}
         <Card className="lg:col-span-3 hover-lift">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
@@ -220,7 +221,7 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Visibility Trend + Module Quick Links */}
+      {/* Visibility Trend + Quick Links */}
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2 hover-lift">
           <CardHeader className="pb-1">
@@ -260,7 +261,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Module Quick Links */}
         <Card className="hover-lift">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
