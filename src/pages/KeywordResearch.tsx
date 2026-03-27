@@ -775,33 +775,60 @@ export default function KeywordResearch() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
-                <label className="text-sm font-medium block mb-1.5">Seed Topics / Keywords *</label>
+                <label className="text-sm font-medium block mb-1.5">Seed Services / Keywords *</label>
                 <Input
                   placeholder="e.g., seo agency, web design, digital marketing"
                   value={seedTopics}
                   onChange={e => setSeedTopics(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground mt-1">Comma-separated topics to research</p>
+                <p className="text-xs text-muted-foreground mt-1">Comma-separated services or topics — service pages are prioritized first</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium block mb-1.5">Competitor Domains (optional)</label>
+                <Input
+                  placeholder="e.g., competitor-one.com, rival-agency.sg"
+                  value={competitorDomains}
+                  onChange={e => setCompetitorDomains(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Comma-separated — used for gap analysis and page structure comparison</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-sm font-medium block mb-1.5">Target Count</label>
-                  <Select value={targetCount} onValueChange={setTargetCount}>
+                  <Select value={targetCount} onValueChange={v => { setTargetCount(v); if (v !== "custom") setCustomCount(""); }}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="10">10 keywords</SelectItem>
                       <SelectItem value="20">20 keywords</SelectItem>
                       <SelectItem value="40">40 keywords</SelectItem>
                       <SelectItem value="100">100 keywords</SelectItem>
+                      <SelectItem value="custom">Custom</SelectItem>
                     </SelectContent>
                   </Select>
+                  {targetCount === "custom" && (
+                    <Input type="number" min={5} max={500} placeholder="Enter count" value={customCount} onChange={e => setCustomCount(e.target.value)} className="mt-2" />
+                  )}
                 </div>
                 <div>
                   <label className="text-sm font-medium block mb-1.5">Location</label>
                   <Input value={targetLocation} onChange={e => setTargetLocation(e.target.value)} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-sm font-medium block mb-1.5">Language</label>
+                  <Select value={targetLanguage} onValueChange={setTargetLanguage}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="zh">Chinese</SelectItem>
+                      <SelectItem value="ms">Malay</SelectItem>
+                      <SelectItem value="ta">Tamil</SelectItem>
+                      <SelectItem value="es">Spanish</SelectItem>
+                      <SelectItem value="fr">French</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div>
                   <label className="text-sm font-medium block mb-1.5">Business Priority</label>
                   <Select value={businessPriority} onValueChange={setBusinessPriority}>
@@ -833,8 +860,10 @@ export default function KeywordResearch() {
                   client_id: clientId,
                   domain: activeClient?.domain || "",
                   seed_topics: seedTopics.split(",").map(s => s.trim()).filter(Boolean),
-                  target_count: Number(targetCount),
+                  competitor_domains: competitorDomains ? competitorDomains.split(",").map(s => s.trim()).filter(Boolean) : [],
+                  target_count: targetCount === "custom" ? Number(customCount) || 20 : Number(targetCount),
                   target_location: targetLocation,
+                  target_language: targetLanguage,
                   business_priority: businessPriority,
                   provider: providerMode,
                 })}
