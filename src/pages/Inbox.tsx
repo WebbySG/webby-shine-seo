@@ -46,7 +46,7 @@ export default function Inbox() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const { data: conversations = [] } = useQuery({
+  const { data: conversations = [] } = useQuery<any[]>({
     queryKey: ["inbox-conversations", clientId],
     queryFn: () => request(`/inbox/conversations?workspace_id=${clientId}`),
   });

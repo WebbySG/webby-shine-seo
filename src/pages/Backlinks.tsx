@@ -19,12 +19,12 @@ export default function Backlinks() {
   const { clientId } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: backlinks = [] } = useQuery({
+  const { data: backlinks = [] } = useQuery<any[]>({
     queryKey: ["backlinks", clientId],
     queryFn: () => request(`/clients/${clientId}/backlinks`),
   });
 
-  const { data: summary } = useQuery({
+  const { data: summary } = useQuery<any>({
     queryKey: ["backlinks-summary", clientId],
     queryFn: () => request(`/clients/${clientId}/backlinks/summary`),
   });

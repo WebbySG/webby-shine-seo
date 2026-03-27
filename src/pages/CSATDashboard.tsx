@@ -18,12 +18,12 @@ const COLORS = ["#22c55e", "#eab308", "#f97316", "#ef4444", "#6b7280"];
 export default function CSATDashboard() {
   const { clientId } = useAuth();
 
-  const { data: responses = [] } = useQuery({
+  const { data: responses = [] } = useQuery<any[]>({
     queryKey: ["csat-responses", clientId],
     queryFn: () => request(`/csat?workspace_id=${clientId}`),
   });
 
-  const { data: summary } = useQuery({
+  const { data: summary } = useQuery<any>({
     queryKey: ["csat-summary", clientId],
     queryFn: () => request(`/csat/summary?workspace_id=${clientId}`),
   });

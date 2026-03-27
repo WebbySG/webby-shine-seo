@@ -22,7 +22,7 @@ export default function SerpChecker() {
   const [isChecking, setIsChecking] = useState(false);
   const [results, setResults] = useState<any>(null);
 
-  const { data: history = [] } = useQuery({
+  const { data: history = [] } = useQuery<any[]>({
     queryKey: ["serp-checks", clientId],
     queryFn: () => request(`/clients/${clientId}/serp-checks`),
   });

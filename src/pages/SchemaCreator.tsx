@@ -32,7 +32,7 @@ export default function SchemaCreator() {
   const [generatedSchema, setGeneratedSchema] = useState<any>(null);
   const [copied, setCopied] = useState(false);
 
-  const { data: markups = [] } = useQuery({
+  const { data: markups = [] } = useQuery<any[]>({
     queryKey: ["schema-markups", clientId],
     queryFn: () => request(`/clients/${clientId}/schema-markups`),
   });

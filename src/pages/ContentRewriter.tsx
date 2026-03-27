@@ -42,7 +42,7 @@ export default function ContentRewriter() {
       const result = await request("/content-rewriter/rewrite", {
         method: "POST",
         body: JSON.stringify({ client_id: clientId, original_text: originalText, rewrite_mode: mode, target_tone: tone }),
-      });
+      }) as any;
       setRewrittenText(result.rewritten_text || "");
     } finally {
       setIsRewriting(false);

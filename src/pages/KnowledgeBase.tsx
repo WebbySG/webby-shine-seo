@@ -18,12 +18,12 @@ export default function KnowledgeBase() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const { data: categories = [] } = useQuery({
+  const { data: categories = [] } = useQuery<any[]>({
     queryKey: ["kb-categories", clientId],
     queryFn: () => request(`/knowledge-base/categories?workspace_id=${clientId}`),
   });
 
-  const { data: articles = [] } = useQuery({
+  const { data: articles = [] } = useQuery<any[]>({
     queryKey: ["kb-articles", clientId, selectedCategory],
     queryFn: () => request(`/knowledge-base/articles?workspace_id=${clientId}${selectedCategory ? `&category_id=${selectedCategory}` : ""}`),
   });

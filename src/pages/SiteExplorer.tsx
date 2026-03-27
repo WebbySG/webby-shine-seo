@@ -17,7 +17,7 @@ export default function SiteExplorer() {
   const { clientId } = useAuth();
   const [domain, setDomain] = useState("");
 
-  const { data: overview } = useQuery({
+  const { data: overview } = useQuery<any>({
     queryKey: ["domain-overview", clientId],
     queryFn: () => request(`/clients/${clientId}/domain-overview`),
   });

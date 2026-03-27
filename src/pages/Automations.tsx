@@ -37,7 +37,7 @@ export default function Automations() {
   const { clientId } = useAuth();
   const [showCreate, setShowCreate] = useState(false);
 
-  const { data: rules = [] } = useQuery({
+  const { data: rules = [] } = useQuery<any[]>({
     queryKey: ["automation-rules", clientId],
     queryFn: () => request(`/automations?workspace_id=${clientId}`),
   });
