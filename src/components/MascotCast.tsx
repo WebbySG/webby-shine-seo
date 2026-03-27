@@ -55,7 +55,7 @@ export function MascotHeroBanner({
 
       <div className="relative flex items-center gap-6 lg:gap-8">
         {/* Cast avatars */}
-        <div className="hidden sm:flex items-end -space-x-4">
+        <div className="hidden sm:flex items-end -space-x-6">
           {(["seo", "sem", "content"] as MascotRole[]).map((role, i) => {
             const m = MASCOTS[role];
             return (
@@ -71,13 +71,13 @@ export function MascotHeroBanner({
                   animate={{ y: [0, -3, 0] }}
                   transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <div className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl bg-card border-2 border-border/30 shadow-lg overflow-hidden group-hover:shadow-xl group-hover:border-primary/30 transition-all duration-300">
+                  <div className="h-28 w-28 lg:h-32 lg:w-32 overflow-hidden shrink-0 drop-shadow-xl group-hover:drop-shadow-2xl transition-all duration-300 group-hover:scale-105">
                     <img
                       src={m.img}
                       alt={`${m.name} – ${m.role}`}
                       className="h-full w-full object-cover object-top"
-                      width={512}
-                      height={512}
+                      width={1024}
+                      height={1024}
                     />
                   </div>
                   {/* Name tag */}
