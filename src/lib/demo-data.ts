@@ -312,7 +312,7 @@ const notifications = [
   { id: "n1", workspace_id: DEMO_WORKSPACE_ID, user_id: null, type: "info", category: "publishing", title: "Article Published Successfully", message: "'Best SEO Agency in Singapore' is now live on WordPress", entity_type: "article", entity_id: "art1", is_read: false, created_at: daysAgo(7) },
   { id: "n2", workspace_id: DEMO_WORKSPACE_ID, user_id: null, type: "warning", category: "publishing", title: "Publishing Job Failed", message: "WordPress connection refused for TechStart Asia article", entity_type: "publishing_job", entity_id: "pj4", is_read: false, created_at: daysAgo(2) },
   { id: "n3", workspace_id: DEMO_WORKSPACE_ID, user_id: null, type: "info", category: "seo", title: "Rank Check Complete", message: "42 keywords checked — 6 improved, 2 declined", entity_type: "client", entity_id: DEMO_CLIENT_ID, is_read: true, created_at: daysAgo(1) },
-  { id: "n4", workspace_id: DEMO_WORKSPACE_ID, user_id: null, type: "info", category: "crm", title: "New Lead Captured", message: "Rachel Lim from BeautyHQ SG submitted a contact form", entity_type: "contact", entity_id: "crm-c4", is_read: false, created_at: daysAgo(2) },
+  { id: "n4", workspace_id: DEMO_WORKSPACE_ID, user_id: null, type: "info", category: "seo", title: "Keyword Research Complete", message: "15 keywords analyzed, 7 pages mapped for webby.sg", entity_type: "keyword_research", entity_id: "krj1", is_read: false, created_at: daysAgo(2) },
 ];
 
 // ─── AI Visibility ───
