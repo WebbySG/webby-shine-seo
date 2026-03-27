@@ -495,6 +495,114 @@ export default function KeywordResearch() {
             </Card>
           </TabsContent>
 
+          {/* ─── Context Insights (Competitor + Audit) ─── */}
+          <TabsContent value="context" className="space-y-4">
+            {/* Competitor insights */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <ArrowLeftRight className="h-4 w-4 text-primary" /> Competitor Context
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(selectedJob as any)?.competitor_insights?.length > 0 ? (
+                  <div className="space-y-3">
+                    {((selectedJob as any).competitor_insights as Array<{ domain: string; finding: string; impact: string; priority: string }>).map((ins, i) => (
+                      <div key={i} className={`p-3 rounded-lg border-l-4 ${ins.priority === "high" ? "border-l-destructive bg-destructive/5" : ins.priority === "medium" ? "border-l-amber-500 bg-amber-500/5" : "border-l-muted-foreground bg-muted/30"}`}>
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{ins.finding}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{ins.impact}</p>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Badge variant="outline" className="text-[10px]">{ins.domain}</Badge>
+                            <Badge variant="outline" className={priorityColors[ins.priority]}>{ins.priority}</Badge>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Shield className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">No competitor context available. Add competitor domains when starting research to get gap insights.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Own-site audit insights */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-500" /> Own-Site Audit Insights
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(selectedJob as any)?.audit_insights?.length > 0 ? (
+                  <div className="space-y-3">
+                    {((selectedJob as any).audit_insights as Array<{ page: string; issue: string; recommendation: string; severity: string }>).map((ins, i) => (
+                      <div key={i} className="p-3 rounded-lg border hover:bg-muted/30 transition-colors">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{ins.issue}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{ins.recommendation}</p>
+                            <p className="text-xs font-mono text-muted-foreground/70 mt-1">{ins.page}</p>
+                          </div>
+                          <Badge variant="outline" className={ins.severity === "critical" ? "text-destructive border-destructive/30" : ins.severity === "warning" ? "text-amber-600 border-amber-300" : ""}>{ins.severity}</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Info className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">No audit insights available. Run a technical audit for this domain to surface page-level issues.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Service page priority summary */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" /> Service Page Priority Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  const serviceTypes = ["core_service", "sub_service", "service_page"];
+                  const serviceMappings = mappings.filter(m => serviceTypes.includes(m.page_type));
+                  const locationMappings = mappings.filter(m => m.page_type === "location_page");
+                  const supportMappings = mappings.filter(m => !serviceTypes.includes(m.page_type) && m.page_type !== "location_page");
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 text-center">
+                        <Target className="h-6 w-6 mx-auto text-primary mb-2" />
+                        <p className="text-2xl font-bold text-foreground">{serviceMappings.length}</p>
+                        <p className="text-xs text-muted-foreground">Service Pages</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">{serviceMappings.filter(m => m.is_existing).length} existing · {serviceMappings.filter(m => !m.is_existing).length} new</p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20 text-center">
+                        <MapPin className="h-6 w-6 mx-auto text-amber-500 mb-2" />
+                        <p className="text-2xl font-bold text-foreground">{locationMappings.length}</p>
+                        <p className="text-xs text-muted-foreground">Location Pages</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">{locationMappings.filter(m => m.is_existing).length} existing · {locationMappings.filter(m => !m.is_existing).length} new</p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-muted/50 border text-center">
+                        <FileText className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+                        <p className="text-2xl font-bold text-foreground">{supportMappings.length}</p>
+                        <p className="text-xs text-muted-foreground">Support Content</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">Blog, FAQ, Comparison</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* ─── Brief Queue ─── */}
           <TabsContent value="briefs">
             <Card>
