@@ -88,7 +88,7 @@ const App = () => (
                 <Route path="/local-seo" element={<LocalSEO />} />
                 <Route path="/creative" element={<CreativeAssets />} />
                 <Route path="/google-ads" element={<GoogleAds />} />
-                <Route path="/crm" element={<CRM />} />
+                <Route path="/crm" element={<Navigate to="/analytics" replace />} />
                 <Route path="/settings" element={<WorkspaceSettings />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/ai-visibility" element={<AiVisibility />} />
