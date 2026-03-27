@@ -486,8 +486,35 @@ const routes: DemoRoute[] = [
   { pattern: /^\/clients\/[^/]+\/content-plan\/[^/]+$/, method: "PATCH", handler: (_m, body) => ({ ...contentPlan.clusters[0].suggestions[0], status: body?.status }) },
   { pattern: /^\/clients\/[^/]+\/content-plan$/, handler: () => contentPlan },
 
-  // ── Briefs ──
+  // ── Briefs (Enhanced) ──
+  { pattern: /^\/briefs\/from-mapping$/, method: "POST", handler: (_m, body) => ({
+    ...briefs[1], id: crypto.randomUUID(), keyword: body?.primary_keyword || "new keyword",
+    page_type: body?.page_type || "core_service", secondary_keywords: body?.secondary_keywords || [],
+    search_intent: body?.search_intent || "commercial", priority: body?.priority || "medium",
+    status: "draft", created_at: now,
+  }) },
   { pattern: /^\/briefs\/generate$/, method: "POST", handler: (_m, body) => ({ ...briefs[0], id: crypto.randomUUID(), keyword: body?.keyword || "new keyword", title: `Guide to ${body?.keyword || "new keyword"}`, status: "draft", created_at: now }) },
+  { pattern: /^\/briefs\/[^/]+\/generate-draft$/, method: "POST", handler: (m) => {
+    const briefId = m[0].split("/")[2];
+    const draft = briefDrafts[briefId]?.[0];
+    if (draft) return { ...draft, id: crypto.randomUUID(), version: (draft.version || 0) + 1, status: "draft", created_at: now, updated_at: now };
+    return { id: crypto.randomUUID(), brief_id: briefId, title: "Generated Draft", slug: "generated-draft", content: "# Generated Draft\n\nThis is a mock generated draft from the brief. In production, this would be AI-generated content based on the brief structure, keywords, and guidelines.\n\n## Section 1\n\nContent here...\n\n## Section 2\n\nMore content...\n\n---\n\n**Call to action** [Contact us →](/contact)", meta_description: "Generated draft meta description", version: 1, status: "draft", review_checks: [
+      { id: "rc-gen1", check_type: "cta_present", label: "CTA Present", status: "pass", detail: "CTA found" },
+      { id: "rc-gen2", check_type: "word_count", label: "Word Count", status: "warning", detail: "Below target — consider expanding" },
+      { id: "rc-gen3", check_type: "faq_section", label: "FAQ Section", status: "fail", detail: "No FAQ section found" },
+    ], internal_link_suggestions: [], created_at: now, updated_at: now };
+  } },
+  { pattern: /^\/briefs\/[^/]+\/drafts$/, handler: (m) => {
+    const briefId = m[0].split("/")[2];
+    return briefDrafts[briefId] || [];
+  } },
+  { pattern: /^\/briefs\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...briefs[0], ...body, updated_at: now }) },
+  { pattern: /^\/briefs\/[^/]+$/, handler: (m) => {
+    const briefId = m[0].split("/")[2];
+    return briefs.find(b => b.id === briefId) || briefs[0];
+  } },
+  { pattern: /^\/drafts\/[^/]+\/status$/, method: "PATCH", handler: (_m, body) => ({ status: body?.status }) },
+  { pattern: /^\/drafts\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...body, updated_at: now }) },
   { pattern: /^\/clients\/[^/]+\/briefs\/[^/]+$/, method: "PATCH", handler: (_m, body) => ({ ...briefs[0], status: body?.status }) },
   { pattern: /^\/clients\/[^/]+\/briefs$/, handler: () => briefs },
 
