@@ -3,7 +3,7 @@ import {
   MapPin, Paintbrush, DollarSign, Command, Handshake, Settings, LogOut,
   ClipboardList, FlaskConical, FileText, Eye, ScrollText,
   Network, Gauge, Layers, MessageSquare, Zap, Book, Link2, Code,
-  Globe, Star, Share2, Video, Briefcase,
+  Globe, Star, Share2, Video, Briefcase, CalendarDays,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
