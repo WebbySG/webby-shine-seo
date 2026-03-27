@@ -52,12 +52,6 @@ export default function Rankings() {
           <p className="text-muted-foreground text-sm mt-1.5">Weekly position tracking across all keywords</p>
         </div>
         <div className="flex items-center gap-3">
-          <Select value={clientId} onValueChange={setClientId}>
-            <SelectTrigger className="w-[200px]"><SelectValue placeholder="Select client" /></SelectTrigger>
-            <SelectContent>
-              {clients.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
-            </SelectContent>
-          </Select>
           <Button size="sm" variant="outline" disabled title="Rankings are auto-tracked weekly">
             <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
           </Button>
