@@ -270,7 +270,7 @@ export default function ClientDetail() {
   const gainers = [...kws].filter((r) => (r.change ?? 0) > 0).sort((a, b) => (b.change ?? 0) - (a.change ?? 0)).slice(0, 5);
   const losers = [...kws].filter((r) => (r.change ?? 0) < 0).sort((a, b) => (a.change ?? 0) - (b.change ?? 0)).slice(0, 5);
   const nearWins = kws.filter((r) => (r.current_position ?? 100) >= 11 && (r.current_position ?? 100) <= 20);
-  const openIssues = issues.filter((i) => i.status !== "done");
+  const openIssues = issues.filter((i) => i.status !== "fixed");
   const pendingLinks = internalLinks.filter((l) => l.status === "pending");
 
   return (
