@@ -49,6 +49,7 @@ import VideoAssets from "@/pages/VideoAssets";
 import ContentCalendar from "@/pages/ContentCalendar";
 import KeywordResearch from "@/pages/KeywordResearch";
 import CompetitorBenchmark from "@/pages/CompetitorBenchmark";
+import BriefWorkflow from "@/pages/BriefWorkflow";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
