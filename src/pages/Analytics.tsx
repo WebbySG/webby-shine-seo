@@ -105,14 +105,6 @@ export default function Analytics() {
               <SelectItem value="30">Last 30 days</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={selectedClient} onValueChange={setSelectedClient}>
-            <SelectTrigger className="w-[200px]"><SelectValue placeholder="Select client" /></SelectTrigger>
-            <SelectContent>
-              {(clients ?? []).map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           {selectedClient && (
             <Button size="sm" onClick={() => {
               syncAnalytics.mutate(selectedClient, {
