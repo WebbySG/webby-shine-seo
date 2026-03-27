@@ -70,12 +70,14 @@ const priorityColors: Record<string, string> = {
   low: "bg-muted text-muted-foreground border-border",
 };
 const pageTypeIcons: Record<string, typeof FileText> = {
-  service_page: Globe, location_page: MapPin, blog_post: FileText,
+  core_service: Target, sub_service: Globe, service_page: Globe,
+  location_page: MapPin, blog_post: FileText,
   comparison_page: BarChart3, faq_page: HelpCircle, pillar_page: Layers,
   category_page: Network,
 };
 const pageTypeLabels: Record<string, string> = {
-  service_page: "Service Page", location_page: "Location Page", blog_post: "Blog Post",
+  core_service: "Core Service", sub_service: "Sub-Service", service_page: "Service Page",
+  location_page: "Location Page", blog_post: "Blog Post",
   comparison_page: "Comparison", faq_page: "FAQ Page", pillar_page: "Pillar Page",
   category_page: "Category Page",
 };
