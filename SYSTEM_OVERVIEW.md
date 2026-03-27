@@ -28,7 +28,7 @@
 
 ---
 
-## 3. Database Schema (33 Migrations)
+## 3. Database Schema (37 Migrations)
 
 ### Core & Multi-Tenancy
 | Table | Purpose |
