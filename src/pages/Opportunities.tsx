@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { SourceBadge } from "@/components/SourceBadge";
 import { ConfidenceChip } from "@/components/ConfidenceChip";
 import { FreshnessIndicator } from "@/components/FreshnessIndicator";
+import { MascotSectionHeader, MascotBanner } from "@/components/MascotCast";
 import { useClients, useOpportunities } from "@/hooks/use-api";
-import { Target, FileSearch, Layers, Wrench, TrendingUp, ArrowRight, Sparkles, Zap, Eye } from "lucide-react";
+import { Target, FileSearch, Layers, Wrench, TrendingUp, ArrowRight, Zap, Eye } from "lucide-react";
 import type { Opportunity } from "@/lib/api";
 
 // Enhanced opportunity with AI fields
