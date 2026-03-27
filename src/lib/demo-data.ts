@@ -706,6 +706,63 @@ const routes: DemoRoute[] = [
     { id: "bj1", name: "SEO Content Pack", status: "completed", total_articles: 5, completed_articles: 5, failed_articles: 0, created_at: daysAgo(3) },
   ] },
 
+  // ── Keyword Research ──
+  { pattern: /^\/keyword-research\/start$/, method: "POST", handler: (_m, body) => {
+    const seeds = body?.seed_topics || ["seo"];
+    const count = body?.target_count || 20;
+    const jobId = crypto.randomUUID();
+    return { id: jobId, client_id: body?.client_id, domain: body?.domain, seed_topics: seeds, target_count: count, target_location: body?.target_location || "Singapore", target_language: body?.target_language || "en", business_priority: body?.business_priority || "authority", provider: body?.provider || "mock", status: "completed", total_keywords: count, clusters_count: 4, pages_mapped: 6, created_at: now, completed_at: now };
+  } },
+  { pattern: /^\/keyword-research\/results\/[^/]+$/, method: "PATCH", handler: (_m, body) => ({ ...body, id: "updated" }) },
+  { pattern: /^\/keyword-research\/mappings\/[^/]+\/create-brief$/, method: "POST", handler: () => ({ status: "brief_created" }) },
+  { pattern: /^\/keyword-research\/mappings\/[^/]+$/, method: "PATCH", handler: (_m, body) => ({ ...body, id: "updated" }) },
+  { pattern: /^\/keyword-research\/[^/]+$/, handler: () => {
+    const clusters = [
+      { id: "krc1", cluster_name: "SEO Services", cluster_theme: "Core service offerings", primary_keyword: "seo agency singapore", keyword_count: 5, avg_volume: 1800, avg_difficulty: 42, recommended_content_type: "pillar_page", priority: "high", sort_order: 0 },
+      { id: "krc2", cluster_name: "Web Design", cluster_theme: "Design service offerings", primary_keyword: "web design singapore", keyword_count: 4, avg_volume: 1400, avg_difficulty: 38, recommended_content_type: "service_section", priority: "high", sort_order: 1 },
+      { id: "krc3", cluster_name: "Content Marketing", cluster_theme: "Content strategy", primary_keyword: "content marketing agency", keyword_count: 3, avg_volume: 1100, avg_difficulty: 35, recommended_content_type: "blog_series", priority: "medium", sort_order: 2 },
+      { id: "krc4", cluster_name: "Local SEO", cluster_theme: "Local optimization", primary_keyword: "local seo services", keyword_count: 3, avg_volume: 950, avg_difficulty: 30, recommended_content_type: "service_section", priority: "medium", sort_order: 3 },
+    ];
+    const kwData = [
+      { kw: "seo agency singapore", vol: 2400, kd: 55, intent: "commercial", cpc: 8.50, cluster: "krc1", pageType: "service_page", existing: "/seo-agency", serp: ["people_also_ask", "local_pack"], scores: [92, 85, 88, 72, 80, 90] },
+      { kw: "best seo company singapore", vol: 1800, kd: 52, intent: "commercial", cpc: 7.20, cluster: "krc1", pageType: "service_page", existing: "/seo-agency", serp: ["people_also_ask"], scores: [88, 82, 85, 70, 78, 85] },
+      { kw: "seo services pricing singapore", vol: 1200, kd: 35, intent: "transactional", cpc: 12.00, cluster: "krc1", pageType: "service_page", existing: null, serp: ["featured_snippet"], scores: [85, 90, 78, 82, 85, 75] },
+      { kw: "technical seo audit", vol: 900, kd: 40, intent: "informational", cpc: 5.50, cluster: "krc1", pageType: "blog_post", existing: "/audit", serp: ["featured_snippet", "people_also_ask"], scores: [78, 75, 72, 78, 82, 70] },
+      { kw: "seo consultant singapore", vol: 800, kd: 45, intent: "commercial", cpc: 9.00, cluster: "krc1", pageType: "service_page", existing: null, serp: ["local_pack"], scores: [80, 80, 68, 70, 75, 82] },
+      { kw: "web design singapore", vol: 3200, kd: 60, intent: "commercial", cpc: 6.80, cluster: "krc2", pageType: "service_page", existing: "/web-design", serp: ["people_also_ask", "image_pack"], scores: [90, 82, 92, 62, 78, 88] },
+      { kw: "responsive web design", vol: 1400, kd: 30, intent: "informational", cpc: 3.20, cluster: "krc2", pageType: "blog_post", existing: null, serp: ["featured_snippet"], scores: [72, 70, 80, 85, 75, 60] },
+      { kw: "website redesign services", vol: 900, kd: 38, intent: "transactional", cpc: 8.00, cluster: "krc2", pageType: "service_page", existing: null, serp: [], scores: [82, 88, 72, 78, 70, 78] },
+      { kw: "ecommerce web design", vol: 1100, kd: 42, intent: "commercial", cpc: 7.50, cluster: "krc2", pageType: "service_page", existing: null, serp: ["people_also_ask"], scores: [78, 82, 76, 74, 72, 80] },
+      { kw: "content marketing agency", vol: 1600, kd: 48, intent: "commercial", cpc: 6.00, cluster: "krc3", pageType: "service_page", existing: "/content-marketing", serp: ["people_also_ask"], scores: [85, 80, 82, 68, 76, 82] },
+      { kw: "content strategy for seo", vol: 800, kd: 28, intent: "informational", cpc: 4.00, cluster: "krc3", pageType: "blog_post", existing: null, serp: ["featured_snippet", "people_also_ask"], scores: [80, 78, 68, 85, 82, 65] },
+      { kw: "blog content writing services", vol: 700, kd: 32, intent: "transactional", cpc: 5.00, cluster: "krc3", pageType: "service_page", existing: null, serp: [], scores: [75, 85, 65, 82, 70, 72] },
+      { kw: "local seo services", vol: 1200, kd: 38, intent: "commercial", cpc: 7.00, cluster: "krc4", pageType: "location_page", existing: "/local-seo", serp: ["local_pack", "people_also_ask"], scores: [88, 82, 78, 78, 85, 85] },
+      { kw: "google my business optimization", vol: 900, kd: 25, intent: "informational", cpc: 4.50, cluster: "krc4", pageType: "blog_post", existing: null, serp: ["featured_snippet", "video"], scores: [82, 75, 72, 88, 80, 70] },
+      { kw: "local seo singapore", vol: 600, kd: 30, intent: "commercial", cpc: 6.50, cluster: "krc4", pageType: "location_page", existing: "/local-seo", serp: ["local_pack"], scores: [85, 80, 60, 85, 78, 88] },
+    ];
+    const results = kwData.map((k, i) => {
+      const [rel, intent, vol, diff, serp, auth] = k.scores;
+      const overall = Math.round((rel * 0.2 + intent * 0.15 + vol * 0.2 + diff * 0.15 + serp * 0.15 + auth * 0.15));
+      return {
+        id: `krr${i + 1}`, keyword: k.kw, relevance_score: rel, intent_score: intent, volume_score: vol, difficulty_score: diff, serp_score: serp, authority_gap_score: auth, overall_score: overall,
+        search_volume: k.vol, keyword_difficulty: k.kd, cpc: k.cpc, search_intent: k.intent, serp_features: k.serp,
+        cluster_id: k.cluster, recommended_page_type: k.pageType, existing_url: k.existing, mapping_status: k.existing ? "existing_page" : "new_page", mapping_notes: null, brief_queued: false, provider: "mock",
+      };
+    });
+    const mappings = [
+      { id: "kpm1", page_url: "/seo-agency", page_title: "SEO Agency Singapore — Full Service SEO", page_type: "service_page", is_existing: true, keyword_count: 3, primary_keyword: "seo agency singapore", secondary_keywords: ["best seo company singapore", "seo services pricing singapore"], recommended_word_count: 2500, priority: "high", status: "suggested", parent_mapping_id: null, sort_order: 0 },
+      { id: "kpm2", page_url: "/web-design", page_title: "Web Design Services Singapore", page_type: "service_page", is_existing: true, keyword_count: 2, primary_keyword: "web design singapore", secondary_keywords: ["ecommerce web design"], recommended_word_count: 2000, priority: "high", status: "suggested", parent_mapping_id: null, sort_order: 1 },
+      { id: "kpm3", page_url: null, page_title: "Website Redesign Services — Modern & Responsive", page_type: "service_page", is_existing: false, keyword_count: 2, primary_keyword: "website redesign services", secondary_keywords: ["responsive web design"], recommended_word_count: 1800, priority: "medium", status: "suggested", parent_mapping_id: null, sort_order: 2 },
+      { id: "kpm4", page_url: "/content-marketing", page_title: "Content Marketing Agency Singapore", page_type: "service_page", is_existing: true, keyword_count: 2, primary_keyword: "content marketing agency", secondary_keywords: ["blog content writing services"], recommended_word_count: 2000, priority: "medium", status: "suggested", parent_mapping_id: null, sort_order: 3 },
+      { id: "kpm5", page_url: "/local-seo", page_title: "Local SEO Services — Dominate Local Search", page_type: "location_page", is_existing: true, keyword_count: 2, primary_keyword: "local seo services", secondary_keywords: ["local seo singapore"], recommended_word_count: 2000, priority: "high", status: "brief_created", parent_mapping_id: null, sort_order: 4 },
+      { id: "kpm6", page_url: null, page_title: "Technical SEO Audit — Complete Guide", page_type: "blog_post", is_existing: false, keyword_count: 2, primary_keyword: "technical seo audit", secondary_keywords: ["content strategy for seo"], recommended_word_count: 2500, priority: "medium", status: "suggested", parent_mapping_id: null, sort_order: 5 },
+    ];
+    return { id: "krj1", client_id: DEMO_CLIENT_ID, domain: "webby.sg", seed_topics: ["seo agency", "web design", "content marketing"], target_count: 15, target_location: "Singapore", target_language: "en", business_priority: "authority", provider: "mock", status: "completed", total_keywords: 15, clusters_count: 4, pages_mapped: 6, created_at: daysAgo(3), completed_at: daysAgo(3), results, clusters, mappings };
+  } },
+  { pattern: /^\/clients\/[^/]+\/keyword-research$/, handler: () => [
+    { id: "krj1", client_id: DEMO_CLIENT_ID, domain: "webby.sg", seed_topics: ["seo agency", "web design", "content marketing"], target_count: 15, target_location: "Singapore", target_language: "en", business_priority: "authority", provider: "mock", status: "completed", total_keywords: 15, clusters_count: 4, pages_mapped: 6, created_at: daysAgo(3), completed_at: daysAgo(3) },
+  ] },
+
   // ── Rankings (standalone) ──
   { pattern: /^\/rankings/, handler: () => keywords },
 

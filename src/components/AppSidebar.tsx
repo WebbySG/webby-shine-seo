@@ -20,6 +20,7 @@ const coreNav = [
 ];
 
 const seoNav = [
+  { title: "Keyword Research", url: "/keyword-research", icon: Search, color: "text-seo-primary", perm: "view_dashboard" },
   { title: "Rankings", url: "/rankings", icon: BarChart3, color: "text-seo-primary", perm: "view_dashboard" },
   { title: "Audit", url: "/audit", icon: Shield, color: "text-seo-primary", perm: "view_dashboard" },
   { title: "Opportunities", url: "/opportunities", icon: Lightbulb, color: "text-seo-primary", perm: "view_dashboard" },
