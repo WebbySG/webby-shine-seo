@@ -59,7 +59,7 @@ const DEMO_TEMPLATES = [
     { key: "content_published", title: "Content & Posts Published", enabled: true, order: 4 },
     { key: "next_priorities", title: "Next Priorities", enabled: true, order: 5 },
   ], is_default: true },
-  { id: "t3", name: "Full Marketing Performance Report", template_type: "full_marketing", description: "Complete report covering SEO, content, GBP, analytics, CRM, and ads.", sections: [
+  { id: "t3", name: "Full Marketing Performance Report", template_type: "full_marketing", description: "Complete report covering SEO, content, GBP, analytics, attribution, and ads.", sections: [
     { key: "keyword_movement", title: "Keyword Rankings", enabled: true, order: 1 },
     { key: "top_gainers_losers", title: "Top Gainers & Losers", enabled: true, order: 2 },
     { key: "technical_fixes", title: "Technical Fixes", enabled: true, order: 3 },
