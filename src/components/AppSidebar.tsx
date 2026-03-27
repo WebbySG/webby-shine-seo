@@ -130,6 +130,7 @@ export function AppSidebar() {
         {renderGroup("SEO", seoNav)}
         {renderGroup("Content", contentNav)}
         {renderGroup("Channels", channelNav)}
+        {renderGroup("Support", supportNav)}
         {renderGroup("Business", businessNav)}
         {renderGroup("System", settingsNav)}
       </SidebarContent>
