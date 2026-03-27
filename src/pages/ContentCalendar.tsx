@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { request } from "@/lib/api";
 import { useActiveClient } from "@/contexts/ClientContext";
 import { PageTransition } from "@/components/motion";
@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, FileText, Share2, Video, ChevronLeft, ChevronRight, Circle } from "lucide-react";
+import { CalendarDays, FileText, Share2, Video, ChevronLeft, ChevronRight, Circle, GripVertical } from "lucide-react";
+import { toast } from "sonner";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -39,8 +40,11 @@ const statusDot: Record<string, string> = {
 
 export default function ContentCalendar() {
   const { activeClientId } = useActiveClient();
+  const queryClient = useQueryClient();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [filter, setFilter] = useState<"all" | "article" | "social" | "video">("all");
+  const [dragOverDay, setDragOverDay] = useState<number | null>(null);
+  const [draggingItem, setDraggingItem] = useState<string | null>(null);
 
   const { data: articles = [] } = useQuery<any[]>({
     queryKey: ["articles", activeClientId],
@@ -63,22 +67,13 @@ export default function ContentCalendar() {
   const calendarItems = useMemo<CalendarItem[]>(() => {
     const items: CalendarItem[] = [];
     articles.forEach((a: any) => {
-      items.push({
-        id: a.id, type: "article", title: a.title,
-        date: a.publish_date || a.created_at, status: a.status,
-      });
+      items.push({ id: a.id, type: "article", title: a.title, date: a.publish_date || a.created_at, status: a.status });
     });
     socialPosts.forEach((p: any) => {
-      items.push({
-        id: p.id, type: "social", title: p.content?.slice(0, 60) || "Social Post",
-        date: p.scheduled_time || p.created_at, status: p.status, platform: p.platform,
-      });
+      items.push({ id: p.id, type: "social", title: p.content?.slice(0, 60) || "Social Post", date: p.scheduled_time || p.created_at, status: p.status, platform: p.platform });
     });
     videos.forEach((v: any) => {
-      items.push({
-        id: v.id, type: "video", title: v.caption_text || v.video_script?.slice(0, 60) || "Video",
-        date: v.created_at, status: v.status, platform: v.platform,
-      });
+      items.push({ id: v.id, type: "video", title: v.caption_text || v.video_script?.slice(0, 60) || "Video", date: v.created_at, status: v.status, platform: v.platform });
     });
     return items;
   }, [articles, socialPosts, videos]);
@@ -99,10 +94,60 @@ export default function ContentCalendar() {
     const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     return filtered.filter(item => {
       if (!item.date) return false;
-      const itemDate = item.date.slice(0, 10);
-      return itemDate === dateStr;
+      return item.date.slice(0, 10) === dateStr;
     });
   };
+
+  // Drag-and-drop reschedule mutation
+  const reschedule = useMutation({
+    mutationFn: async ({ item, newDate }: { item: CalendarItem; newDate: string }) => {
+      if (item.type === "article") {
+        return request(`/articles/${item.id}`, { method: "PUT", body: JSON.stringify({ publish_date: newDate }) });
+      } else if (item.type === "social") {
+        return request(`/social/${item.id}`, { method: "PUT", body: JSON.stringify({ scheduled_time: newDate }) });
+      }
+      // Videos are not reschedulable (no date field to update)
+      return null;
+    },
+    onSuccess: (_, { item, newDate }) => {
+      queryClient.invalidateQueries({ queryKey: ["articles", activeClientId] });
+      queryClient.invalidateQueries({ queryKey: ["social-posts", activeClientId] });
+      toast.success(`Rescheduled "${item.title.slice(0, 30)}" to ${new Date(newDate).toLocaleDateString("en-SG", { day: "numeric", month: "short" })}`);
+    },
+    onError: () => toast.error("Failed to reschedule"),
+  });
+
+  const handleDragStart = useCallback((e: React.DragEvent, item: CalendarItem) => {
+    if (item.type === "video") { e.preventDefault(); return; }
+    e.dataTransfer.setData("application/json", JSON.stringify(item));
+    e.dataTransfer.effectAllowed = "move";
+    setDraggingItem(item.id);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, day: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverDay(day);
+  }, []);
+
+  const handleDragLeave = useCallback(() => setDragOverDay(null), []);
+
+  const handleDrop = useCallback((e: React.DragEvent, day: number) => {
+    e.preventDefault();
+    setDragOverDay(null);
+    setDraggingItem(null);
+    try {
+      const item: CalendarItem = JSON.parse(e.dataTransfer.getData("application/json"));
+      const newDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      if (item.date?.slice(0, 10) === newDate) return; // same day
+      reschedule.mutate({ item, newDate });
+    } catch { /* invalid drag data */ }
+  }, [year, month, reschedule]);
+
+  const handleDragEnd = useCallback(() => {
+    setDragOverDay(null);
+    setDraggingItem(null);
+  }, []);
 
   // Timeline view
   const sortedItems = [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -114,7 +159,7 @@ export default function ContentCalendar() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <CalendarDays className="h-6 w-6 text-primary" /> Content Calendar
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Unified view of all content across articles, social posts, and videos</p>
+          <p className="text-sm text-muted-foreground mt-1">Drag articles & social posts between dates to reschedule</p>
         </div>
         <div className="flex items-center gap-2">
           <Button size="sm" variant={filter === "all" ? "default" : "outline"} onClick={() => setFilter("all")} className="text-xs">All</Button>
@@ -151,15 +196,36 @@ export default function ContentCalendar() {
                   const day = i + 1;
                   const dayItems = getItemsForDay(day);
                   const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+                  const isDropTarget = dragOverDay === day;
                   return (
-                    <div key={day} className={`min-h-[100px] border rounded-lg p-1.5 transition-colors ${isToday ? "border-primary/50 bg-primary/5" : "border-border/30 hover:bg-muted/30"}`}>
+                    <div
+                      key={day}
+                      onDragOver={(e) => handleDragOver(e, day)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, day)}
+                      className={`min-h-[100px] border rounded-lg p-1.5 transition-all duration-150
+                        ${isToday ? "border-primary/50 bg-primary/5" : "border-border/30 hover:bg-muted/30"}
+                        ${isDropTarget ? "border-primary border-dashed bg-primary/10 scale-[1.02] shadow-md" : ""}
+                      `}
+                    >
                       <span className={`text-xs font-medium ${isToday ? "text-primary font-bold" : "text-muted-foreground"}`}>{day}</span>
                       <div className="mt-1 space-y-0.5">
                         {dayItems.slice(0, 3).map(item => {
                           const cfg = typeConfig[item.type];
+                          const isDraggable = item.type !== "video";
                           return (
-                            <div key={item.id} className={`text-[9px] px-1 py-0.5 rounded border truncate ${cfg.color}`}>
-                              {item.title.slice(0, 20)}
+                            <div
+                              key={item.id}
+                              draggable={isDraggable}
+                              onDragStart={(e) => handleDragStart(e, item)}
+                              onDragEnd={handleDragEnd}
+                              className={`text-[9px] px-1 py-0.5 rounded border truncate flex items-center gap-0.5 ${cfg.color}
+                                ${isDraggable ? "cursor-grab active:cursor-grabbing hover:shadow-sm" : "opacity-70"}
+                                ${draggingItem === item.id ? "opacity-40" : ""}
+                              `}
+                            >
+                              {isDraggable && <GripVertical className="h-2 w-2 shrink-0 opacity-50" />}
+                              {item.title.slice(0, 18)}
                             </div>
                           );
                         })}

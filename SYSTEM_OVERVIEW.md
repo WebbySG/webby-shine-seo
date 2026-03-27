@@ -28,7 +28,7 @@
 
 ---
 
-## 3. Database Schema (33 Migrations)
+## 3. Database Schema (37 Migrations)
 
 ### Core & Multi-Tenancy
 | Table | Purpose |
@@ -140,6 +140,36 @@
 | `report_templates` | Report layout/section definitions |
 | `scheduled_reports` | Recurring report schedules |
 | `report_runs` | Generated report instances |
+
+### AI Visibility (Migration 035)
+| Table | Purpose |
+|-------|---------|
+| `ai_visibility_snapshots` | AI citation tracking across LLMs |
+| `ai_visibility_queries` | Tracked queries for AI search engines |
+
+### Content Engine (Migration 036)
+| Table | Purpose |
+|-------|---------|
+| `content_scores` | NLP-based content quality scores |
+| `topical_maps` | Seed-to-cluster topic strategy maps |
+| `bulk_content_jobs` | Batch article generation job queue |
+
+### Omnichannel Support (Migration 037)
+| Table | Purpose |
+|-------|---------|
+| `conversations` | Multi-channel inbox threads |
+| `messages` | Individual messages within conversations |
+| `inboxes` | Channel configurations (email, chat, social) |
+| `automation_rules` | Event-driven workflow automations |
+| `canned_responses` | Reusable reply templates |
+| `kb_categories` | Knowledge base category hierarchy |
+| `kb_articles` | Knowledge base articles |
+| `backlinks` | Backlink monitoring records |
+| `schema_markups` | Structured data / schema markup templates |
+| `content_rewrites` | AI content rewriting history |
+| `domain_overviews` | Site explorer domain analysis cache |
+| `serp_checks` | SERP position checker results |
+| `csat_responses` | Customer satisfaction survey responses |
 
 ---
 
@@ -348,7 +378,10 @@
 
 ## 6. Frontend Pages & Components
 
-### Pages (src/pages/)
+### Global Client Context Architecture
+The platform uses a persistent `activeClientId` managed via `ClientContext` (`src/contexts/ClientContext.tsx`) and a `GlobalClientSelector` dropdown in the `AppLayout` header. Selection is stored in `localStorage` and accessed via the `useActiveClient()` hook, so all module data automatically filters to the selected client without per-page re-selection.
+
+### Pages (src/pages/) — 30+ Modules
 | Page | Route | Purpose |
 |------|-------|---------|
 | `Index.tsx` | `/` | Landing/redirect |
@@ -357,21 +390,38 @@
 | `ForgotPassword.tsx` | `/forgot-password` | Password reset request |
 | `Dashboard.tsx` | `/dashboard` | Main dashboard with KPIs, charts, activity |
 | `Rankings.tsx` | `/rankings` | Keyword tracking and rank history |
-| `Audit.tsx` | `/audit` | Technical SEO audit results |
+| `Audit.tsx` | `/audit` | Technical SEO audit + Internal Links tab |
 | `Opportunities.tsx` | `/opportunities` | SEO opportunity management |
 | `Analytics.tsx` | `/analytics` | GA4/GSC performance analytics |
+| `AiVisibility.tsx` | `/ai-visibility` | AI citation tracking across LLMs |
+| `Backlinks.tsx` | `/backlinks` | Backlink monitoring and analysis |
+| `SiteExplorer.tsx` | `/site-explorer` | Domain overview and competitive analysis |
+| `SerpChecker.tsx` | `/serp-checker` | SERP position checker |
+| `TopicalMaps.tsx` | `/topical-maps` | Topic cluster strategy builder |
+| `ContentStudio.tsx` | `/content-studio` | Content scoring + AI rewriter (unified) |
+| `BulkContent.tsx` | `/bulk-content` | Bulk AI article generation |
+| `Articles.tsx` | `/articles` | SEO article management |
+| `SocialMedia.tsx` | `/social` | Social post scheduling & publishing |
+| `VideoAssets.tsx` | `/videos` | AI video script & rendering |
+| `ContentCalendar.tsx` | `/calendar` | Unified calendar with drag-and-drop rescheduling |
+| `SchemaCreator.tsx` | `/schema-creator` | JSON-LD structured data generator |
 | `LocalSEO.tsx` | `/local-seo` | GBP management and local insights |
 | `GoogleAds.tsx` | `/google-ads` | Google Ads campaigns and recommendations |
 | `CreativeAssets.tsx` | `/creative` | AI creative asset generation |
 | `CommandCenter.tsx` | `/command-center` | Strategic priorities and recommendations |
 | `CRM.tsx` | `/crm` | Contacts, deals, activities, attribution |
+| `Inbox.tsx` | `/inbox` | Omnichannel conversation inbox |
+| `KnowledgeBase.tsx` | `/knowledge-base` | Help center article management |
+| `Automations.tsx` | `/automations` | Event-driven workflow rules |
+| `CSATDashboard.tsx` | `/csat` | Customer satisfaction analytics |
+| `Reports.tsx` | `/reports` | Report builder and scheduled reports |
+| `Operations.tsx` | `/operations` | Job center + activity log (unified) |
 | `ClientList.tsx` | `/clients` | Client management list |
 | `ClientDetail.tsx` | `/clients/:id` | Individual client detail with tabs |
-| `Reports.tsx` | `/reports` | Report builder and scheduled reports |
 | `OnboardingWizard.tsx` | `/onboarding` | 7-step onboarding wizard |
 | `SetupComplete.tsx` | `/setup-complete` | Post-onboarding confirmation |
 | `WorkspaceSettings.tsx` | `/settings` | Workspace, branding, team, billing settings |
-| `DemoQA.tsx` | `/qa` | Dev-only QA test checklist (48 items) |
+| `DemoQA.tsx` | `/qa` | Dev-only QA test checklist |
 | `NotFound.tsx` | `*` | 404 page |
 
 ### Portal Pages (src/pages/portal/)
@@ -384,8 +434,9 @@
 ### Key Components
 | Component | Purpose |
 |-----------|---------|
-| `AppLayout.tsx` | Main authenticated layout with sidebar |
-| `AppSidebar.tsx` | Navigation sidebar with module groups |
+| `AppLayout.tsx` | Main authenticated layout with sidebar + global client selector |
+| `AppSidebar.tsx` | Navigation sidebar with 8 module groups |
+| `GlobalClientSelector.tsx` | Persistent client dropdown in header |
 | `ClientPortalLayout.tsx` | Client portal layout wrapper |
 | `ThemeProvider.tsx` | Dark/light theme management |
 | `ThemeToggle.tsx` | Theme switch button |
@@ -393,6 +444,18 @@
 | `motion.tsx` | Framer Motion animation primitives (FadeIn, StaggerContainer, SlideIn, ScaleIn, PageTransition) |
 | `NavLink.tsx` | Navigation link component |
 | `RankChangeIndicator.tsx` | Rank position change display |
+
+### Navigation Groups (AppSidebar)
+| Group | Modules |
+|-------|---------|
+| Core | Dashboard, Command Center |
+| SEO | Rankings, Audit, Opportunities, Backlinks, Site Explorer, SERP Checker, AI Visibility |
+| Content | Content Studio, Topical Maps, Bulk Content, Articles |
+| Publish | Social Media, Videos, Calendar, Schema Creator |
+| Channels | Creative Assets, Local SEO, Google Ads |
+| Support | Inbox, Knowledge Base, Automations, CSAT |
+| Business | CRM, Clients, Reports |
+| System | Operations, Settings |
 
 ---
 
@@ -506,6 +569,23 @@ The background worker (`backend/src/worker.ts`) runs scheduled jobs:
 36. ✅ Premium dark/light UI with animations
 37. ✅ Background worker with 14 scheduled jobs
 38. ✅ Docker Compose deployment
+39. ✅ Omnichannel inbox (Chatwoot-style conversations)
+40. ✅ Knowledge base with categories
+41. ✅ Event-driven automation rules
+42. ✅ CSAT survey dashboard
+43. ✅ Backlink monitoring
+44. ✅ Site explorer / domain overview
+45. ✅ SERP position checker
+46. ✅ Schema markup generator
+47. ✅ AI content rewriter
+48. ✅ Content scoring engine (NLP-based)
+49. ✅ Topical map creator with clustering
+50. ✅ Bulk AI content generation
+51. ✅ AI visibility tracking (LLM citations)
+52. ✅ Content calendar with drag-and-drop rescheduling
+53. ✅ Global client context (persistent selection across all modules)
+54. ✅ Consolidated Operations page (jobs + activity log)
+55. ✅ Consolidated Content Studio (scoring + rewriter)
 
 ---
 
@@ -515,19 +595,11 @@ The background worker (`backend/src/worker.ts`) runs scheduled jobs:
 - **Billing/payments integration** (Stripe checkout, invoice generation)
 - **Email delivery system** (transactional emails for invites, reports, alerts)
 - **Notification system** (in-app notifications, real-time alerts)
-- **Activity/audit log** (user action tracking for compliance)
-- **API rate limiting and throttling**
 - **Webhook system** (inbound/outbound event hooks)
 - **Multi-language / i18n support**
 - **Advanced RBAC UI** (permission matrix editor)
-- **File/document management** (beyond creative assets)
-- **Client communication/messaging** (in-app chat or notes)
-- **A/B testing integration**
-- **Schema markup / structured data tools**
-- **Backlink monitoring**
-- **Content calendar view** (visual Kanban/calendar for content pipeline)
-- **Competitive analysis dashboard** (beyond basic competitor tracking)
-- **Custom dashboard builder** (user-configurable widgets)
+- **Real-time WebSocket support** (live chat, typing indicators)
+- **Embeddable chat widget** (script-tag install for client websites)
 - **Integration marketplace** (Zapier, Make, custom integrations)
 - **White-label custom domain support**
 - **SSO / SAML authentication**
@@ -535,7 +607,7 @@ The background worker (`backend/src/worker.ts`) runs scheduled jobs:
 - **Mobile native app or PWA**
 - **Real-time collaboration** (multi-user editing)
 - **AI chat assistant** (conversational SEO advisor)
-- **Automated testing suite** (E2E tests beyond demo QA checklist)
+- **Automated testing suite** (E2E tests)
 
 ### Partially Built (Need Enhancement)
 - Dashboard charts use some aggregated data but could pull more live module data
@@ -551,23 +623,28 @@ The background worker (`backend/src/worker.ts`) runs scheduled jobs:
 
 ```
 ├── backend/
-│   ├── db/migrations/          # 33 SQL migrations
+│   ├── db/migrations/          # 37 SQL migrations
 │   ├── src/
-│   │   ├── routes/             # 28 route files
+│   │   ├── routes/             # 35+ route files
 │   │   ├── services/           # 14 service directories
-│   │   ├── middleware/auth.ts   # JWT auth middleware
+│   │   ├── middleware/
+│   │   │   ├── auth.ts         # JWT auth middleware
+│   │   │   └── rateLimiter.ts  # API rate limiting
 │   │   ├── db.ts               # Database pool
 │   │   ├── index.ts            # Express server entry
 │   │   └── worker.ts           # Background job runner
 │   ├── Dockerfile
 │   └── package.json
 ├── src/
-│   ├── pages/                  # 23 page components + 3 portal pages
+│   ├── pages/                  # 35+ page components + 3 portal pages
 │   ├── components/             # Layout, nav, theme, motion, 40+ UI components
-│   ├── contexts/AuthContext.tsx # Auth state management
+│   ├── contexts/
+│   │   ├── AuthContext.tsx      # Auth state management
+│   │   └── ClientContext.tsx    # Global client selection state
 │   ├── hooks/use-api.ts        # API hooks for all modules
-│   ├── lib/api.ts              # API client
-│   ├── data/dummy.ts           # Legacy dummy data (being phased out)
+│   ├── lib/
+│   │   ├── api.ts              # API client with demo interceptor
+│   │   └── demo-data.ts        # Comprehensive demo data for all modules
 │   ├── index.css               # Design system tokens
 │   └── App.tsx                 # Router configuration
 ├── docker-compose.yml
@@ -598,5 +675,5 @@ docker compose exec db psql -U postgres -d webbyseo -f /docker-entrypoint-initdb
 
 ---
 
-*Last updated: 2026-03-25*
-*Version: v3.2*
+*Last updated: 2026-03-27*
+*Version: v5.0*
