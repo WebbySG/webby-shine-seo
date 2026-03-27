@@ -623,23 +623,28 @@ The background worker (`backend/src/worker.ts`) runs scheduled jobs:
 
 ```
 ├── backend/
-│   ├── db/migrations/          # 33 SQL migrations
+│   ├── db/migrations/          # 37 SQL migrations
 │   ├── src/
-│   │   ├── routes/             # 28 route files
+│   │   ├── routes/             # 35+ route files
 │   │   ├── services/           # 14 service directories
-│   │   ├── middleware/auth.ts   # JWT auth middleware
+│   │   ├── middleware/
+│   │   │   ├── auth.ts         # JWT auth middleware
+│   │   │   └── rateLimiter.ts  # API rate limiting
 │   │   ├── db.ts               # Database pool
 │   │   ├── index.ts            # Express server entry
 │   │   └── worker.ts           # Background job runner
 │   ├── Dockerfile
 │   └── package.json
 ├── src/
-│   ├── pages/                  # 23 page components + 3 portal pages
+│   ├── pages/                  # 35+ page components + 3 portal pages
 │   ├── components/             # Layout, nav, theme, motion, 40+ UI components
-│   ├── contexts/AuthContext.tsx # Auth state management
+│   ├── contexts/
+│   │   ├── AuthContext.tsx      # Auth state management
+│   │   └── ClientContext.tsx    # Global client selection state
 │   ├── hooks/use-api.ts        # API hooks for all modules
-│   ├── lib/api.ts              # API client
-│   ├── data/dummy.ts           # Legacy dummy data (being phased out)
+│   ├── lib/
+│   │   ├── api.ts              # API client with demo interceptor
+│   │   └── demo-data.ts        # Comprehensive demo data for all modules
 │   ├── index.css               # Design system tokens
 │   └── App.tsx                 # Router configuration
 ├── docker-compose.yml
