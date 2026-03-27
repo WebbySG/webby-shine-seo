@@ -301,10 +301,10 @@ const creativeAssets = [
 const activityLog = [
   { id: "al1", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "Demo Admin", action: "article_published", entity_type: "article", entity_id: "art1", summary: "Published 'Best SEO Agency in Singapore' to WordPress", metadata_json: {}, created_at: daysAgo(7) },
   { id: "al2", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "System", action: "rank_check_completed", entity_type: "client", entity_id: DEMO_CLIENT_ID, summary: "Rank check completed: 42 keywords tracked, 6 improved", metadata_json: {}, created_at: daysAgo(1) },
-  { id: "al3", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "Demo Admin", action: "deal_created", entity_type: "deal", entity_id: "crm-d1", summary: "Created deal 'TechCorp Monthly SEO' worth $3,500", metadata_json: {}, created_at: daysAgo(15) },
+  { id: "al3", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "Demo Admin", action: "brief_created", entity_type: "brief", entity_id: "br1", summary: "Created SEO brief for 'seo agency singapore'", metadata_json: {}, created_at: daysAgo(15) },
   { id: "al4", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "System", action: "social_post_published", entity_type: "social_post", entity_id: "sp1", summary: "Published social post to Facebook", metadata_json: {}, created_at: daysAgo(6) },
   { id: "al5", workspace_id: DEMO_WORKSPACE_ID, client_id: null, user_id: null, actor_name: "Demo Admin", action: "client_created", entity_type: "client", entity_id: DEMO_CLIENT_3, summary: "Created client 'Green Living Co'", metadata_json: {}, created_at: daysAgo(30) },
-  { id: "al6", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "Demo Admin", action: "crm_lead_captured", entity_type: "contact", entity_id: "crm-c4", summary: "New lead captured: Rachel Lim from BeautyHQ SG", metadata_json: {}, created_at: daysAgo(2) },
+  { id: "al6", workspace_id: DEMO_WORKSPACE_ID, client_id: DEMO_CLIENT_ID, user_id: null, actor_name: "System", action: "audit_completed", entity_type: "audit_run", entity_id: "arun1", summary: "Technical audit completed: 72 score, 7 issues found", metadata_json: {}, created_at: daysAgo(2) },
 ];
 
 // ─── Notifications ───
