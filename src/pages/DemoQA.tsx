@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   CheckCircle2, Circle, AlertTriangle, RotateCcw, ClipboardList,
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, TrendingUp,
-  MapPin, Paintbrush, DollarSign, Command, Handshake, FileText,
+  MapPin, Paintbrush, DollarSign, Command, FileText,
   Share2, Video, LogIn, Rocket,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
