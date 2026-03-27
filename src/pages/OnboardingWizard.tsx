@@ -370,17 +370,8 @@ export default function OnboardingWizard() {
                               </PreviewSection>
                             )}
 
-                            {config.crm_pipeline?.length > 0 && (
-                              <PreviewSection icon={Users} title="CRM Pipeline">
-                                <div className="flex flex-wrap gap-1.5">
-                                  {config.crm_pipeline.map((s: any, i: number) => (
-                                    <Badge key={s.stage} variant="outline" className="text-xs font-normal">
-                                      {i + 1}. {s.stage}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </PreviewSection>
-                            )}
+
+
 
                             {config.weekly_plan_defaults?.length > 0 && (
                               <PreviewSection icon={CheckCircle2} title="Weekly Action Plan">
