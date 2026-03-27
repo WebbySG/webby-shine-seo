@@ -101,6 +101,7 @@ const App = () => (
                 <Route path="/bulk-content" element={<BulkContent />} />
                 <Route path="/calendar" element={<ContentCalendar />} />
                 <Route path="/articles" element={<Articles />} />
+                <Route path="/brief-workflow" element={<BriefWorkflow />} />
                 <Route path="/social-media" element={<SocialMedia />} />
                 <Route path="/videos" element={<VideoAssets />} />
                 <Route path="/inbox" element={<Inbox />} />

@@ -32,6 +32,7 @@ const seoNav = [
 ];
 
 const contentNav = [
+  { title: "Brief Workflow", url: "/brief-workflow", icon: ClipboardList, color: "text-content-primary", perm: "manage_articles" },
   { title: "Topical Maps", url: "/topical-maps", icon: Network, color: "text-content-primary", perm: "manage_articles" },
   { title: "Articles", url: "/articles", icon: FileText, color: "text-content-primary", perm: "manage_articles" },
   { title: "Content Studio", url: "/content-studio", icon: Gauge, color: "text-content-primary", perm: "manage_articles" },
