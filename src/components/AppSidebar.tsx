@@ -44,6 +44,13 @@ const channelNav = [
   { title: "Google Ads", url: "/google-ads", icon: DollarSign, color: "text-ads-primary", perm: "manage_ads" },
 ];
 
+const supportNav = [
+  { title: "Inbox", url: "/inbox", icon: MessageSquare, color: "text-primary", perm: "view_dashboard" },
+  { title: "Knowledge Base", url: "/knowledge-base", icon: Book, color: "text-primary", perm: "view_dashboard" },
+  { title: "Automations", url: "/automations", icon: Zap, color: "text-primary", perm: "view_dashboard" },
+  { title: "CSAT", url: "/csat", icon: Star, color: "text-primary", perm: "view_dashboard" },
+];
+
 const businessNav = [
   { title: "Clients", url: "/clients", icon: Users, color: "text-foreground", perm: "manage_clients" },
   { title: "CRM", url: "/crm", icon: Handshake, color: "text-crm-primary", perm: "view_crm" },
