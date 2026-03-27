@@ -51,12 +51,6 @@ export default function SocialMedia() {
           <p className="text-sm text-muted-foreground mt-1">Create, schedule, and publish social media content across platforms</p>
         </div>
         <div className="flex items-center gap-2">
-          {clients && clients.length > 1 && (
-            <Select value={selectedClient} onValueChange={setSelectedClient}>
-              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Select client" /></SelectTrigger>
-              <SelectContent>{clients.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-            </Select>
-          )}
           <Button className="gap-2"><Plus className="h-4 w-4" /> New Post</Button>
         </div>
       </div>

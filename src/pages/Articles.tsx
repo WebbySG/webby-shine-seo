@@ -52,12 +52,6 @@ export default function Articles() {
           <p className="text-sm text-muted-foreground mt-1">Manage content briefs, drafts, and published articles</p>
         </div>
         <div className="flex items-center gap-2">
-          {clients && clients.length > 1 && (
-            <Select value={selectedClient} onValueChange={setSelectedClient}>
-              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Select client" /></SelectTrigger>
-              <SelectContent>{clients.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-            </Select>
-          )}
           <Button className="gap-2"><Plus className="h-4 w-4" /> New Article</Button>
         </div>
       </div>

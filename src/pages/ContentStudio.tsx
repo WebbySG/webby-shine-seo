@@ -234,12 +234,6 @@ export default function ContentStudio() {
           </h1>
           <p className="text-sm text-muted-foreground mt-1">Score, optimize, and rewrite content — all in one place</p>
         </div>
-        {clients && clients.length > 1 && (
-          <Select value={selectedClient} onValueChange={setSelectedClient}>
-            <SelectTrigger className="w-[180px]"><SelectValue placeholder="Select client" /></SelectTrigger>
-            <SelectContent>{clients.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-          </Select>
-        )}
       </div>
 
       <Tabs defaultValue="score" className="space-y-4">
