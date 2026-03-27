@@ -33,6 +33,7 @@ const contentNav = [
   { title: "Topical Maps", url: "/topical-maps", icon: Network, color: "text-content-primary", perm: "manage_articles" },
   { title: "Content Score", url: "/content-optimizer", icon: Gauge, color: "text-content-primary", perm: "manage_articles" },
   { title: "Bulk Content", url: "/bulk-content", icon: Layers, color: "text-content-primary", perm: "manage_articles" },
+  { title: "Rewriter", url: "/content-rewriter", icon: Wand2, color: "text-content-primary", perm: "manage_articles" },
   { title: "Creative", url: "/creative", icon: Paintbrush, color: "text-content-primary", perm: "manage_articles" },
 ];
 
