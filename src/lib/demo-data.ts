@@ -242,38 +242,8 @@ const gbpReviews = [
   { id: "gbp-r2", client_id: DEMO_CLIENT_ID, review_id: "rev-2", reviewer_name: "Sarah L.", rating: 4, review_text: "Good service, communication could be faster.", review_date: daysAgo(3), response_draft: null, response_status: "pending", created_at: daysAgo(3) },
 ];
 
-// ─── CRM ───
-// 🔌 API: GET /api/clients/:id/crm/contacts, crm/deals, crm/activities, crm/insights
-const crmContacts = [
-  { id: "crm-c1", client_id: DEMO_CLIENT_ID, first_name: "Michael", last_name: "Chen", full_name: "Michael Chen", email: "michael@techcorp.sg", phone: "+65 9123 4567", company_name: "TechCorp SG", job_title: "Marketing Director", status: "qualified", source_type: "organic", lead_source: "Website Contact Form", notes: "Interested in monthly SEO retainer", created_at: daysAgo(20), updated_at: daysAgo(5) },
-  { id: "crm-c2", client_id: DEMO_CLIENT_ID, first_name: "Lisa", last_name: "Wong", full_name: "Lisa Wong", email: "lisa@greenstart.co", phone: "+65 8765 4321", company_name: "GreenStart Co", job_title: "CEO", status: "lead", source_type: "referral", lead_source: "Partner Referral", notes: "Needs local SEO + GBP management", created_at: daysAgo(7), updated_at: daysAgo(2) },
-  { id: "crm-c3", client_id: DEMO_CLIENT_ID, first_name: "David", last_name: "Tan", full_name: "David Tan", email: "david@retailhub.sg", phone: null, company_name: "RetailHub SG", job_title: "E-commerce Manager", status: "customer", source_type: "paid", lead_source: "Google Ads", notes: null, created_at: daysAgo(45), updated_at: daysAgo(10) },
-  { id: "crm-c4", client_id: DEMO_CLIENT_ID, first_name: "Rachel", last_name: "Lim", full_name: "Rachel Lim", email: "rachel@beautyhq.sg", phone: "+65 9876 5432", company_name: "BeautyHQ SG", job_title: "Owner", status: "new", source_type: "organic", lead_source: "Website Contact Form", notes: "Interested in social media marketing", created_at: daysAgo(2), updated_at: daysAgo(1) },
-  { id: "crm-c5", client_id: DEMO_CLIENT_ID, first_name: "James", last_name: "Ng", full_name: "James Ng", email: "james@lawfirm.sg", phone: "+65 8234 5678", company_name: "Ng & Associates", job_title: "Managing Partner", status: "contacted", source_type: "referral", lead_source: "Client Referral", notes: "Law firm, needs content marketing", created_at: daysAgo(10), updated_at: daysAgo(4) },
-];
-
-const crmDeals = [
-  { id: "crm-d1", client_id: DEMO_CLIENT_ID, contact_id: "crm-c1", deal_name: "TechCorp Monthly SEO", deal_value: 3500, deal_stage: "proposal_sent", pipeline_name: "Sales Pipeline", expected_close_date: daysAgo(-14), won_date: null, lost_reason: null, notes: "Proposal sent, awaiting feedback", contact_name: "Michael Chen", contact_email: "michael@techcorp.sg", created_at: daysAgo(15), updated_at: daysAgo(3) },
-  { id: "crm-d2", client_id: DEMO_CLIENT_ID, contact_id: "crm-c3", deal_name: "RetailHub E-commerce SEO", deal_value: 5000, deal_stage: "won", pipeline_name: "Sales Pipeline", expected_close_date: daysAgo(10), won_date: daysAgo(10), lost_reason: null, notes: "6-month contract signed", contact_name: "David Tan", contact_email: "david@retailhub.sg", created_at: daysAgo(45), updated_at: daysAgo(10) },
-  { id: "crm-d3", client_id: DEMO_CLIENT_ID, contact_id: "crm-c2", deal_name: "GreenStart Local SEO Package", deal_value: 2000, deal_stage: "qualified", pipeline_name: "Sales Pipeline", expected_close_date: daysAgo(-30), won_date: null, lost_reason: null, notes: "Discovery call scheduled", contact_name: "Lisa Wong", contact_email: "lisa@greenstart.co", created_at: daysAgo(5), updated_at: daysAgo(1) },
-  { id: "crm-d4", client_id: DEMO_CLIENT_ID, contact_id: "crm-c4", deal_name: "BeautyHQ Social Media Package", deal_value: 1500, deal_stage: "lead", pipeline_name: "Sales Pipeline", expected_close_date: daysAgo(-21), won_date: null, lost_reason: null, notes: "Initial inquiry via website", contact_name: "Rachel Lim", contact_email: "rachel@beautyhq.sg", created_at: daysAgo(2), updated_at: daysAgo(1) },
-  { id: "crm-d5", client_id: DEMO_CLIENT_ID, contact_id: "crm-c5", deal_name: "Ng & Associates Content Marketing", deal_value: 4200, deal_stage: "negotiation", pipeline_name: "Sales Pipeline", expected_close_date: daysAgo(-7), won_date: null, lost_reason: null, notes: "Negotiating scope and pricing", contact_name: "James Ng", contact_email: "james@lawfirm.sg", created_at: daysAgo(8), updated_at: daysAgo(2) },
-];
-
-const crmActivities = [
-  { id: "crm-a1", client_id: DEMO_CLIENT_ID, contact_id: "crm-c1", deal_id: "crm-d1", activity_type: "call", title: "Follow-up call with Michael", description: "Discuss proposal details and pricing", due_date: daysAgo(-1), completed_at: null, created_at: daysAgo(3) },
-  { id: "crm-a2", client_id: DEMO_CLIENT_ID, contact_id: "crm-c2", deal_id: "crm-d3", activity_type: "meeting", title: "Discovery call with Lisa", description: "Initial consultation for local SEO needs", due_date: daysAgo(-3), completed_at: null, created_at: daysAgo(5) },
-  { id: "crm-a3", client_id: DEMO_CLIENT_ID, contact_id: "crm-c3", deal_id: "crm-d2", activity_type: "email", title: "Send onboarding materials to David", description: null, due_date: daysAgo(2), completed_at: daysAgo(2), created_at: daysAgo(8) },
-  { id: "crm-a4", client_id: DEMO_CLIENT_ID, contact_id: "crm-c5", deal_id: "crm-d5", activity_type: "follow_up", title: "Send revised proposal to James", description: "Updated scope based on negotiation call", due_date: daysAgo(-2), completed_at: null, created_at: daysAgo(4) },
-  { id: "crm-a5", client_id: DEMO_CLIENT_ID, contact_id: "crm-c4", deal_id: "crm-d4", activity_type: "email", title: "Welcome email to Rachel", description: "Send intro email with capabilities deck", due_date: daysAgo(-1), completed_at: null, created_at: daysAgo(1) },
-];
-
-const crmInsights = [
-  { id: "ci1", client_id: DEMO_CLIENT_ID, insight_type: "deal_velocity", priority: "high", title: "TechCorp deal stalled in proposal stage", description: "Deal has been in proposal stage for 12 days with no activity", recommended_action: "Schedule follow-up call this week", status: "open", created_at: daysAgo(2) },
-  { id: "ci2", client_id: DEMO_CLIENT_ID, insight_type: "lead_quality", priority: "medium", title: "2 leads from referrals converting well", description: "Referral leads have 50% higher qualification rate than organic leads", recommended_action: "Consider launching a formal referral program", status: "open", created_at: daysAgo(3) },
-  { id: "ci3", client_id: DEMO_CLIENT_ID, insight_type: "pipeline_health", priority: "low", title: "Pipeline weighted value is $16,200", description: "5 active deals in various stages with good distribution", recommended_action: "Focus on moving negotiation-stage deals to close", status: "open", created_at: daysAgo(1) },
-];
-
+// ─── Attribution (lightweight, analytics-only) ───
+// 🔌 API: GET /api/clients/:id/attribution/overview
 const attributionOverview = {
   byChannel: [
     { channel: "organic", attribution_model: "first_touch", total_credit: 4, contacts: 4 },
