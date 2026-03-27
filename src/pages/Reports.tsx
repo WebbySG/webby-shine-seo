@@ -26,7 +26,7 @@ const SECTION_ICONS: Record<string, any> = {
   content_published: FileText,
   gbp_activity: MapPin,
   analytics_performance: BarChart3,
-  leads_crm_summary: Users,
+  leads_attribution: Users,
   ads_summary: Megaphone,
   next_priorities: Target,
 };
