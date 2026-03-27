@@ -62,6 +62,7 @@ const intentColors: Record<string, string> = {
   commercial: "bg-content-background text-content-primary border-content-border",
   transactional: "bg-status-success-bg text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300",
   navigational: "bg-status-warning-bg text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300",
+  local: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300",
 };
 const priorityColors: Record<string, string> = {
   high: "bg-destructive/10 text-destructive border-destructive/30",
