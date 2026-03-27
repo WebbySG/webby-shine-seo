@@ -27,6 +27,7 @@ interface Workspace {
 interface AuthContextType {
   user: User | null;
   workspace: Workspace | null;
+  clientId: string;
   roles: string[];
   permissions: string[];
   token: string | null;
