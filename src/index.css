@@ -275,8 +275,9 @@
     @apply bg-gradient-to-br from-amber-50 to-yellow-50/50 border-ads-border/30 text-amber-900;
   }
   
-  .crm-card {
-    @apply bg-gradient-to-br from-teal-50 to-cyan-50/50 border-crm-border/30 text-teal-900;
+  .ai-card {
+    @apply bg-gradient-to-br from-indigo-50 to-cyan-50/30 border-primary/20;
+    box-shadow: 0 0 0 1px hsl(var(--ai-glow) / 0.05), 0 4px 12px -4px hsl(var(--ai-glow) / 0.1);
   }
   
   .analytics-card {
