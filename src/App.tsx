@@ -36,7 +36,7 @@ import Backlinks from "@/pages/Backlinks";
 import SchemaCreator from "@/pages/SchemaCreator";
 import SiteExplorer from "@/pages/SiteExplorer";
 import SerpChecker from "@/pages/SerpChecker";
-import CSATDashboard from "@/pages/CSATDashboard";
+
 import ContentStudio from "@/pages/ContentStudio";
 import Operations from "@/pages/Operations";
 import Articles from "@/pages/Articles";
