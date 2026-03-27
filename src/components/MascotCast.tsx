@@ -194,14 +194,14 @@ export function MascotEmptyState({
           animate={{ y: [0, -4, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          <div className="h-24 w-24 rounded-2xl bg-card border border-border/40 shadow-lg overflow-hidden mx-auto mb-4">
+          <div className="h-28 w-28 overflow-hidden mx-auto mb-4 drop-shadow-xl">
             <img
               src={m.img}
               alt={m.name}
               className="h-full w-full object-cover object-top"
               loading="lazy"
-              width={512}
-              height={512}
+              width={1024}
+              height={1024}
             />
           </div>
         </motion.div>
