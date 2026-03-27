@@ -339,7 +339,7 @@ Tables needed (from existing migrations 001–040):
 ## 11. Removed (v6.0)
 
 - CRM module (contacts, deals, activities, pipeline)
-- Inbox/conversation module (Chatwoot-style)
+- Inbox/conversation module
 - Knowledge Base
 - Automations (event-driven rules)
 - CSAT Dashboard
