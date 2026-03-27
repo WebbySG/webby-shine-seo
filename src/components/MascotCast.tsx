@@ -142,14 +142,14 @@ export function MascotSectionHeader({
             animate={{ y: [0, -2, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-xl bg-card border border-border/30 shadow-md overflow-hidden shrink-0">
+            <div className="h-16 w-16 lg:h-20 lg:w-20 overflow-hidden shrink-0 drop-shadow-lg">
               <img
                 src={m.img}
                 alt={`${m.name} – ${m.role}`}
                 className="h-full w-full object-cover object-top"
                 loading="lazy"
-                width={512}
-                height={512}
+                width={1024}
+                height={1024}
               />
             </div>
           </motion.div>
