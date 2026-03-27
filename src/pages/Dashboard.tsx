@@ -283,10 +283,10 @@ export default function Dashboard() {
                 {[
                   { label: "Command Center", icon: Target, path: "/command-center", desc: "View priorities" },
                   { label: "Rankings", icon: BarChart3, path: "/rankings", desc: "Track positions" },
-                  { label: "CRM", icon: Users, path: "/crm", desc: "Manage contacts" },
+                  { label: "Audit", icon: Activity, path: "/audit", desc: "Technical audit" },
                   { label: "Analytics", icon: TrendingUp, path: "/analytics", desc: "View performance" },
                   { label: "Google Ads", icon: Zap, path: "/google-ads", desc: "Ad management" },
-                  { label: "Creative Assets", icon: Activity, path: "/creative-assets", desc: "AI visuals" },
+                  { label: "Reports", icon: Target, path: "/reports", desc: "Client reports" },
                 ].map((action) => (
                   <Link key={action.path} to={action.path}>
                     <div className="p-3 rounded-lg border hover:bg-muted/40 transition-all hover:shadow-sm group cursor-pointer">

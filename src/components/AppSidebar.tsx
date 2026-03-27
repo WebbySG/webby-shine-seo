@@ -1,9 +1,9 @@
 import {
   LayoutDashboard, Users, BarChart3, Shield, Lightbulb, Search, TrendingUp,
-  MapPin, Paintbrush, DollarSign, Command, Handshake, Settings, LogOut,
-  ClipboardList, FlaskConical, FileText, Eye, ScrollText,
-  Network, Gauge, Layers, MessageSquare, Zap, Book, Link2, Code,
-  Globe, Star, Share2, Video, Briefcase, CalendarDays,
+  MapPin, Paintbrush, DollarSign, Command, Settings, LogOut,
+  ClipboardList, FlaskConical, FileText, Eye,
+  Network, Gauge, Layers, Link2, Code,
+  Globe, Share2, Video, Briefcase, CalendarDays,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
