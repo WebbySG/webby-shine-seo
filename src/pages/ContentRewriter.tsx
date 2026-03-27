@@ -30,7 +30,7 @@ export default function ContentRewriter() {
   const [isRewriting, setIsRewriting] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const { data: history = [] } = useQuery({
+  const { data: history = [] } = useQuery<any[]>({
     queryKey: ["content-rewrites", clientId],
     queryFn: () => request(`/clients/${clientId}/rewrites`),
   });
