@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { MascotSectionHeader } from "@/components/MascotCast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { request } from "@/lib/api";
 import { useActiveClient } from "@/contexts/ClientContext";
