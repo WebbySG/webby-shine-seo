@@ -135,16 +135,11 @@ export default function Audit() {
 
   return (
     <PageTransition className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Technical SEO Audit</h1>
-          <p className="text-muted-foreground text-sm mt-1">Run audits, track issues, verify fixes with rechecks</p>
-        </div>
+      <MascotSectionHeader role="seo" title="Technical SEO Audit" subtitle="Run audits, track issues, verify fixes with rechecks">
         <Button onClick={() => setShowNewAudit(true)} className="gap-1.5">
           <Play className="h-3.5 w-3.5" /> New Audit
         </Button>
-      </div>
+      </MascotSectionHeader>
 
       {/* KPI Cards */}
       <StaggerContainer className="grid gap-4 sm:grid-cols-5">
