@@ -2,10 +2,10 @@ import { useState, useMemo } from "react";
 import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { useClients, useKeywords } from "@/hooks/use-api";
+import { useKeywords } from "@/hooks/use-api";
+import { useActiveClient } from "@/contexts/ClientContext";
 
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, TrendingUp, TrendingDown, BarChart3, Target, RefreshCw } from "lucide-react";
