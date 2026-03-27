@@ -454,8 +454,7 @@ export default function OnboardingWizard() {
                     <li>• Starter keywords will be seeded</li>
                     <li>• Content topics will be generated</li>
                     <li>• Service pages will be recommended</li>
-                    <li>• Ad campaigns will be configured</li>
-                    <li>• CRM pipeline will be initialized</li>
+                    <li>• Activation checklist will be ready</li>
                     <li>• Activation checklist will be ready</li>
                   </ul>
                 </div>
