@@ -113,9 +113,12 @@ export default function KeywordResearch() {
 
   // Form state
   const [seedTopics, setSeedTopics] = useState("");
+  const [competitorDomains, setCompetitorDomains] = useState("");
   const [targetCount, setTargetCount] = useState("20");
+  const [customCount, setCustomCount] = useState("");
   const [targetLocation, setTargetLocation] = useState("Singapore");
-  const [businessPriority, setBusinessPriority] = useState("authority");
+  const [targetLanguage, setTargetLanguage] = useState("en");
+  const [businessPriority, setBusinessPriority] = useState("leads");
   const [providerMode, setProviderMode] = useState("mock");
 
   // ─── Queries ───
