@@ -165,10 +165,9 @@
     --ads-background: 45 40% 12%;
     --ads-border: 45 35% 22%;
     
-    --crm-primary: 172 66% 50%;
-    --crm-secondary: 172 55% 40%;
-    --crm-background: 172 40% 12%;
-    --crm-border: 172 35% 22%;
+    --ai-accent: 192 80% 60%;
+    --ai-accent-muted: 192 40% 20%;
+    --ai-glow: 235 82% 76%;
     
     --analytics-primary: 235 91% 82%;
     --analytics-secondary: 235 70% 60%;
