@@ -47,6 +47,27 @@ export interface KeywordRanking {
   change: number | null; ranking_url: string | null; tracked_date: string | null;
 }
 export interface Competitor { id: string; domain: string; label: string | null; source: string; confirmed: boolean; }
+
+// ---------- Clients ----------
+export const getClients = () => request<Client[]>("/clients");
+export const getClient = (id: string) => request<Client>(`/clients/${id}`);
+export const createClient = (data: { name: string; domain: string }) =>
+  request<Client>("/clients", { method: "POST", body: JSON.stringify(data) });
+export const updateClient = (id: string, data: Partial<Client>) =>
+  request<Client>(`/clients/${id}`, { method: "PUT", body: JSON.stringify(data) });
+export const deleteClient = (id: string) =>
+  request<{ deleted: boolean }>(`/clients/${id}`, { method: "DELETE" });
+
+// ---------- Keywords ----------
+export const getKeywords = (clientId: string) => request<KeywordRanking[]>(`/clients/${clientId}/keywords`);
+export const createKeyword = (clientId: string, data: { keyword: string }) =>
+  request<any>(`/clients/${clientId}/keywords`, { method: "POST", body: JSON.stringify(data) });
+
+// ---------- Competitors ----------
+export const getCompetitors = (clientId: string) => request<Competitor[]>(`/clients/${clientId}/competitors`);
+export const createCompetitor = (clientId: string, data: { domain: string; label?: string }) =>
+  request<Competitor>(`/clients/${clientId}/competitors`, { method: "POST", body: JSON.stringify(data) });
+
 export interface AuditIssue {
   id: string; issue_type: string; severity: "critical" | "warning" | "info"; affected_url: string;
   description: string; fix_instruction: string | null; status: "open" | "in_progress" | "fixed" | "ignored" | "regressed";
