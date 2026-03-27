@@ -38,7 +38,7 @@ const SECTION_COLORS: Record<string, string> = {
   content_published: "text-content-primary",
   gbp_activity: "text-gbp-primary",
   analytics_performance: "text-analytics-primary",
-  leads_crm_summary: "text-crm-primary",
+  leads_attribution: "text-analytics-primary",
   ads_summary: "text-ads-primary",
   next_priorities: "text-primary",
 };
