@@ -434,9 +434,8 @@ export default function OnboardingWizard() {
                         {selectedTemplate.config_json.ads_suggestions && (
                           <div className="flex items-center gap-1.5"><Megaphone className="h-3.5 w-3.5 text-primary" /> {selectedTemplate.config_json.ads_suggestions.length} ad campaigns</div>
                         )}
-                        {selectedTemplate.config_json.crm_pipeline && (
-                          <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-primary" /> {selectedTemplate.config_json.crm_pipeline.length}-stage CRM pipeline</div>
-                        )}
+
+
                         {selectedTemplate.config_json.weekly_plan_defaults && (
                           <div className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Weekly action plan</div>
                         )}
