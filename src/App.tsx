@@ -36,6 +36,15 @@ import ActivityLog from "@/pages/ActivityLog";
 import TopicalMaps from "@/pages/TopicalMaps";
 import ContentOptimizer from "@/pages/ContentOptimizer";
 import BulkContent from "@/pages/BulkContent";
+import Inbox from "@/pages/Inbox";
+import Automations from "@/pages/Automations";
+import KnowledgeBase from "@/pages/KnowledgeBase";
+import Backlinks from "@/pages/Backlinks";
+import SchemaCreator from "@/pages/SchemaCreator";
+import ContentRewriter from "@/pages/ContentRewriter";
+import SiteExplorer from "@/pages/SiteExplorer";
+import SerpChecker from "@/pages/SerpChecker";
+import CSATDashboard from "@/pages/CSATDashboard";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
