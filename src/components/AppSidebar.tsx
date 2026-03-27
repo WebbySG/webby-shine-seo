@@ -131,7 +131,6 @@ export function AppSidebar() {
         {renderGroup("Content", contentNav)}
         {renderGroup("Publish", publishNav)}
         {renderGroup("Channels", channelNav)}
-        {renderGroup("Support", supportNav)}
         {renderGroup("Business", businessNav)}
         {renderGroup("System", settingsNav)}
       </SidebarContent>

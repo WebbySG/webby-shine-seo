@@ -107,7 +107,7 @@ const App = () => (
                 <Route path="/schema-creator" element={<SchemaCreator />} />
                 <Route path="/site-explorer" element={<SiteExplorer />} />
                 <Route path="/serp-checker" element={<SerpChecker />} />
-                <Route path="/csat" element={<CSATDashboard />} />
+                <Route path="/csat" element={<Navigate to="/" replace />} />
                 <Route path="/operations" element={<Operations />} />
                 <Route path="/qa" element={<DemoQA />} />
                 {/* Redirects for old routes */}
