@@ -378,7 +378,10 @@
 
 ## 6. Frontend Pages & Components
 
-### Pages (src/pages/)
+### Global Client Context Architecture
+The platform uses a persistent `activeClientId` managed via `ClientContext` (`src/contexts/ClientContext.tsx`) and a `GlobalClientSelector` dropdown in the `AppLayout` header. Selection is stored in `localStorage` and accessed via the `useActiveClient()` hook, so all module data automatically filters to the selected client without per-page re-selection.
+
+### Pages (src/pages/) — 30+ Modules
 | Page | Route | Purpose |
 |------|-------|---------|
 | `Index.tsx` | `/` | Landing/redirect |
@@ -387,21 +390,38 @@
 | `ForgotPassword.tsx` | `/forgot-password` | Password reset request |
 | `Dashboard.tsx` | `/dashboard` | Main dashboard with KPIs, charts, activity |
 | `Rankings.tsx` | `/rankings` | Keyword tracking and rank history |
-| `Audit.tsx` | `/audit` | Technical SEO audit results |
+| `Audit.tsx` | `/audit` | Technical SEO audit + Internal Links tab |
 | `Opportunities.tsx` | `/opportunities` | SEO opportunity management |
 | `Analytics.tsx` | `/analytics` | GA4/GSC performance analytics |
+| `AiVisibility.tsx` | `/ai-visibility` | AI citation tracking across LLMs |
+| `Backlinks.tsx` | `/backlinks` | Backlink monitoring and analysis |
+| `SiteExplorer.tsx` | `/site-explorer` | Domain overview and competitive analysis |
+| `SerpChecker.tsx` | `/serp-checker` | SERP position checker |
+| `TopicalMaps.tsx` | `/topical-maps` | Topic cluster strategy builder |
+| `ContentStudio.tsx` | `/content-studio` | Content scoring + AI rewriter (unified) |
+| `BulkContent.tsx` | `/bulk-content` | Bulk AI article generation |
+| `Articles.tsx` | `/articles` | SEO article management |
+| `SocialMedia.tsx` | `/social` | Social post scheduling & publishing |
+| `VideoAssets.tsx` | `/videos` | AI video script & rendering |
+| `ContentCalendar.tsx` | `/calendar` | Unified calendar with drag-and-drop rescheduling |
+| `SchemaCreator.tsx` | `/schema-creator` | JSON-LD structured data generator |
 | `LocalSEO.tsx` | `/local-seo` | GBP management and local insights |
 | `GoogleAds.tsx` | `/google-ads` | Google Ads campaigns and recommendations |
 | `CreativeAssets.tsx` | `/creative` | AI creative asset generation |
 | `CommandCenter.tsx` | `/command-center` | Strategic priorities and recommendations |
 | `CRM.tsx` | `/crm` | Contacts, deals, activities, attribution |
+| `Inbox.tsx` | `/inbox` | Omnichannel conversation inbox |
+| `KnowledgeBase.tsx` | `/knowledge-base` | Help center article management |
+| `Automations.tsx` | `/automations` | Event-driven workflow rules |
+| `CSATDashboard.tsx` | `/csat` | Customer satisfaction analytics |
+| `Reports.tsx` | `/reports` | Report builder and scheduled reports |
+| `Operations.tsx` | `/operations` | Job center + activity log (unified) |
 | `ClientList.tsx` | `/clients` | Client management list |
 | `ClientDetail.tsx` | `/clients/:id` | Individual client detail with tabs |
-| `Reports.tsx` | `/reports` | Report builder and scheduled reports |
 | `OnboardingWizard.tsx` | `/onboarding` | 7-step onboarding wizard |
 | `SetupComplete.tsx` | `/setup-complete` | Post-onboarding confirmation |
 | `WorkspaceSettings.tsx` | `/settings` | Workspace, branding, team, billing settings |
-| `DemoQA.tsx` | `/qa` | Dev-only QA test checklist (48 items) |
+| `DemoQA.tsx` | `/qa` | Dev-only QA test checklist |
 | `NotFound.tsx` | `*` | 404 page |
 
 ### Portal Pages (src/pages/portal/)
