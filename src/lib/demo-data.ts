@@ -402,6 +402,7 @@ const routes: DemoRoute[] = [
   { pattern: /^\/social\/[^/]+\/approve$/, method: "POST", handler: () => ({ ...socialPosts[0], status: "approved" }) },
   { pattern: /^\/social\/[^/]+$/, method: "PUT", handler: (_m, body) => ({ ...socialPosts[0], ...body }) },
   { pattern: /^\/articles\/[^/]+\/social-posts$/, handler: () => socialPosts },
+  { pattern: /^\/clients\/[^/]+\/social-posts$/, handler: () => socialPosts },
 
   // ── Videos ──
   { pattern: /^\/videos\/generate$/, method: "POST", handler: () => ({ ...videos[0], id: crypto.randomUUID() }) },
