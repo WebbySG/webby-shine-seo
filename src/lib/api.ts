@@ -47,10 +47,6 @@ export interface KeywordRanking {
   change: number | null; ranking_url: string | null; tracked_date: string | null;
 }
 export interface Competitor { id: string; domain: string; label: string | null; source: string; confirmed: boolean; }
-export interface AuditIssue {
-  id: string; issue_type: string; severity: "critical" | "warning" | "info"; affected_url: string;
-  description: string; fix_instruction: string | null; status: "open" | "in_progress" | "done";
-}
 
 // ---------- Clients ----------
 export const getClients = () => request<Client[]>("/clients");
@@ -72,8 +68,48 @@ export const getCompetitors = (clientId: string) => request<Competitor[]>(`/clie
 export const createCompetitor = (clientId: string, data: { domain: string; label?: string }) =>
   request<Competitor>(`/clients/${clientId}/competitors`, { method: "POST", body: JSON.stringify(data) });
 
+export interface AuditIssue {
+  id: string; issue_type: string; severity: "critical" | "warning" | "info"; affected_url: string;
+  description: string; fix_instruction: string | null; status: "open" | "in_progress" | "fixed" | "ignored" | "regressed";
+  provider?: string; category?: string; why_it_matters?: string;
+  first_seen_at?: string; last_checked_at?: string; recheck_count?: number;
+  evidence?: AuditEvidence[]; rechecks?: AuditRecheck[];
+}
+export interface AuditRun {
+  id: string; client_id: string; domain: string | null; scope: string; provider: string;
+  pages_crawled: number; pages_limit: number; score: number | null; status: string;
+  total_issues: number; critical_count: number; warning_count: number; info_count: number;
+  started_at: string | null; completed_at: string | null; created_at: string;
+  issues?: AuditIssue[]; pages?: AuditPage[];
+}
+export interface AuditPage {
+  id: string; audit_run_id: string; url: string; status_code: number | null;
+  title: string | null; meta_description: string | null; word_count: number | null;
+  load_time_ms: number | null; issues_count: number;
+}
+export interface AuditEvidence {
+  id: string; audit_issue_id: string; evidence_type: string; key: string;
+  value: string | null; expected_value: string | null;
+}
+export interface AuditRecheck {
+  id: string; audit_issue_id: string; provider: string; previous_status: string;
+  new_status: string; previous_evidence: any; new_evidence: any;
+  diff_summary: string | null; checked_at: string;
+}
+
 // ---------- Audit ----------
+export const getAuditRuns = (clientId: string) => request<AuditRun[]>(`/audit/runs?client_id=${clientId}`);
+export const getAuditRunDetail = (runId: string) => request<AuditRun>(`/audit/runs/${runId}`);
+export const startAudit = (data: { client_id: string; domain: string; scope?: string; provider?: string }) =>
+  request<AuditRun>(`/audit/runs`, { method: "POST", body: JSON.stringify(data) });
 export const getAuditIssues = (clientId: string) => request<AuditIssue[]>(`/audit/issues?client_id=${clientId}`);
+export const getAuditIssueDetail = (issueId: string) => request<AuditIssue>(`/audit/issues/${issueId}`);
+export const updateAuditIssueStatus = (issueId: string, status: string) =>
+  request<AuditIssue>(`/audit/issues/${issueId}`, { method: "PATCH", body: JSON.stringify({ status }) });
+export const recheckAuditIssue = (issueId: string) =>
+  request<AuditRecheck>(`/audit/issues/${issueId}/recheck`, { method: "POST" });
+export const recheckAuditRun = (runId: string) =>
+  request<{ rechecked: number; rechecks: AuditRecheck[] }>(`/audit/runs/${runId}/recheck`, { method: "POST" });
 
 // ---------- Opportunities ----------
 export interface Opportunity {

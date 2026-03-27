@@ -48,17 +48,53 @@ const competitors = [
   { id: "comp3", domain: "seo-pros.asia", label: "SEO Pros Asia", source: "dataforseo", confirmed: false },
 ];
 
-// ─── Audit Issues ───
+// ─── Audit Issues (extended) ───
 // 🔌 API: GET /api/audit/issues?client_id=:id
 const auditIssues = [
-  { id: "aud1", issue_type: "missing_meta", severity: "critical" as const, affected_url: "/services", description: "Missing meta description", fix_instruction: "Add a unique meta description targeting primary keyword", status: "open" as const },
-  { id: "aud2", issue_type: "slow_page", severity: "warning" as const, affected_url: "/blog/seo-tips", description: "Page load time > 3s (LCP: 4.2s)", fix_instruction: "Optimize images and defer non-critical JS", status: "open" as const },
-  { id: "aud3", issue_type: "broken_link", severity: "critical" as const, affected_url: "/about", description: "Broken outbound link to partner site", fix_instruction: "Update or remove the broken link", status: "in_progress" as const },
-  { id: "aud4", issue_type: "missing_alt", severity: "info" as const, affected_url: "/portfolio", description: "5 images missing alt text", fix_instruction: "Add descriptive alt text to all images", status: "open" as const },
-  { id: "aud5", issue_type: "duplicate_title", severity: "warning" as const, affected_url: "/blog/page/2", description: "Duplicate title tag with /blog/page/3", fix_instruction: "Add unique title with pagination info", status: "done" as const },
-  { id: "aud6", issue_type: "missing_schema", severity: "warning" as const, affected_url: "/services/seo", description: "No FAQ schema on service page", fix_instruction: "Add FAQ structured data for featured snippet eligibility", status: "open" as const },
-  { id: "aud7", issue_type: "redirect_chain", severity: "warning" as const, affected_url: "/old-services", description: "3-hop redirect chain detected", fix_instruction: "Update to direct redirect to final destination", status: "open" as const },
+  { id: "aud1", audit_run_id: "arun1", issue_type: "missing_meta_description", severity: "critical" as const, affected_url: "/services", description: "Missing meta description tag on service page", fix_instruction: "Add a unique meta description between 120-160 characters that includes the target keyword and a call to action.", why_it_matters: "Meta descriptions directly impact click-through rates in search results.", status: "open" as const, provider: "mock", category: "meta", first_seen_at: daysAgo(14), last_checked_at: daysAgo(1), recheck_count: 1 },
+  { id: "aud2", audit_run_id: "arun1", issue_type: "slow_lcp", severity: "warning" as const, affected_url: "/blog/seo-tips", description: "Largest Contentful Paint is 4.2s (target: <2.5s)", fix_instruction: "Optimize hero image, preload critical fonts, defer non-essential JS.", why_it_matters: "LCP is a Core Web Vital used as a Google ranking factor. Slow LCP increases bounce rates.", status: "open" as const, provider: "mock", category: "performance", first_seen_at: daysAgo(10), last_checked_at: daysAgo(2), recheck_count: 0 },
+  { id: "aud3", audit_run_id: "arun1", issue_type: "broken_link", severity: "critical" as const, affected_url: "/about", description: "Broken internal link to /old-partner-page returns 404", fix_instruction: "Update link to correct destination or set up a 301 redirect.", why_it_matters: "Broken links waste crawl budget, degrade UX, and can prevent important pages from being indexed.", status: "in_progress" as const, provider: "mock", category: "links", first_seen_at: daysAgo(21), last_checked_at: daysAgo(3), recheck_count: 2 },
+  { id: "aud4", audit_run_id: "arun1", issue_type: "missing_alt_text", severity: "info" as const, affected_url: "/portfolio", description: "5 images missing alt text on portfolio page", fix_instruction: "Add descriptive alt text to all images that describes their content.", why_it_matters: "Alt text helps search engines understand images and is required for accessibility.", status: "open" as const, provider: "mock", category: "accessibility", first_seen_at: daysAgo(14), last_checked_at: daysAgo(1), recheck_count: 0 },
+  { id: "aud5", audit_run_id: "arun1", issue_type: "duplicate_title", severity: "warning" as const, affected_url: "/blog/page/2", description: "Duplicate title tag shared with /blog/page/3", fix_instruction: "Add unique title with pagination info, e.g. 'Blog — Page 2'.", why_it_matters: "Duplicate titles confuse search engines about which page to rank.", status: "fixed" as const, provider: "mock", category: "meta", first_seen_at: daysAgo(30), last_checked_at: daysAgo(5), recheck_count: 1 },
+  { id: "aud6", audit_run_id: "arun1", issue_type: "no_schema_markup", severity: "warning" as const, affected_url: "/services/seo", description: "No structured data found on SEO service page", fix_instruction: "Add FAQ schema markup using JSON-LD to enable rich snippets.", why_it_matters: "Schema markup can enable rich snippets and improve CTR by up to 30%.", status: "open" as const, provider: "mock", category: "structured_data", first_seen_at: daysAgo(14), last_checked_at: daysAgo(1), recheck_count: 0 },
+  { id: "aud7", audit_run_id: "arun1", issue_type: "redirect_chain", severity: "warning" as const, affected_url: "/old-services", description: "3-hop redirect chain: /old-services → /services-v2 → /services", fix_instruction: "Update to direct 301 redirect from /old-services to /services.", why_it_matters: "Redirect chains slow page loading and lose link equity at each hop.", status: "open" as const, provider: "mock", category: "links", first_seen_at: daysAgo(20), last_checked_at: daysAgo(2), recheck_count: 0 },
+  { id: "aud8", audit_run_id: "arun2", issue_type: "missing_canonical", severity: "warning" as const, affected_url: "/blog/seo-guide", description: "No canonical tag specified on blog post", fix_instruction: "Add a self-referencing canonical tag to prevent duplicate content issues.", why_it_matters: "Without canonical tags, search engines may index duplicate versions.", status: "open" as const, provider: "mock", category: "indexation", first_seen_at: daysAgo(7), last_checked_at: daysAgo(1), recheck_count: 0 },
+  { id: "aud9", audit_run_id: "arun2", issue_type: "mixed_content", severity: "critical" as const, affected_url: "/contact", description: "HTTP image loaded on HTTPS page: http://cdn.example.com/map.jpg", fix_instruction: "Update image source to use HTTPS protocol.", why_it_matters: "Mixed content triggers browser security warnings and blocks resources.", status: "open" as const, provider: "mock", category: "security", first_seen_at: daysAgo(7), last_checked_at: daysAgo(1), recheck_count: 0 },
+  { id: "aud10", audit_run_id: "arun2", issue_type: "missing_h1", severity: "warning" as const, affected_url: "/pricing", description: "No H1 tag found on pricing page", fix_instruction: "Add a single descriptive H1 that includes the primary keyword.", why_it_matters: "H1 tags establish content hierarchy and help search engines identify the main topic.", status: "open" as const, provider: "mock", category: "content", first_seen_at: daysAgo(7), last_checked_at: daysAgo(1), recheck_count: 0 },
 ];
+
+// ─── Audit Runs ───
+const auditRuns = [
+  { id: "arun1", client_id: DEMO_CLIENT_ID, domain: "webby.sg", scope: "full_crawl", provider: "mock", pages_crawled: 47, pages_limit: 500, score: 72, status: "completed", total_issues: 7, critical_count: 2, warning_count: 4, info_count: 1, started_at: daysAgo(14), completed_at: daysAgo(14), created_at: daysAgo(14) },
+  { id: "arun2", client_id: DEMO_CLIENT_ID, domain: "webby.sg", scope: "top_pages", provider: "mock", pages_crawled: 12, pages_limit: 50, score: 68, status: "completed", total_issues: 3, critical_count: 1, warning_count: 2, info_count: 0, started_at: daysAgo(7), completed_at: daysAgo(7), created_at: daysAgo(7) },
+];
+
+// ─── Audit Pages ───
+const auditPages = [
+  { id: "ap1", audit_run_id: "arun1", url: "https://webby.sg/", status_code: 200, title: "Webby SG - SEO Agency", meta_description: "Leading SEO agency in Singapore", word_count: 1250, load_time_ms: 1820, issues_count: 0 },
+  { id: "ap2", audit_run_id: "arun1", url: "https://webby.sg/services", status_code: 200, title: "Our Services", meta_description: null, word_count: 890, load_time_ms: 2100, issues_count: 1 },
+  { id: "ap3", audit_run_id: "arun1", url: "https://webby.sg/about", status_code: 200, title: "About Us", meta_description: "About Webby SG", word_count: 650, load_time_ms: 1650, issues_count: 1 },
+  { id: "ap4", audit_run_id: "arun1", url: "https://webby.sg/blog/seo-tips", status_code: 200, title: "SEO Tips", meta_description: "Top SEO tips", word_count: 2100, load_time_ms: 4200, issues_count: 1 },
+  { id: "ap5", audit_run_id: "arun1", url: "https://webby.sg/portfolio", status_code: 200, title: "Portfolio", meta_description: "Our work", word_count: 450, load_time_ms: 3100, issues_count: 1 },
+];
+
+// ─── Audit Evidence ───
+const auditEvidence: Record<string, any[]> = {
+  aud1: [{ id: "ev1", audit_issue_id: "aud1", evidence_type: "snapshot", key: "meta_description", value: null, expected_value: "120-160 character description", captured_at: daysAgo(1) }],
+  aud2: [{ id: "ev2", audit_issue_id: "aud2", evidence_type: "metric", key: "lcp_ms", value: "4200", expected_value: "<2500", captured_at: daysAgo(2) }, { id: "ev3", audit_issue_id: "aud2", evidence_type: "metric", key: "fcp_ms", value: "1800", expected_value: "<1800", captured_at: daysAgo(2) }],
+  aud3: [{ id: "ev4", audit_issue_id: "aud3", evidence_type: "snapshot", key: "link_target", value: "/old-partner-page", expected_value: "200 OK", captured_at: daysAgo(3) }, { id: "ev5", audit_issue_id: "aud3", evidence_type: "snapshot", key: "http_status", value: "404", expected_value: "200", captured_at: daysAgo(3) }],
+  aud9: [{ id: "ev6", audit_issue_id: "aud9", evidence_type: "snapshot", key: "insecure_resource", value: "http://cdn.example.com/map.jpg", expected_value: "https://...", captured_at: daysAgo(1) }],
+};
+
+// ─── Audit Rechecks ───
+const auditRechecks: Record<string, any[]> = {
+  aud1: [{ id: "rc1", audit_issue_id: "aud1", audit_run_id: "arun2", provider: "mock", previous_status: "open", new_status: "open", previous_evidence: { meta_description: null }, new_evidence: { meta_description: null }, diff_summary: "Issue persists — meta description still missing.", checked_at: daysAgo(7) }],
+  aud3: [
+    { id: "rc2", audit_issue_id: "aud3", audit_run_id: "arun1", provider: "mock", previous_status: "open", new_status: "open", previous_evidence: { http_status: "404" }, new_evidence: { http_status: "404" }, diff_summary: "Link still returns 404.", checked_at: daysAgo(14) },
+    { id: "rc3", audit_issue_id: "aud3", audit_run_id: "arun2", provider: "mock", previous_status: "open", new_status: "in_progress", previous_evidence: { http_status: "404" }, new_evidence: { http_status: "301" }, diff_summary: "Redirect added but chain detected. Status changed to in_progress.", checked_at: daysAgo(7) },
+  ],
+  aud5: [{ id: "rc4", audit_issue_id: "aud5", audit_run_id: "arun2", provider: "mock", previous_status: "open", new_status: "fixed", previous_evidence: { title: "Blog" }, new_evidence: { title: "Blog — Page 2" }, diff_summary: "Title updated with pagination. Issue resolved.", checked_at: daysAgo(5) }],
+};
 
 // ─── Opportunities ───
 // 🔌 API: GET /api/clients/:id/opportunities
@@ -363,7 +399,56 @@ const routes: DemoRoute[] = [
   { pattern: /^\/clients\/[^/]+\/competitors$/, handler: () => competitors },
   { pattern: /^\/clients\/[^/]+\/competitors$/, method: "POST", handler: (_m, body) => ({ id: crypto.randomUUID(), domain: body?.domain, label: body?.label || null, source: "manual", confirmed: true }) },
 
-  // ── Audit ──
+  // ── Audit (extended) ──
+  // POST /api/audit/runs — start new audit
+  { pattern: /^\/audit\/runs$/, method: "POST", handler: (_m, body) => {
+    const newRun = {
+      id: crypto.randomUUID(), client_id: body?.client_id, domain: body?.domain, scope: body?.scope || "full_crawl",
+      provider: body?.provider || "mock", pages_crawled: body?.scope === "homepage_only" ? 1 : body?.scope === "top_pages" ? 12 : 47,
+      pages_limit: body?.scope === "homepage_only" ? 1 : body?.scope === "top_pages" ? 50 : 500,
+      score: 72, status: "completed", total_issues: 10, critical_count: 3, warning_count: 5, info_count: 2,
+      started_at: now, completed_at: now, created_at: now,
+    };
+    return newRun;
+  } },
+  // POST /api/audit/runs/:id/recheck
+  { pattern: /^\/audit\/runs\/[^/]+\/recheck$/, method: "POST", handler: () => ({
+    rechecked: 5, rechecks: auditIssues.filter(i => i.status !== "fixed").slice(0, 5).map(i => ({
+      id: crypto.randomUUID(), audit_issue_id: i.id, provider: "mock",
+      previous_status: i.status, new_status: Math.random() > 0.3 ? i.status : "fixed",
+      previous_evidence: { status: i.status }, new_evidence: { status: Math.random() > 0.3 ? i.status : "fixed" },
+      diff_summary: Math.random() > 0.3 ? "Issue persists." : "Issue resolved!", checked_at: now,
+    })),
+  }) },
+  // GET /api/audit/runs/:id — run detail
+  { pattern: /^\/audit\/runs\/[^/]+$/, handler: (m) => {
+    const runId = m[0].split("/").pop();
+    const run = auditRuns.find(r => r.id === runId) || auditRuns[0];
+    return { ...run, issues: auditIssues.filter(i => i.audit_run_id === run.id), pages: auditPages.filter(p => p.audit_run_id === run.id) };
+  } },
+  // GET /api/audit/runs — list runs
+  { pattern: /^\/audit\/runs/, handler: () => auditRuns },
+  // POST /api/audit/issues/:id/recheck
+  { pattern: /^\/audit\/issues\/[^/]+\/recheck$/, method: "POST", handler: (m) => {
+    const issueId = m[0].split("/")[3];
+    const issue = auditIssues.find(i => i.id === issueId);
+    return {
+      id: crypto.randomUUID(), audit_issue_id: issueId, provider: "mock",
+      previous_status: issue?.status || "open", new_status: Math.random() > 0.5 ? "fixed" : issue?.status || "open",
+      previous_evidence: { value: "old" }, new_evidence: { value: Math.random() > 0.5 ? "resolved" : "unchanged" },
+      diff_summary: Math.random() > 0.5 ? "Issue has been resolved." : "Issue still persists.",
+      checked_at: now,
+    };
+  } },
+  // PATCH /api/audit/issues/:id — update status
+  { pattern: /^\/audit\/issues\/[^/]+$/, method: "PATCH", handler: (_m, body) => ({ status: body?.status || "open" }) },
+  // GET /api/audit/issues/:id — issue detail
+  { pattern: /^\/audit\/issues\/[^/]+$/, handler: (m) => {
+    const issueId = m[0].split("/").pop();
+    const issue = auditIssues.find(i => i.id === issueId) || auditIssues[0];
+    return { ...issue, evidence: auditEvidence[issue.id] || [], rechecks: auditRechecks[issue.id] || [] };
+  } },
+  // GET /api/audit/issues — all issues
   { pattern: /^\/audit\/issues/, handler: () => auditIssues },
 
   // ── Opportunities ──
