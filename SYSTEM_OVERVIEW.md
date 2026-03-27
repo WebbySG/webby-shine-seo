@@ -14,7 +14,7 @@
 - **Content** — briefs, drafts, approvals, publishing
 - **Analytics & Reporting** — GA4/GSC performance, attribution, scheduled reports
 
-**NOT in scope:** CRM, helpdesk, inbox, Chatwoot-style conversations, deal pipelines, contact management, support ticketing. These were removed in v6.0.
+**NOT in scope:** CRM, helpdesk, inbox, deal pipelines, contact management, support ticketing. These were removed in v6.0.
 
 ---
 
