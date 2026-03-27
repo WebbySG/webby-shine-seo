@@ -595,19 +595,11 @@ The background worker (`backend/src/worker.ts`) runs scheduled jobs:
 - **Billing/payments integration** (Stripe checkout, invoice generation)
 - **Email delivery system** (transactional emails for invites, reports, alerts)
 - **Notification system** (in-app notifications, real-time alerts)
-- **Activity/audit log** (user action tracking for compliance)
-- **API rate limiting and throttling**
 - **Webhook system** (inbound/outbound event hooks)
 - **Multi-language / i18n support**
 - **Advanced RBAC UI** (permission matrix editor)
-- **File/document management** (beyond creative assets)
-- **Client communication/messaging** (in-app chat or notes)
-- **A/B testing integration**
-- **Schema markup / structured data tools**
-- **Backlink monitoring**
-- **Content calendar view** (visual Kanban/calendar for content pipeline)
-- **Competitive analysis dashboard** (beyond basic competitor tracking)
-- **Custom dashboard builder** (user-configurable widgets)
+- **Real-time WebSocket support** (live chat, typing indicators)
+- **Embeddable chat widget** (script-tag install for client websites)
 - **Integration marketplace** (Zapier, Make, custom integrations)
 - **White-label custom domain support**
 - **SSO / SAML authentication**
@@ -615,7 +607,7 @@ The background worker (`backend/src/worker.ts`) runs scheduled jobs:
 - **Mobile native app or PWA**
 - **Real-time collaboration** (multi-user editing)
 - **AI chat assistant** (conversational SEO advisor)
-- **Automated testing suite** (E2E tests beyond demo QA checklist)
+- **Automated testing suite** (E2E tests)
 
 ### Partially Built (Need Enhancement)
 - Dashboard charts use some aggregated data but could pull more live module data
