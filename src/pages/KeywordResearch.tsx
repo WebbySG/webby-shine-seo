@@ -20,6 +20,7 @@ import {
   Search, Sparkles, Target, FileText, BarChart3, Layers, Network, Map,
   ChevronRight, ArrowUpDown, Filter, Plus, Zap, Globe, BookOpen,
   HelpCircle, MapPin, TrendingUp, ArrowRight, CheckCircle, Clock,
+  Shield, AlertTriangle, ArrowLeftRight, Info,
 } from "lucide-react";
 
 // ─── Types ───
