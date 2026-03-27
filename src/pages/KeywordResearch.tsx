@@ -459,7 +459,7 @@ export default function KeywordResearch() {
                     acc[type].push(m);
                     return acc;
                   }, {});
-                  const typeOrder = ["pillar_page", "service_page", "location_page", "category_page", "comparison_page", "blog_post", "faq_page"];
+                  const typeOrder = ["core_service", "sub_service", "pillar_page", "service_page", "location_page", "category_page", "comparison_page", "faq_page", "blog_post"];
                   const sorted = Object.entries(typeGroups).sort(([a], [b]) => typeOrder.indexOf(a) - typeOrder.indexOf(b));
 
                   return (
