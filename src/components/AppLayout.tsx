@@ -101,6 +101,7 @@ export function AppLayout() {
                   </DropdownMenu>
                 </div>
               </header>
+              <RouteRestorer />
               <main className="flex-1 overflow-auto p-6 lg:p-8">
                 <Outlet />
               </main>
