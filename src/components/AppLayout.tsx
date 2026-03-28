@@ -62,50 +62,51 @@ export function AppLayout() {
 
   return (
     <ClientProvider>
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full bg-background">
-          <AppSidebar />
-          <div className="flex-1 flex flex-col min-w-0">
-            <header className="h-14 flex items-center justify-between border-b border-border/50 bg-card/80 backdrop-blur-sm px-6 shrink-0 sticky top-0 z-30">
-              <div className="flex items-center gap-3">
-                <SidebarTrigger className="mr-1" />
-                <div className="h-4 w-px bg-border/50" />
-                <span className="text-sm font-semibold text-foreground tracking-tight">{page.label}</span>
-                {page.module && (
-                  <Badge variant="outline" className={`text-[10px] font-medium ${MODULE_BADGE_STYLES[page.module] || ""}`}>
-                    {page.module.toUpperCase()}
-                  </Badge>
-                )}
-                <div className="h-4 w-px bg-border/50 ml-1" />
-                <GlobalClientSelector />
-              </div>
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 rounded-full hover:bg-muted/60 p-1 pr-2 transition-colors">
-                      <Avatar className="h-7 w-7">
-                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">{initials}</AvatarFallback>
-                      </Avatar>
-                      <span className="text-xs font-medium text-muted-foreground hidden sm:inline">{user?.full_name}</span>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => navigate("/settings")}><UserIcon className="h-4 w-4 mr-2" /> Profile</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/settings")}><Settings className="h-4 w-4 mr-2" /> Settings</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout} className="text-destructive"><LogOut className="h-4 w-4 mr-2" /> Sign Out</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </header>
-            <main className="flex-1 overflow-auto p-6 lg:p-8">
-              <Outlet />
-            </main>
+      <WorkspaceRestoreProvider>
+        <SidebarProvider>
+          <div className="min-h-screen flex w-full bg-background">
+            <AppSidebar />
+            <div className="flex-1 flex flex-col min-w-0">
+              <header className="h-14 flex items-center justify-between border-b border-border/50 bg-card/80 backdrop-blur-sm px-6 shrink-0 sticky top-0 z-30">
+                <div className="flex items-center gap-3">
+                  <SidebarTrigger className="mr-1" />
+                  <div className="h-4 w-px bg-border/50" />
+                  <span className="text-sm font-semibold text-foreground tracking-tight">{page.label}</span>
+                  {page.module && (
+                    <Badge variant="outline" className={`text-[10px] font-medium ${MODULE_BADGE_STYLES[page.module] || ""}`}>
+                      {page.module.toUpperCase()}
+                    </Badge>
+                  )}
+                  <div className="h-4 w-px bg-border/50 ml-1" />
+                  <GlobalClientSelector />
+                </div>
+                <div className="flex items-center gap-3">
+                  <ThemeToggle />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-2 rounded-full hover:bg-muted/60 p-1 pr-2 transition-colors">
+                        <Avatar className="h-7 w-7">
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">{initials}</AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs font-medium text-muted-foreground hidden sm:inline">{user?.full_name}</span>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => navigate("/settings")}><UserIcon className="h-4 w-4 mr-2" /> Profile</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/settings")}><Settings className="h-4 w-4 mr-2" /> Settings</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={logout} className="text-destructive"><LogOut className="h-4 w-4 mr-2" /> Sign Out</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </header>
+              <main className="flex-1 overflow-auto p-6 lg:p-8">
+                <Outlet />
+              </main>
+            </div>
           </div>
-          
-        </div>
-      </SidebarProvider>
+        </SidebarProvider>
+      </WorkspaceRestoreProvider>
     </ClientProvider>
   );
 }
