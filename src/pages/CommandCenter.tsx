@@ -34,6 +34,7 @@ const MODULE_COLORS: Record<string, string> = {
 };
 
 export default function CommandCenter() {
+  const { savedUI, trackUI } = usePageRestore("command");
   const [selectedClientId, setSelectedClientId] = useState<string>("");
   const { data: clients } = useClients();
   const { data: summary, isLoading: summaryLoading } = useCommandCenterSummary(selectedClientId);

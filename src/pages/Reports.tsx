@@ -84,8 +84,11 @@ const DEMO_CLIENTS = [
 ];
 
 export default function Reports() {
-  const [tab, setTab] = useState("builder");
+  const { savedUI, trackUI } = usePageRestore("reports");
+  const [tab, setTab] = useState(savedUI.activeTab || "builder");
   const { isDemoMode, workspace } = useAuth();
+
+  useEffect(() => { trackUI({ activeTab: tab }); }, [tab, trackUI]);
 
   const clientsQuery = useClients();
   const templatesQuery = useReportTemplates();
