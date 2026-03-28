@@ -613,6 +613,8 @@ Assets: Transparent PNGs in `src/assets/` with ambient glow effects.
 | `src/lib/demo-data.ts` | Mock data layer with `matchDemoRoute()` |
 | `src/contexts/AuthContext.tsx` | Auth state, demo mode flag |
 | `src/contexts/ClientContext.tsx` | Global client selection |
+| `src/contexts/WorkspaceRestoreContext.tsx` | Workspace state persistence + restore contracts |
+| `src/hooks/use-workspace-restore.ts` | Per-page restore hook (filters, entity focus, UI state) |
 | `src/components/AppSidebar.tsx` | Navigation structure |
 | `src/components/MascotCast.tsx` | Mascot system (Sera, Max, Kai) |
 | `src/components/PlanningMemoryTrail.tsx` | Lifecycle trail + status bar components |
@@ -624,5 +626,71 @@ Assets: Transparent PNGs in `src/assets/` with ambient glow effects.
 
 ---
 
+## 12. Workspace State Restore
+
+### Purpose
+Users should be able to close the browser and resume exactly where they left off — same page, same client, same filters, same open brief/issue.
+
+### Frontend Contract (implemented)
+```typescript
+interface UserWorkspaceState {
+  userId: string;
+  lastRoute: string;           // e.g. "/brief-workflow"
+  selectedClientId: string;
+  moduleKey: string;            // e.g. "briefs", "audit", "keywords"
+  entityFocus: {
+    entityType: "opportunity" | "brief" | "draft" | "audit_run" | "audit_issue" | "keyword_job" | "article" | null;
+    entityId: string | null;
+  };
+  filters: Record<string, string | string[] | boolean | number | undefined>;
+  uiState: {
+    activeTab?: string;
+    panelOpen?: boolean;
+    panelEntityId?: string;
+    expandedIds?: string[];
+  };
+  updatedAt: string;
+}
+```
+
+### Current Implementation
+- **Local persistence:** `localStorage` under key `webby_workspace_state`
+- **Route tracking:** Automatic via `WorkspaceRestoreProvider` in `AppLayout`
+- **Client tracking:** Via `GlobalClientSelector` → updates `selectedClientId`
+- **Page-level tracking:** Via `usePageRestore(moduleKey)` hook in high-value pages
+
+### Pages with restore support
+| Page | Tracked State |
+|------|--------------|
+| Brief Workflow | selectedBriefId, activeTab, status/pageType/priority filters |
+| Audit | mainTab, selectedRunId, selectedIssueId, severity filter |
+| Keyword Research | activeTab, selectedJob, intent filter, sort key/direction |
+| Opportunities | expandedId (focused opportunity) |
+
+### Expected Backend Endpoints
+```
+GET  /api/workspace-state          → UserWorkspaceState
+PUT  /api/workspace-state          → upsert current state
+```
+
+### Backend Table
+```sql
+CREATE TABLE workspace_state (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  state JSONB NOT NULL DEFAULT '{}',
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+### Restore Flow (future)
+1. User authenticates → backend returns session
+2. Frontend calls `GET /api/workspace-state`
+3. If state exists, navigate to `lastRoute` with restored context
+4. As user works, frontend debounce-upserts state via `PUT /api/workspace-state`
+5. On logout, optionally clear or preserve state
+
+---
+
 *Last updated: 2026-03-28*
-*Version: v8.0 — Comprehensive backend handoff with planning memory architecture*
+*Version: v8.1 — Added workspace state restore architecture*
