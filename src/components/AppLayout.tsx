@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { ClientProvider } from "@/contexts/ClientContext";
+import { WorkspaceRestoreProvider } from "@/contexts/WorkspaceRestoreContext";
 import { GlobalClientSelector } from "@/components/GlobalClientSelector";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
