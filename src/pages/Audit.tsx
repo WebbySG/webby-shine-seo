@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { usePageRestore } from "@/hooks/use-workspace-restore";
 import { MascotSectionHeader } from "@/components/MascotCast";
 import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
