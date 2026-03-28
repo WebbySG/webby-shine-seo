@@ -626,18 +626,36 @@ Assets: Transparent PNGs in `src/assets/` with ambient glow effects.
 
 ---
 
-## 12. Workspace State Restore
+## 12. Session Persistence & Workspace Restore
 
-### Purpose
-Users should be able to close the browser and resume exactly where they left off — same page, same client, same filters, same open brief/issue.
+### 12.1 Key Distinction
 
-### Frontend Contract (implemented)
+| Concern | What It Solves | Where It Lives |
+|---------|---------------|----------------|
+| **Session / Auth Persistence** | User stays signed in across browser restarts | Auth token (JWT or session cookie) + backend session store |
+| **Workspace Restore** | User returns to the same page, client, filters, and open work item | Dedicated `workspace_state` table + frontend local cache |
+
+These are **separate systems** that work together. Auth persistence keeps the door open; workspace restore puts the user back at their desk.
+
+### 12.2 Target User Experience
+
+1. User is working on a brief for Client X with filters applied
+2. User closes the browser (or laptop sleeps)
+3. User returns hours/days later
+4. **If session is still valid** → app loads directly, restores workspace context, user lands on the same brief
+5. **If session expired** → user signs in again → after auth, workspace context is still restored from backend
+6. The experience should feel like "the app remembers me"
+
+### 12.3 Workspace State Model
+
+#### Frontend Contract (implemented in `src/contexts/WorkspaceRestoreContext.tsx`)
+
 ```typescript
 interface UserWorkspaceState {
   userId: string;
-  lastRoute: string;           // e.g. "/brief-workflow"
+  lastRoute: string;             // e.g. "/brief-workflow"
   selectedClientId: string;
-  moduleKey: string;            // e.g. "briefs", "audit", "keywords"
+  moduleKey: string;              // e.g. "briefs", "audit", "keywords"
   entityFocus: {
     entityType: "opportunity" | "brief" | "draft" | "audit_run" | "audit_issue" | "keyword_job" | "article" | null;
     entityId: string | null;
@@ -649,17 +667,122 @@ interface UserWorkspaceState {
     panelEntityId?: string;
     expandedIds?: string[];
   };
-  updatedAt: string;
+  updatedAt: string;              // ISO timestamp of last state change
 }
 ```
 
-### Current Implementation
-- **Local persistence:** `localStorage` under key `webby_workspace_state`
-- **Route tracking:** Automatic via `WorkspaceRestoreProvider` in `AppLayout`
-- **Client tracking:** Via `GlobalClientSelector` → updates `selectedClientId`
-- **Page-level tracking:** Via `usePageRestore(moduleKey)` hook in high-value pages
+This stores **meaningful workflow context**, not auth state or sensitive data.
 
-### Pages with restore support
+#### Backend Table (for future implementation)
+
+```sql
+CREATE TABLE workspace_state (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  state      JSONB NOT NULL DEFAULT '{}',
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- RLS: users can only read/write their own row
+ALTER TABLE workspace_state ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own state"
+  ON workspace_state FOR ALL TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+```
+
+### 12.4 What Should Be Restored
+
+| Restore Target | Example | Priority |
+|---------------|---------|----------|
+| Last route/page | `/brief-workflow` | High |
+| Selected client | Client X active in header selector | High |
+| Active module | `briefs`, `audit`, `keywords` | High |
+| Active filters | severity=critical, status=draft | High |
+| Open entity | Brief #abc is selected/expanded | High |
+| Active tab | "Clusters" tab in Keyword Research | Medium |
+| Panel state | Side panel open with issue detail | Medium |
+| Sort preferences | Sort by volume descending | Low |
+
+**Do NOT restore:** scroll position, hover states, modal/dialog open state, form input mid-typing, or any sensitive data.
+
+### 12.5 Storage Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│                  Auth Layer                      │
+│  JWT / session token → keeps user signed in      │
+│  Stored: httpOnly cookie or localStorage token   │
+│  Managed by: AuthContext + backend /auth/me       │
+└──────────────────────┬──────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────┐
+│           Backend Persistent Layer               │
+│  workspace_state table (Supabase/Postgres)       │
+│  Source of truth for cross-device continuity     │
+│  Synced via GET/PUT /api/workspace-state          │
+└──────────────────────┬──────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────┐
+│           Frontend Local Cache                   │
+│  localStorage key: webby_workspace_state         │
+│  Provides instant restore before API responds    │
+│  Falls back gracefully if cleared                │
+└─────────────────────────────────────────────────┘
+```
+
+**Why local storage alone is not enough:**
+- Cleared when user clears browser data
+- Not available on a different device
+- No server-side validation of referenced entity IDs
+
+**Local cache is still valuable** as a fast restore layer before the API responds.
+
+### 12.6 Backend Endpoints (expected)
+
+```
+GET  /api/workspace-state
+  → Returns: UserWorkspaceState (from JSONB column)
+  → Auth: requires valid session, scoped to auth.uid()
+
+PUT  /api/workspace-state
+  → Body: Partial<UserWorkspaceState>
+  → Upserts the user's row, merges with existing state
+  → Sets updated_at = now()
+  → Auth: requires valid session, scoped to auth.uid()
+```
+
+Frontend should **debounce** upserts (e.g. 2-second trailing debounce) to avoid excessive writes during active navigation.
+
+### 12.7 Restore Flow
+
+```
+App Load
+  ├─ 1. Check auth token (localStorage or cookie)
+  ├─ 2. Call GET /api/auth/me → validate session
+  │     ├─ Valid → user is signed in
+  │     └─ Expired → redirect to /login → after login, continue from step 3
+  ├─ 3. Call GET /api/workspace-state
+  │     ├─ State exists → navigate to lastRoute with context
+  │     └─ No state → land on default Dashboard
+  └─ 4. As user works, debounce PUT /api/workspace-state
+```
+
+### 12.8 Frontend Implementation Status
+
+| Component | Status |
+|-----------|--------|
+| `WorkspaceRestoreContext` + `WorkspaceRestoreProvider` | ✅ Implemented |
+| `usePageRestore(moduleKey)` hook | ✅ Implemented |
+| localStorage persistence layer | ✅ Implemented |
+| Route auto-tracking | ✅ Implemented |
+| Client selection tracking | ✅ Implemented |
+| Backend API integration | ❌ Pending backend |
+| Cross-device sync | ❌ Pending backend |
+| Login redirect to lastRoute | ❌ Pending backend |
+
+#### Pages with Restore Support
+
 | Page | Tracked State |
 |------|--------------|
 | Brief Workflow | selectedBriefId, activeTab, status/pageType/priority filters |
@@ -667,30 +790,25 @@ interface UserWorkspaceState {
 | Keyword Research | activeTab, selectedJob, intent filter, sort key/direction |
 | Opportunities | expandedId (focused opportunity) |
 
-### Expected Backend Endpoints
-```
-GET  /api/workspace-state          → UserWorkspaceState
-PUT  /api/workspace-state          → upsert current state
-```
+#### Pages Pending Restore Support
 
-### Backend Table
-```sql
-CREATE TABLE workspace_state (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
-  state JSONB NOT NULL DEFAULT '{}',
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-```
+| Page | What Should Be Tracked |
+|------|----------------------|
+| Dashboard / Command Center | Active date range, widget collapse state |
+| Reports | Selected report, date range, export format |
+| Analytics | Active GA4/GSC tab, date comparison range |
+| Competitor Benchmark | Selected competitor, active comparison tab |
 
-### Restore Flow (future)
-1. User authenticates → backend returns session
-2. Frontend calls `GET /api/workspace-state`
-3. If state exists, navigate to `lastRoute` with restored context
-4. As user works, frontend debounce-upserts state via `PUT /api/workspace-state`
-5. On logout, optionally clear or preserve state
+### 12.9 Non-Goals
+
+- ❌ Restore every tiny visual detail (scroll position, hover states)
+- ❌ Store sensitive data (passwords, tokens, PII) in workspace state
+- ❌ Rely solely on browser localStorage for long-term continuity
+- ❌ Simulate multi-device sync before backend exists
+- ❌ Confuse session persistence (auth) with workflow persistence (workspace state)
+- ❌ Auto-restore modal/dialog open states (disorienting on return)
 
 ---
 
 *Last updated: 2026-03-28*
-*Version: v8.1 — Added workspace state restore architecture*
+*Version: v8.2 — Comprehensive session persistence and workspace restore architecture*
