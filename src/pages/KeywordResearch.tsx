@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { usePageRestore } from "@/hooks/use-workspace-restore";
 import { MascotSectionHeader } from "@/components/MascotCast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { request } from "@/lib/api";
