@@ -11,7 +11,7 @@ export function GlobalClientSelector() {
   return (
     <div className="flex items-center gap-2">
       <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-      <Select value={activeClientId} onValueChange={setActiveClientId}>
+      <Select value={activeClientId} onValueChange={(id) => { setActiveClientId(id); updateState({ selectedClientId: id }); }}>
         <SelectTrigger className="w-[180px] h-8 text-xs bg-background border">
           <SelectValue placeholder="Select client" />
         </SelectTrigger>
