@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ClientProvider } from "@/contexts/ClientContext";
 import { WorkspaceRestoreProvider } from "@/contexts/WorkspaceRestoreContext";
 import { GlobalClientSelector } from "@/components/GlobalClientSelector";
+import { RouteRestorer } from "@/components/RouteRestorer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
