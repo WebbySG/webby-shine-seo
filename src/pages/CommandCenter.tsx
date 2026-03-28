@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePageRestore } from "@/hooks/use-workspace-restore";
 import { PageTransition } from "@/components/motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,6 +34,7 @@ const MODULE_COLORS: Record<string, string> = {
 };
 
 export default function CommandCenter() {
+  const { savedUI, trackUI } = usePageRestore("command");
   const [selectedClientId, setSelectedClientId] = useState<string>("");
   const { data: clients } = useClients();
   const { data: summary, isLoading: summaryLoading } = useCommandCenterSummary(selectedClientId);
