@@ -62,13 +62,20 @@ const checkStatusIcon: Record<string, { icon: typeof CheckCircle2; color: string
 export default function BriefWorkflow() {
   const { activeClientId: clientId } = useActiveClient();
   const queryClient = useQueryClient();
-  const [selectedBriefId, setSelectedBriefId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("queue");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [pageTypeFilter, setPageTypeFilter] = useState("all");
-  const [priorityFilter, setPriorityFilter] = useState("all");
+  const { savedEntity, savedUI, savedFilters, trackEntity, trackUI, trackFilters } = usePageRestore("briefs");
+
+  const [selectedBriefId, setSelectedBriefId] = useState<string | null>(savedEntity.entityId || null);
+  const [activeTab, setActiveTab] = useState(savedUI.activeTab || "queue");
+  const [statusFilter, setStatusFilter] = useState((savedFilters.status as string) || "all");
+  const [pageTypeFilter, setPageTypeFilter] = useState((savedFilters.pageType as string) || "all");
+  const [priorityFilter, setPriorityFilter] = useState((savedFilters.priority as string) || "all");
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState<Partial<SeoBrief>>({});
+
+  // Track state changes for restore
+  useEffect(() => { trackEntity("brief", selectedBriefId); }, [selectedBriefId, trackEntity]);
+  useEffect(() => { trackUI({ activeTab }); }, [activeTab, trackUI]);
+  useEffect(() => { trackFilters({ status: statusFilter, pageType: pageTypeFilter, priority: priorityFilter }); }, [statusFilter, pageTypeFilter, priorityFilter, trackFilters]);
 
   // ─── Queries ───
   const { data: briefs = [], isLoading } = useQuery<SeoBrief[]>({

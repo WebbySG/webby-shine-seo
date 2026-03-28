@@ -106,13 +106,19 @@ function scoreBg(score: number): string {
 export default function KeywordResearch() {
   const { activeClientId: clientId, activeClient } = useActiveClient();
   const queryClient = useQueryClient();
+  const { savedEntity, savedUI, savedFilters, trackEntity, trackUI, trackFilters } = usePageRestore("keywords");
+
   const [selectedJob, setSelectedJob] = useState<KWResearchJob | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedResult, setSelectedResult] = useState<KWResult | null>(null);
-  const [activeTab, setActiveTab] = useState("keywords");
-  const [intentFilter, setIntentFilter] = useState("all");
-  const [sortKey, setSortKey] = useState<"overall_score" | "search_volume" | "keyword_difficulty">("overall_score");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [activeTab, setActiveTab] = useState(savedUI.activeTab || "keywords");
+  const [intentFilter, setIntentFilter] = useState((savedFilters.intent as string) || "all");
+  const [sortKey, setSortKey] = useState<"overall_score" | "search_volume" | "keyword_difficulty">((savedFilters.sortKey as any) || "overall_score");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">((savedFilters.sortDir as any) || "desc");
+
+  useEffect(() => { trackUI({ activeTab }); }, [activeTab, trackUI]);
+  useEffect(() => { trackEntity("keyword_job", selectedJob?.id || null); }, [selectedJob, trackEntity]);
+  useEffect(() => { trackFilters({ intent: intentFilter, sortKey, sortDir }); }, [intentFilter, sortKey, sortDir, trackFilters]);
 
   // Form state
   const [seedTopics, setSeedTopics] = useState("");

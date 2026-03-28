@@ -26,7 +26,10 @@ export default function Opportunities() {
   const [clientId] = useState(clients[0]?.id ?? "");
   const { data: apiOpportunities, isLoading } = useOpportunities(clientId);
   const opportunities: OpportunityWithMemory[] = (apiOpportunities as any) ?? [];
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { savedEntity, trackEntity } = usePageRestore("opportunities");
+  const [expandedId, setExpandedId] = useState<string | null>(savedEntity.entityId || null);
+
+  useEffect(() => { trackEntity("opportunity", expandedId); }, [expandedId, trackEntity]);
 
   const highCount = opportunities.filter(o => o.priority === "high").length;
   const totalImpact = opportunities.length;
