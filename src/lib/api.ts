@@ -447,6 +447,84 @@ export const getAiVisOverview = (clientId: string) => request<AiVisOverview>(`/c
 export const getAiVisCompetitors = (clientId: string) => request<any[]>(`/clients/${clientId}/ai-visibility/competitors`);
 export const createAiVisCompetitor = (data: { client_id: string; competitor_name: string; competitor_domain?: string }) => request<any>(`/ai-visibility/competitors`, { method: "POST", body: JSON.stringify(data) });
 
+// ---------- Planning Memory: Content Inventory ----------
+export interface ContentInventoryItem {
+  id: string; client_id: string; url: string; page_type: string; title: string | null;
+  word_count: number | null; has_schema: boolean; schema_types: string[];
+  primary_keyword: string | null; mapped_keyword_ids: string[];
+  brief_id: string | null; article_id: string | null; publish_status: string;
+  last_audit_run_id: string | null; last_audit_score: number | null;
+  internal_links_in: number; internal_links_out: number;
+  created_at: string; updated_at: string; last_crawled_at: string | null;
+}
+export const getContentInventory = (clientId: string) => request<ContentInventoryItem[]>(`/clients/${clientId}/content-inventory`);
+
+// ---------- Planning Memory: Content Performance ----------
+export interface ContentPerformanceSummary {
+  id: string; client_id: string; content_url: string; article_id: string | null;
+  brief_id: string | null; keyword: string | null;
+  clicks_7d: number; clicks_30d: number; impressions_7d: number; impressions_30d: number;
+  avg_position_7d: number | null; avg_position_30d: number | null;
+  position_change_30d: number | null; ctr_7d: number | null;
+  trend: "improving" | "stable" | "declining" | "new";
+  published_at: string | null; first_indexed_at: string | null;
+  snapshot_date: string;
+}
+export const getContentPerformance = (clientId: string) => request<ContentPerformanceSummary[]>(`/clients/${clientId}/content-performance`);
+
+// ---------- Planning Memory: Opportunity Evidence ----------
+export interface OpportunityEvidence {
+  id: string; opportunity_id: string; evidence_type: "ranking" | "audit" | "competitor" | "keyword" | "performance";
+  source_module: string; source_id: string | null;
+  summary: string; detail: string | null; captured_at: string;
+}
+
+// ---------- Planning Memory: Opportunity Lifecycle ----------
+export interface OpportunityLifecycleEvent {
+  id: string; opportunity_id: string; event_type: "created" | "brief_created" | "draft_generated" | "approved" | "published" | "performance_checked" | "dismissed" | "reopened";
+  entity_type: string | null; entity_id: string | null;
+  summary: string; actor: string | null; created_at: string;
+}
+
+// Enhanced Opportunity with memory fields
+export interface OpportunityWithMemory extends Opportunity {
+  confidence: number; sources: string[]; evidence_text: string;
+  expected_impact: string; next_action: string;
+  brief_id: string | null; draft_id: string | null; article_id: string | null;
+  publishing_job_id: string | null; performance_summary_id: string | null;
+  lifecycle: OpportunityLifecycleEvent[];
+  evidence_records: OpportunityEvidence[];
+}
+export const getOpportunityDetail = (clientId: string, oppId: string) => request<OpportunityWithMemory>(`/clients/${clientId}/opportunities/${oppId}`);
+
+// ---------- Planning Memory: Rank Snapshots ----------
+export interface RankSnapshot {
+  id: string; client_id: string; keyword_id: string; keyword: string;
+  position: number | null; previous_position: number | null;
+  url: string | null; snapshot_date: string; provider: string;
+}
+export const getRankSnapshots = (clientId: string, keywordId?: string) => request<RankSnapshot[]>(`/clients/${clientId}/rank-snapshots${keywordId ? `?keyword_id=${keywordId}` : ""}`);
+
+// ---------- Planning Memory: Page Relationships ----------
+export interface PageRelationship {
+  id: string; client_id: string; from_url: string; to_url: string;
+  relationship_type: "parent_child" | "sibling" | "hub_spoke" | "internal_link" | "topical_cluster";
+  strength: number; brief_ids: string[]; keyword_ids: string[];
+  created_at: string;
+}
+export const getPageRelationships = (clientId: string) => request<PageRelationship[]>(`/clients/${clientId}/page-relationships`);
+
+// ---------- Planning Memory: Published Content Records ----------
+export interface PublishedContentRecord {
+  id: string; client_id: string; article_id: string | null; brief_id: string | null;
+  opportunity_id: string | null; url: string; title: string;
+  published_at: string; publisher: string; platform: string;
+  initial_position: number | null; current_position: number | null;
+  position_change: number | null; clicks_since_publish: number;
+  impressions_since_publish: number; days_since_publish: number;
+}
+export const getPublishedContentRecords = (clientId: string) => request<PublishedContentRecord[]>(`/clients/${clientId}/published-content`);
+
 // ---------- Competitor Benchmarks ----------
 export interface CompetitorBenchmarkRun {
   id: string; client_id: string; target_domain: string; competitor_domain: string;

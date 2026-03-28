@@ -540,5 +540,72 @@ Tables needed (from existing migrations 001–040):
 
 ---
 
-*Last updated: 2026-03-27*
-*Version: v7.1 — Frontend complete, backend handoff ready*
+## 18. Planning Memory Model (v7.2)
+
+The platform supports structured long-term planning memory across five layers, enabling future AI-driven content planning decisions.
+
+### Memory Layers
+
+| Layer | Entities | Purpose |
+|-------|----------|---------|
+| **Planning** | `keyword_research_runs`, `keyword_clusters`, `page_mapping_recommendations`, `site_structure_recommendations` | What was researched and recommended |
+| **Evidence** | `audit_runs`, `audit_issues`, `audit_rechecks`, `competitor_benchmark_runs`, `competitor_page_classifications`, `competitor_gap_recommendations` | Supporting data for decisions |
+| **Execution** | `opportunities` (with lifecycle), `opportunity_evidence`, `seo_briefs`, `seo_brief_drafts`, `client_approvals`, `publishing_jobs`, `published_content_records` | What was acted on |
+| **Performance** | `rank_snapshots`, `analytics_snapshots`, `content_performance_summaries` | How things performed after execution |
+| **Site/Content** | `content_inventory`, `internal_link_suggestions`, `page_relationships` | Current state of the site |
+
+### Decision Flow
+
+```
+Evidence sources → Opportunity/Recommendation → Brief → Draft → Approval → Publish → Performance Feedback → Future Planning
+```
+
+### Key TypeScript Interfaces (api.ts)
+
+- `OpportunityWithMemory` — opportunity + lifecycle events + evidence records + linked brief/draft/article/publishing/performance IDs
+- `OpportunityLifecycleEvent` — tracks each stage: created → brief_created → draft_generated → approved → published → performance_checked
+- `OpportunityEvidence` — structured evidence linking to ranking/audit/competitor/keyword modules
+- `ContentInventoryItem` — per-URL inventory with brief/article/audit linkages
+- `ContentPerformanceSummary` — 7d/30d performance with trend classification
+- `PublishedContentRecord` — tracks position change and clicks since publication
+- `PageRelationship` — parent/child, sibling, hub-spoke relationships between pages
+- `RankSnapshot` — historical position tracking per keyword
+
+### Frontend Components
+
+- `PlanningMemoryTrail` — timeline component showing decision history for any entity
+- `LifecycleStatusBar` — compact icon strip showing Brief → Draft → Article → Published → Tracked progress
+
+### API Endpoints Expected for Backend
+
+| Endpoint | Method | Returns |
+|----------|--------|---------|
+| `/clients/:id/opportunities/:oppId` | GET | `OpportunityWithMemory` |
+| `/clients/:id/content-inventory` | GET | `ContentInventoryItem[]` |
+| `/clients/:id/content-performance` | GET | `ContentPerformanceSummary[]` |
+| `/clients/:id/published-content` | GET | `PublishedContentRecord[]` |
+| `/clients/:id/page-relationships` | GET | `PageRelationship[]` |
+| `/clients/:id/rank-snapshots` | GET | `RankSnapshot[]` |
+
+### Backend Tables Required
+
+```sql
+-- content_inventory
+-- content_performance_summaries
+-- opportunity_evidence
+-- opportunity_lifecycle_events
+-- published_content_records
+-- page_relationships
+-- rank_snapshots (may already exist as keyword tracking)
+```
+
+---
+
+| File | Role |
+|------|------|
+| `src/components/PlanningMemoryTrail.tsx` | Shared lifecycle trail + status bar components |
+
+---
+
+*Last updated: 2026-03-28*
+*Version: v7.2 — Planning memory contracts added, backend handoff ready*

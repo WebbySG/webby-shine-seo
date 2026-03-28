@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { MascotSectionHeader } from "@/components/MascotCast";
+import { PlanningMemoryTrail } from "@/components/PlanningMemoryTrail";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { request } from "@/lib/api";
 import type { SeoBrief, SeoBriefDraft, DraftReviewCheck } from "@/lib/api";
@@ -495,7 +496,21 @@ export default function BriefWorkflow() {
                   </div>
                 </CardContent>
               </Card>
-            )}
+             )}
+
+            {/* Planning Memory — Content Lifecycle Trail */}
+            <Card>
+              <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> Content Lifecycle</CardTitle></CardHeader>
+              <CardContent>
+                <PlanningMemoryTrail lifecycle={[
+                  { id: `lc-${brief.id}-1`, event_type: "created", entity_type: "keyword_research", entity_id: brief.source_mapping_id || null, summary: `Brief created from keyword: "${brief.keyword}"`, actor: "user", created_at: brief.created_at },
+                  ...(brief.status !== "draft" ? [{ id: `lc-${brief.id}-2`, event_type: brief.status === "under_review" ? "brief_created" : "approved", entity_type: "seo_brief", entity_id: brief.id, summary: `Status: ${brief.status}`, actor: "user", created_at: brief.created_at }] : []),
+                  ...(drafts.length > 0 ? [{ id: `lc-${brief.id}-3`, event_type: "draft_generated" as const, entity_type: "seo_brief_draft", entity_id: drafts[0].id, summary: `Draft v${drafts[0].version} generated (${drafts[0].status})`, actor: "system", created_at: drafts[0].created_at }] : []),
+                  ...(drafts.length > 0 && drafts[0].status === "approved" ? [{ id: `lc-${brief.id}-4`, event_type: "approved" as const, entity_type: "seo_brief_draft", entity_id: drafts[0].id, summary: "Draft approved — ready for publishing", actor: "user", created_at: drafts[0].updated_at }] : []),
+                  ...(brief.status === "ready_for_publishing" ? [{ id: `lc-${brief.id}-5`, event_type: "published" as const, entity_type: "seo_brief", entity_id: brief.id, summary: "Marked ready for publishing", actor: "user", created_at: brief.created_at }] : []),
+                ]} />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </PageTransition>

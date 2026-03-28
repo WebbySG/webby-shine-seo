@@ -385,3 +385,20 @@ export function useStartCompetitorBenchmark(clientId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["competitor-benchmarks", clientId] }),
   });
 }
+
+// ---------- Planning Memory ----------
+export function useContentInventory(clientId: string) {
+  return useQuery({ queryKey: ["content-inventory", clientId], queryFn: () => api.getContentInventory(clientId), enabled: !!clientId });
+}
+export function useContentPerformance(clientId: string) {
+  return useQuery({ queryKey: ["content-performance", clientId], queryFn: () => api.getContentPerformance(clientId), enabled: !!clientId });
+}
+export function usePublishedContentRecords(clientId: string) {
+  return useQuery({ queryKey: ["published-content", clientId], queryFn: () => api.getPublishedContentRecords(clientId), enabled: !!clientId });
+}
+export function usePageRelationships(clientId: string) {
+  return useQuery({ queryKey: ["page-relationships", clientId], queryFn: () => api.getPageRelationships(clientId), enabled: !!clientId });
+}
+export function useRankSnapshots(clientId: string, keywordId?: string) {
+  return useQuery({ queryKey: ["rank-snapshots", clientId, keywordId], queryFn: () => api.getRankSnapshots(clientId, keywordId), enabled: !!clientId });
+}
