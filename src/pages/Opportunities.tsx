@@ -1,24 +1,16 @@
 import { useState } from "react";
 import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SourceBadge } from "@/components/SourceBadge";
 import { ConfidenceChip } from "@/components/ConfidenceChip";
 import { FreshnessIndicator } from "@/components/FreshnessIndicator";
-import { MascotSectionHeader, MascotBanner } from "@/components/MascotCast";
+import { MascotSectionHeader } from "@/components/MascotCast";
+import { PlanningMemoryTrail, LifecycleStatusBar } from "@/components/PlanningMemoryTrail";
 import { useClients, useOpportunities } from "@/hooks/use-api";
-import { Target, FileSearch, Layers, Wrench, TrendingUp, ArrowRight, Zap, Eye } from "lucide-react";
-import type { Opportunity } from "@/lib/api";
-
-// Enhanced opportunity with AI fields
-interface EnhancedOpportunity extends Opportunity {
-  confidence: number;
-  sources: string[];
-  evidence: string;
-  expected_impact: string;
-  next_action: string;
-}
+import { Target, FileSearch, Layers, Wrench, TrendingUp, ArrowRight, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import type { OpportunityWithMemory } from "@/lib/api";
 
 const TYPE_META: Record<string, { label: string; icon: typeof Target; colorClass: string; bgClass: string; borderClass: string }> = {
   near_win: { label: "Near Win", icon: Target, colorClass: "text-amber-600", bgClass: "bg-amber-500/10", borderClass: "border-l-amber-500" },
@@ -27,29 +19,19 @@ const TYPE_META: Record<string, { label: string; icon: typeof Target; colorClass
   technical_fix: { label: "Technical Fix", icon: Wrench, colorClass: "text-destructive", bgClass: "bg-destructive/10", borderClass: "border-l-destructive" },
 };
 
-function buildEnhancedOpportunities(): EnhancedOpportunity[] {
-  return [
-    { id: "d1", type: "near_win", keyword: "renovation singapore", target_url: "https://renovo.sg/services", current_position: 12, recommended_action: 'Push from #12 to page 1 with internal links and content expansion', priority: "high", status: "open", created_at: new Date(Date.now() - 5 * 86400000).toISOString(), confidence: 92, sources: ["rankings", "keywords"], evidence: "Position improved from #18→#12 over 4 weeks. Competitor avg word count is 2,100 vs your 780.", expected_impact: "+45% organic traffic to /services", next_action: "Expand content to 1,500+ words and add 3 internal links" },
-    { id: "d2", type: "near_win", keyword: "bathroom renovation cost singapore", target_url: "https://renovo.sg/bathroom", current_position: 15, recommended_action: 'Add pricing table and FAQ schema', priority: "high", status: "open", created_at: new Date(Date.now() - 3 * 86400000).toISOString(), confidence: 85, sources: ["rankings", "competitor"], evidence: "Competitors in top 5 all have pricing tables. Your page lacks structured pricing content.", expected_impact: "+30% CTR with FAQ rich snippets", next_action: "Create comparison pricing table" },
-    { id: "d3", type: "content_gap", keyword: "interior design trends 2026", target_url: null, current_position: null, recommended_action: 'Create new comprehensive guide', priority: "high", status: "open", created_at: new Date(Date.now() - 2 * 86400000).toISOString(), confidence: 78, sources: ["keywords", "competitor"], evidence: "Competitor renocraft.sg ranks #4 with 3,200 words. No existing page on your domain.", expected_impact: "~2,400 monthly search volume opportunity", next_action: "Create SEO brief for new service page" },
-    { id: "d4", type: "technical_fix", keyword: null, target_url: "https://renovo.sg/services", current_position: 12, recommended_action: 'Fix missing meta description', priority: "medium", status: "open", created_at: new Date(Date.now() - 7 * 86400000).toISOString(), confidence: 98, sources: ["audit"], evidence: "Meta description tag is empty. This directly impacts CTR in search results.", expected_impact: "+15-20% CTR improvement", next_action: "Add meta description under 160 chars" },
-    { id: "d5", type: "page_expansion", keyword: "renovation singapore, condo renovation", target_url: "https://renovo.sg/services", current_position: 9, recommended_action: 'Split into dedicated service pages', priority: "medium", status: "open", created_at: new Date(Date.now() - 10 * 86400000).toISOString(), confidence: 71, sources: ["keywords", "audit"], evidence: "URL ranks for 2 distinct intents. Dedicated pages would improve relevance.", expected_impact: "Better ranking for both terms", next_action: "Create brief for condo renovation page" },
-  ];
-}
-
 export default function Opportunities() {
   const { data: apiClients } = useClients();
   const clients = apiClients ?? [];
   const [clientId] = useState(clients[0]?.id ?? "");
   const { data: apiOpportunities, isLoading } = useOpportunities(clientId);
-  const opportunities: EnhancedOpportunity[] = (apiOpportunities as any) ?? buildEnhancedOpportunities();
+  const opportunities: OpportunityWithMemory[] = (apiOpportunities as any) ?? [];
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const highCount = opportunities.filter(o => o.priority === "high").length;
   const totalImpact = opportunities.length;
 
   return (
     <PageTransition className="space-y-5">
-      {/* Mascot header */}
       <MascotSectionHeader
         role="seo"
         title="AI Opportunities"
@@ -80,7 +62,7 @@ export default function Opportunities() {
         })}
       </StaggerContainer>
 
-      {/* Opportunity Cards — AI-styled */}
+      {/* Opportunity Cards */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Eye className="h-4 w-4 text-muted-foreground" />
@@ -105,10 +87,11 @@ export default function Opportunities() {
         {opportunities.map((o) => {
           const meta = TYPE_META[o.type] || TYPE_META.technical_fix;
           const Icon = meta.icon;
+          const isExpanded = expandedId === o.id;
           return (
             <Card key={o.id} className={`${meta.borderClass} border-l-4 hover-lift group`}>
               <CardContent className="p-4">
-                {/* Top row: type + keyword + badges */}
+                {/* Top row */}
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-2 flex-wrap min-w-0">
                     <div className={`p-1.5 rounded-lg ${meta.bgClass} shrink-0`}>
@@ -129,24 +112,53 @@ export default function Opportunities() {
                 </div>
 
                 {/* Evidence */}
-                <p className="text-xs text-muted-foreground leading-relaxed mb-2">{o.evidence}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-2">{o.evidence_text}</p>
 
-                {/* Source badges + impact */}
+                {/* Source badges + lifecycle status bar */}
                 <div className="flex items-center gap-2 flex-wrap mb-2">
-                  {o.sources.map((s) => <SourceBadge key={s} source={s} />)}
+                  {o.sources?.map((s) => <SourceBadge key={s} source={s} />)}
                   <FreshnessIndicator date={o.created_at} />
+                  <div className="ml-auto">
+                    <LifecycleStatusBar
+                      briefId={o.brief_id}
+                      draftId={o.draft_id}
+                      articleId={o.article_id}
+                      publishingJobId={o.publishing_job_id}
+                      performanceSummaryId={o.performance_summary_id}
+                    />
+                  </div>
                 </div>
 
-                {/* Expected impact + Next action */}
+                {/* Expected impact + toggle */}
                 <div className="flex items-center gap-4 pt-2 border-t border-border/50">
                   <div className="flex items-center gap-1.5 min-w-0 flex-1">
                     <TrendingUp className="h-3 w-3 text-emerald-500 shrink-0" />
                     <span className="text-[10px] font-medium text-emerald-600 truncate">{o.expected_impact}</span>
                   </div>
-                  <Button size="sm" variant="ghost" className="h-7 text-xs gap-1 text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {o.next_action} <ArrowRight className="h-3 w-3" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button size="sm" variant="ghost" className="h-7 text-xs gap-1 text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {o.next_action} <ArrowRight className="h-3 w-3" />
+                    </Button>
+                    {o.lifecycle && o.lifecycle.length > 1 && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 text-muted-foreground"
+                        onClick={() => setExpandedId(isExpanded ? null : o.id)}
+                      >
+                        {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                      </Button>
+                    )}
+                  </div>
                 </div>
+
+                {/* Expanded: Planning Memory Trail */}
+                {isExpanded && o.lifecycle && (
+                  <div className="mt-3 pt-3 border-t border-border/30">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Decision History</p>
+                    <PlanningMemoryTrail lifecycle={o.lifecycle} />
+                  </div>
+                )}
               </CardContent>
             </Card>
           );

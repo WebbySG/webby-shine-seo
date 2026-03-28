@@ -922,6 +922,27 @@ const routes: DemoRoute[] = [
   ] },
 
 
+  // ── Content Inventory ──
+  { pattern: /^\/clients\/[^/]+\/content-inventory$/, handler: () => contentInventory },
+
+  // ── Content Performance ──
+  { pattern: /^\/clients\/[^/]+\/content-performance$/, handler: () => contentPerformanceSummaries },
+
+  // ── Published Content Records ──
+  { pattern: /^\/clients\/[^/]+\/published-content$/, handler: () => publishedContentRecords },
+
+  // ── Page Relationships ──
+  { pattern: /^\/clients\/[^/]+\/page-relationships$/, handler: () => pageRelationships },
+
+  // ── Rank Snapshots ──
+  { pattern: /^\/clients\/[^/]+\/rank-snapshots/, handler: () => [
+    { id: "rs1", client_id: DEMO_CLIENT_ID, keyword_id: "kw1", keyword: "seo agency singapore", position: 4, previous_position: 5, url: "/seo-agency", snapshot_date: daysAgo(1), provider: "mock" },
+    { id: "rs2", client_id: DEMO_CLIENT_ID, keyword_id: "kw1", keyword: "seo agency singapore", position: 5, previous_position: 7, url: "/seo-agency", snapshot_date: daysAgo(7), provider: "mock" },
+    { id: "rs3", client_id: DEMO_CLIENT_ID, keyword_id: "kw1", keyword: "seo agency singapore", position: 7, previous_position: 8, url: "/seo-agency", snapshot_date: daysAgo(14), provider: "mock" },
+  ] },
+
+  // ── Opportunity Detail ──
+  { pattern: /^\/clients\/[^/]+\/opportunities\/[^/]+$/, handler: () => opportunities[0] },
 
 
   // ── Health check ──
