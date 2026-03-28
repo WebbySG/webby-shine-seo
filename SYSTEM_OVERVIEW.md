@@ -1,206 +1,287 @@
-# Webby SEO OS — System Overview
+# Webby SEO OS — System Overview & Backend Handoff
 
-> **Purpose:** Single source of truth for the platform's architecture, scope, and implementation status. Separates frontend (Lovable) from backend (pending Claude build).
-
----
-
-## 1. Product Identity
-
-**Webby SEO OS** is a multi-tenant digital marketing operating system for agencies, focused on:
-
-- **SEO** — technical audit, keyword research, competitor benchmarking, rankings, AI visibility tracking
-- **SEM** — Google Ads campaign management, ad copy generation, budget recommendations
-- **SMM** — social media content, video assets, GBP/local SEO
-- **Content** — service-page-first briefs, drafts, approvals, publishing
-- **Analytics & Reporting** — GA4/GSC performance, lightweight attribution, scheduled reports
-
-**NOT in scope:** CRM, helpdesk, inbox, deal pipelines, contact management, support ticketing, Chatwoot, automations, knowledge base, CSAT. All removed in v6.0.
+> **Version:** v8.0 — Definitive backend handoff document
+> **Last updated:** 2026-03-28
+> **Purpose:** Single source of truth for architecture, scope, memory model, and backend implementation requirements. Written for the Claude backend developer.
 
 ---
 
-## 2. Architecture Split
+## 1. Current Product Scope
 
-| Layer | Status | Technology |
-|-------|--------|-----------|
-| **Frontend** | ✅ Built in Lovable | React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui, Recharts, Framer Motion |
-| **Backend** | ⏳ Pending (Claude) | Express.js (TypeScript), PostgreSQL |
-| **Worker** | ⏳ Pending (Claude) | Node.js background job runner (cron-based) |
-| **Auth** | ⏳ Pending (Claude) | Self-hosted JWT + bcrypt |
-| **Demo Mode** | ✅ Built in Lovable | Frontend mock data layer (`demo-data.ts`) with identical schema to live API |
+**Webby SEO OS** is a multi-tenant digital marketing operating system for agencies.
 
-The frontend works fully in **demo/mock mode** using intercepted API calls. When a backend is connected via `VITE_API_URL`, mock data is bypassed.
+### Core Workflow (in execution order)
 
----
+| Step | Module | What It Does |
+|------|--------|-------------|
+| 1 | **Technical Audit** | Crawl client sites, detect issues, track rechecks, link to evidence |
+| 2 | **Competitor Benchmark** | Analyze competitor domains, classify pages, identify gaps |
+| 3 | **Keyword Research** | Service-page-first clustering, page mapping, site structure recommendations |
+| 4 | **Opportunities** | Surface near-wins, content gaps, and expansion targets from evidence |
+| 5 | **SEO Brief Workflow** | Create briefs from mappings/opportunities → generate drafts → review checks |
+| 6 | **Approval Workflow** | Client/team approval with review states |
+| 7 | **Publishing** | Publish to WordPress/CMS, schedule social posts |
+| 8 | **Analytics & Reporting** | GA4/GSC performance, ranking history, scheduled reports |
+| 9 | **Lightweight Attribution** | Channel-level conversion attribution (analytics-only, NOT CRM) |
 
-## 3. Frontend Modules (Implemented in Lovable)
+### Additional Modules
 
-### Core
-| Page | Route | Description |
-|------|-------|-------------|
-| Dashboard | `/` | KPI cards, visibility trend, channel distribution, client health, quick actions, mascot hero banner |
-| Command Center | `/command-center` | Marketing priorities, cross-channel recommendations, weekly plans |
+- **SEM** — Google Ads campaigns, AI ad copy, budget recommendations
+- **SMM** — Social media posts, video assets, GBP/local SEO
+- **Content Studio** — Content scoring + AI rewriter
+- **AI Visibility** — LLM citation tracking across AI models
+- **Command Center** — Cross-channel priorities and weekly action plans
+- **Creative Assets** — AI image generation for marketing
+- **Topical Maps** — Topic cluster strategy builder
 
-### SEO
-| Page | Route | Description |
-|------|-------|-------------|
-| Keyword Research | `/keyword-research` | Service-page-first keyword research with clustering, page mapping, structure recommendations |
-| Rankings | `/rankings` | Keyword position tracking with history |
-| Site Audit | `/audit` | Technical SEO audit with issues, rechecks, evidence; Internal Links tab |
-| Competitor Benchmark | `/competitor-benchmark` | Public-site benchmarking, gap detection, strategic recommendations |
-| Opportunities | `/opportunities` | Near-wins, content gaps, page expansion opportunities |
-| Backlinks | `/backlinks` | Backlink monitoring and analysis |
-| Site Explorer | `/site-explorer` | Domain overview and competitive analysis |
-| SERP Checker | `/serp-checker` | SERP position checker |
-| Schema Creator | `/schema-creator` | JSON-LD structured data generator |
-| AI Visibility | `/ai-visibility` | AI/LLM citation tracking across models |
+### Explicitly NOT in Scope
 
-### Content & Publishing
-| Page | Route | Description |
-|------|-------|-------------|
-| Brief Workflow | `/brief-workflow` | Service-page brief creation → draft → review → approval workflow |
-| Topical Maps | `/topical-maps` | Topic cluster strategy builder |
-| Articles | `/articles` | Article management with status workflow |
-| Content Studio | `/content-studio` | Content scoring + AI rewriter (unified) |
-| Bulk Content | `/bulk-content` | Batch AI content generation |
-| Content Calendar | `/calendar` | Unified calendar with drag-and-drop rescheduling |
-| Social Media | `/social-media` | Social post management |
-| Videos | `/videos` | AI video script & asset management |
-| Creative | `/creative` | AI creative asset generation |
+**Removed in v6.0 — do NOT implement:**
+- CRM (contacts, deals, pipelines, deal stages)
+- Inbox / conversations (Chatwoot-style)
+- Knowledge Base
+- Automations (event-driven rules)
+- CSAT / support ticketing
+- Helpdesk / support desk features
 
-### Channels
-| Page | Route | Description |
-|------|-------|-------------|
-| Analytics | `/analytics` | GA4/GSC performance analytics |
-| Local SEO | `/local-seo` | Google Business Profile management |
-| Google Ads | `/google-ads` | Campaign management and AI ad copy |
-
-### Business
-| Page | Route | Description |
-|------|-------|-------------|
-| Clients | `/clients` | Client management list |
-| Client Detail | `/clients/:id` | Individual client detail with tabs |
-| Reports | `/reports` | Report builder and scheduled reports |
-
-### System
-| Page | Route | Description |
-|------|-------|-------------|
-| Operations | `/operations` | Job center + activity log (unified) |
-| Settings | `/settings` | Workspace, branding, team, billing |
-| QA Checklist | `/qa` | Dev-only QA test checklist |
-
-### Portal (Client-facing)
-| Page | Route | Description |
-|------|-------|-------------|
-| Portal Overview | `/portal` | Client portal dashboard |
-| Portal Performance | `/portal/performance` | Client-facing performance view |
-| Portal Settings | `/portal/settings` | Client portal settings |
+Attribution data (channel-level conversion reporting) is preserved as **analytics/reporting data only** — it is NOT a CRM module.
 
 ---
 
-## 4. Global Client Context
+## 2. Frontend vs Backend Status
 
-All modules use a persistent `activeClientId` via `ClientContext` and `GlobalClientSelector` in the header. Selection persists in `localStorage`. Data automatically filters to the selected client without per-page re-selection.
+### Frontend (✅ Built in Lovable)
 
----
+| Aspect | Status | Details |
+|--------|--------|---------|
+| **Technology** | ✅ Complete | React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui, Recharts, Framer Motion |
+| **All pages/routes** | ✅ Complete | 30+ pages with full UI, navigation, responsive layout |
+| **Type contracts** | ✅ Stabilized | All TypeScript interfaces in `src/lib/api.ts` |
+| **Demo mode** | ✅ Complete | `src/lib/demo-data.ts` with `matchDemoRoute()` interceptor |
+| **Design system** | ✅ Complete | HSL tokens, Space Grotesk typography, mascot system |
+| **Planning memory UI** | ✅ Complete | `PlanningMemoryTrail`, `LifecycleStatusBar` components |
+| **API client** | ✅ Complete | `request()` utility auto-falls back to demo data when backend unavailable |
 
-## 5. Mascot System
+### Backend (⏳ Pending — for Claude)
 
-The platform uses a branded 3D anime-style mascot cast instead of a chatbot widget:
+| Aspect | Status | Details |
+|--------|--------|---------|
+| **Express server** | ⏳ Scaffolded but not functional | `backend/src/index.ts` exists but needs real implementation |
+| **PostgreSQL schema** | ⏳ Migration files exist | 40 migration files in `backend/db/migrations/` — need cleanup (remove CRM tables) |
+| **Auth** | ⏳ Not functional | JWT + bcrypt scaffolded but not connected |
+| **External integrations** | ⏳ Not connected | DataForSEO, GA4, GSC, Google Ads, GBP — all mock-only |
+| **Background worker** | ⏳ Not functional | Cron-based job runner scaffolded |
+| **AI generation** | ⏳ Not connected | OpenAI/Anthropic providers scaffolded but not wired |
 
-| Character | Role | Module | Appearance |
-|-----------|------|--------|------------|
-| **Sera** | SEO Director | SEO pages | Female, round glasses, short bob, professional blazer |
-| **Max** | SEM Director | Ads/SEM pages | Male, IT nerd look, thick glasses, hoodie, messy hair |
-| **Kai** | Content Creator | Content pages | Female, long flowing hair, colorful scarf, artistic |
+### Mock-Only Workflows (no real data persistence)
 
-**Mascot Components** (`src/components/MascotCast.tsx`):
-- `MascotHeroBanner` — full cast on Dashboard with greeting
-- `MascotSectionHeader` — single mascot per module section header
-- `MascotEmptyState` — mascot for empty-state encouragement
+Everything in the frontend currently runs on mock data. These workflows need backend implementation:
+- Audit crawling and issue detection
+- Keyword research job execution
+- Competitor benchmark analysis
+- Brief/draft AI generation
+- Publishing to external CMS
+- Analytics data sync (GA4/GSC)
+- Rank tracking snapshots
+- Google Ads sync
+- GBP profile management
+- Report PDF generation
+- AI Visibility prompt execution
 
-All mascots have transparent backgrounds, ambient glow effects, consistent 3/4 body proportions, and drop shadows for grounding. They act as contextual "buddies" — not chatbots.
+### Frontend Contracts Already Stabilized
 
-**Assets** (transparent PNGs in `src/assets/`):
-- `mascot-seo-director.png` (Sera)
-- `mascot-sem-director.png` (Max)
-- `mascot-content-creator.png` (Kai)
+The following TypeScript interfaces in `src/lib/api.ts` define the exact data shapes the backend must return:
 
----
+**Core:** `Client`, `KeywordRanking`, `Competitor`
+**Audit:** `AuditRun`, `AuditIssue`, `AuditPage`, `AuditEvidence`, `AuditRecheck`
+**Keyword Research:** `KeywordResearchJob`, `KeywordCluster`, `PageMapping`
+**Content:** `SeoBrief`, `SeoBriefDraft`, `DraftReviewCheck`, `SeoArticle`, `SocialPost`, `VideoAsset`
+**Publishing:** `PublishingJob`, `CmsConnection`
+**Analytics:** `AnalyticsConnection`, `PerformanceInsight`, `PerformanceSummaryResponse`, `AttributionOverview`
+**Competitor:** `CompetitorBenchmark`
+**Ads:** `AdsCampaign`, `AdsRecommendation`, `AdsCopyDraft`, `AdsInsight`, `AdsPerformanceResponse`
+**Local SEO:** `GbpConnection`, `GbpProfile`, `GbpPostDraft`, `GbpReviewItem`, `GbpQnaItem`, `LocalSeoInsight`
+**AI Visibility:** `AiVisPromptSet`, `AiVisPrompt`, `AiVisRun`, `AiVisObservation`, `AiVisOverview`
+**Command Center:** `CommandCenterSummary`, `MarketingPriority`, `CrossChannelRecommendation`, `WeeklyActionPlan`, `MarketingGoal`
+**Reports:** `ActivityLogEntry`, `AppNotification`
+**Planning Memory:** `OpportunityWithMemory`, `OpportunityLifecycleEvent`, `OpportunityEvidence`, `ContentInventoryItem`, `ContentPerformanceSummary`, `PublishedContentRecord`, `PageRelationship`, `RankSnapshot`
 
-## 6. Design System
+### What Is NOT Truly Persistent Yet
 
-- **Typography:** Space Grotesk (display), system sans-serif (body)
-- **Palette:** Indigo/Violet primary, Cyan accent — "AI Control Tower" aesthetic
-- **Mode:** Light-mode first, dark mode supported via ThemeProvider
-- **Module accent colors:** SEO=emerald, Content=blue, Social=purple, Video=pink, GBP=amber, Analytics=cyan, Ads=orange, Command=indigo
-- **Tokens:** HSL semantic color tokens in `index.css`, all colors via Tailwind config
-- **Motion:** Framer Motion page transitions and stagger animations
-- **Components:** Full shadcn/ui library, Recharts for data visualization
-- **UI patterns:** SourceBadge (evidence tracking), ConfidenceChip (AI certainty), FreshnessIndicator (data staleness), RankChangeIndicator
-
----
-
-## 7. Frontend Type Contracts
-
-These TypeScript interfaces in `src/lib/api.ts` define the data contracts the backend must implement:
-
-### Core Entities
-- `Client` — id, name, domain, keywords_count, competitors_count, health_score, status
-- `KeywordRanking` — keyword, current_position, last_position, change, ranking_url
-- `Competitor` — domain, label, source, confirmed
-
-### Audit
-- `AuditRun` — domain, scope, provider, pages_crawled, score, status, issue counts
-- `AuditIssue` — issue_type, severity, affected_url, description, fix_instruction, status, evidence[], rechecks[], provider, category, why_it_matters
-- `AuditPage` — url, status_code, title, meta_description, word_count, load_time_ms
-- `AuditEvidence` — evidence_type, key, value, expected_value
-- `AuditRecheck` — previous_status, new_status, diff_summary
-
-### Keyword Research
-- `KeywordResearchJob` — seed_keywords, location, language, status, result counts
-- `KeywordCluster` — cluster_name, intent, keywords[], total_volume
-- `PageMapping` — primary_keyword, page_type (core_service/sub_service/supporting_content/blog), recommended_slug, secondary_keywords, search_intent, competitor_context, audit_context, priority
-
-### Content Lifecycle
-- `SeoBrief` — keyword, title, page_type, secondary_keywords, search_intent, target_audience, page_goal, cta_angle, sections[], competitor_context[], audit_context[], evidence[], priority, source_mapping_id
-- `SeoBriefDraft` — brief_id, title, slug, content, version, status, review_checks[], internal_link_suggestions[]
-- `DraftReviewCheck` — check_type, label, status (pass/fail/warning/pending), detail
-- `SeoArticle` — brief_id, title, content, status, target_keyword, slug, publish_date
-- `SocialPost` — platform, content, status, scheduled_time
-- `VideoAsset` — platform, video_script, scene_breakdown, status
-
-### Publishing & Approvals
-- `PublishingJob` — asset_type, asset_id, platform, job_type, publish_status, provider
-- `CmsConnection` — cms_type, site_url, username
-
-### Analytics & Attribution
-- `AnalyticsConnection` — provider (gsc/ga4), status
-- `PerformanceInsight` — insight_type, priority, title, description, status
-- `PerformanceSummaryResponse` — clicks, impressions, ctr, position, sessions
-- `AttributionOverview` — byChannel[], dealAttribution[] (analytics-only, NOT CRM)
-
-### Local SEO
-- `GbpConnection`, `GbpProfile`, `GbpPostDraft`, `GbpReviewItem`, `GbpQnaItem`, `LocalSeoInsight`
-
-### Google Ads
-- `AdsCampaign`, `AdsRecommendation`, `AdsCopyDraft`, `AdsInsight`, `AdsPerformanceResponse`
-
-### Command Center
-- `CommandCenterSummary`, `MarketingPriority`, `CrossChannelRecommendation`, `WeeklyActionPlan`, `MarketingGoal`
-
-### Competitor Benchmark
-- `CompetitorBenchmark` — competitor_domain, own_domain, status, metrics, findings, gap analysis
-
-### AI Visibility
-- `AiVisPromptSet`, `AiVisPrompt`, `AiVisRun`, `AiVisObservation`, `AiVisOverview`
-
-### Reports & Activity
-- `ActivityLogEntry` — actor_name, action, entity_type, summary
-- `AppNotification` — type, category, title, message, is_read
+Nothing. All data resets on page reload. The demo-data layer simulates API responses but stores nothing. The backend must implement full persistence for every entity listed above.
 
 ---
 
-## 8. Expected Backend API Endpoints
+## 3. Content-Planning Memory Model
+
+### Why This Exists
+
+The platform must store **structured historical planning data** so future AI can make better content decisions. Instead of making recommendations from scratch each time, AI should reason from:
+
+- What was already researched
+- What was recommended and why
+- What was approved vs ignored
+- What was published and where
+- How published content performed
+- What gaps still remain
+
+### Five Memory Layers
+
+#### Layer 1: Planning Memory
+
+| Entity | Purpose | Key Fields |
+|--------|---------|------------|
+| `keyword_research_runs` | Record of each research execution | seed_keywords, location, language, status, created_at |
+| `keyword_clusters` | Grouped keyword themes from research | cluster_name, intent, keywords[], total_volume, research_run_id |
+| `page_mapping_recommendations` | Which keyword clusters map to which page types | primary_keyword, page_type, recommended_slug, priority, mapping_status |
+| `site_structure_recommendations` | Structural suggestions from keyword analysis | recommendation_type, description, priority, status |
+
+#### Layer 2: Evidence Memory
+
+| Entity | Purpose | Key Fields |
+|--------|---------|------------|
+| `audit_runs` | Record of each technical audit execution | domain, scope, provider, pages_crawled, score, status |
+| `audit_issues` | Individual issues found during audits | issue_type, severity, affected_url, status, evidence[], fix_instruction |
+| `audit_rechecks` | Verification that fixes were applied | issue_id, previous_status, new_status, diff_summary |
+| `competitor_benchmark_runs` | Record of each competitor analysis | competitor_domain, own_domain, status, metrics |
+| `competitor_page_classifications` | How competitor pages are categorized | url, page_type, topic, word_count, estimated_traffic |
+| `competitor_gap_recommendations` | Gaps found vs competitors | gap_type, description, priority, competitor_domain |
+
+#### Layer 3: Execution Memory
+
+| Entity | Purpose | Key Fields |
+|--------|---------|------------|
+| `opportunities` | Actionable items surfaced from evidence | type, priority, target_url, keyword_id, status, recommended_action |
+| `opportunity_evidence` | Links opportunities to their source data | opportunity_id, evidence_source, evidence_type, evidence_value |
+| `opportunity_lifecycle_events` | Tracks each stage an opportunity passes through | opportunity_id, event_type, entity_type, entity_id, summary, actor |
+| `seo_briefs` | Content briefs created from opportunities/mappings | keyword, title, page_type, sections[], evidence[], priority |
+| `seo_brief_drafts` | AI-generated drafts from briefs | brief_id, content, version, status, review_checks[] |
+| `client_approvals` | Approval decisions on briefs/drafts/articles | entity_type, entity_id, status, reviewer, feedback |
+| `publishing_jobs` | Publishing execution records | asset_type, asset_id, platform, publish_status, scheduled_time |
+| `published_content_records` | What was actually published and when | url, title, publish_date, source_brief_id, source_article_id |
+
+#### Layer 4: Performance Memory
+
+| Entity | Purpose | Key Fields |
+|--------|---------|------------|
+| `rank_snapshots` | Historical keyword position tracking | keyword, url, position, previous_position, snapshot_date |
+| `analytics_snapshots` | Periodic GA4/GSC metric captures | url, clicks, impressions, ctr, position, sessions, period |
+| `content_performance_summaries` | Aggregated performance per published page | url, clicks_7d, clicks_30d, impressions_30d, avg_position, trend |
+
+#### Layer 5: Site/Content Memory
+
+| Entity | Purpose | Key Fields |
+|--------|---------|------------|
+| `content_inventory` | Complete inventory of all site pages | url, title, word_count, last_updated, has_brief, has_article, audit_score |
+| `internal_link_suggestions` | Recommended internal links between pages | source_url, target_url, anchor_text, relevance_score, status |
+| `page_relationships` | Structural relationships between pages | source_url, target_url, relationship_type (parent/child, sibling, hub-spoke) |
+
+---
+
+## 4. AI Decision Logic
+
+### Core Principle
+
+Future AI planning must **NOT** rely on raw prompting alone. It must reason from stored, structured data.
+
+### What AI Should Reason From
+
+| Data Source | Decision It Informs |
+|-------------|---------------------|
+| Stored audit evidence | Which technical issues affect content quality |
+| Competitor evidence | What competitors rank for that we don't |
+| Keyword mapping history | Which pages were already planned for which keywords |
+| Opportunity history | Which gaps were identified, which are still open |
+| Brief/draft/approval outcomes | What was created, what was rejected and why |
+| Publishing status | What actually went live vs what's stuck |
+| Ranking & analytics performance | Whether published content improved rankings |
+| Internal link & site structure context | How pages relate, where link equity flows |
+
+### The Decision Loop
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│  Evidence Sources ──→ Opportunity/Recommendation ──→ Brief          │
+│       ↑                                                ↓            │
+│       │                                             Draft           │
+│       │                                                ↓            │
+│  Future Planning ←── Performance Feedback ←── Publish ←── Approval  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+Each step in this loop creates a record. The AI should:
+
+1. **Detect opportunities** by cross-referencing audit issues, competitor gaps, keyword coverage gaps, and ranking drops
+2. **Prioritize** based on historical performance of similar actions (e.g., "pages about X topic gained Y positions after publishing")
+3. **Generate briefs** with full evidence context (audit issues, competitor pages, keyword data)
+4. **Explain recommendations** by citing stored evidence ("This keyword cluster was identified in research run #12, competitors rank for it, and your audit shows the existing page has thin content")
+5. **Learn from outcomes** by comparing pre/post-publish ranking and traffic data
+6. **Avoid repetition** by checking what was already recommended, approved, or dismissed
+
+### Lifecycle Event Types
+
+Each opportunity tracks its journey through these event types:
+- `created` — opportunity surfaced from evidence
+- `brief_created` — a brief was generated for this opportunity
+- `draft_generated` — AI draft was created from the brief
+- `approved` — content was approved by client/team
+- `published` — content was published to CMS
+- `performance_checked` — post-publish performance was measured
+- `dismissed` — opportunity was deliberately skipped
+- `reopened` — dismissed opportunity was reconsidered
+
+---
+
+## 5. Backend Expectations
+
+### What the Backend Must Do
+
+#### 5.1 External API Integration
+- **DataForSEO** — technical audits, keyword data, SERP checking, backlink data
+- **Google Analytics 4** — traffic, sessions, conversions (via OAuth)
+- **Google Search Console** — clicks, impressions, CTR, position (via OAuth)
+- **Google Ads** — campaign data, performance metrics (via OAuth)
+- **Google Business Profile** — profile data, posts, reviews, Q&A (via OAuth)
+- **OpenAI / Anthropic** — content generation (briefs, drafts, ad copy, social posts)
+- **WordPress** — publishing via application passwords
+- **Image AI providers** — creative asset generation
+
+#### 5.2 Data Normalization
+All external API responses must be normalized into the standardized TypeScript interfaces defined in `src/lib/api.ts`. The backend owns the transformation layer.
+
+#### 5.3 Structured Entity Storage (Supabase/PostgreSQL)
+Every entity in the five memory layers (Section 3) must be stored with:
+- Unique IDs (UUID)
+- `client_id` foreign key for multi-tenant isolation
+- `created_at` and `updated_at` timestamps
+- Status fields with constrained enums
+- Foreign keys linking related entities (opportunity → brief → draft → article → publishing_job)
+
+#### 5.4 Stable API Contracts
+The backend must expose REST endpoints matching the frontend's `request()` calls. All response shapes must match the TypeScript interfaces in `src/lib/api.ts`.
+
+#### 5.5 Status History & Evidence Links
+Every entity that changes status must preserve its history:
+- `opportunity_lifecycle_events` for opportunity status changes
+- `audit_rechecks` for issue re-verification
+- `client_approvals` for approval decisions
+- `publishing_jobs` for publish attempts
+
+Every recommendation must link back to its evidence:
+- `opportunity_evidence` linking to audit issues, competitor gaps, keyword data
+- `seo_briefs` containing `evidence[]`, `audit_context[]`, `competitor_context[]`
+
+#### 5.6 AI Explanation & Prioritization
+The backend must store enough context for AI to explain its recommendations:
+- Why an opportunity was created (which evidence triggered it)
+- Why a keyword was prioritized (search volume, competitor coverage, current gap)
+- Why a page was recommended (audit score, content thinness, competitor comparison)
+
+---
+
+## 6. Expected Backend API Endpoints
 
 ### Auth
 - `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
@@ -213,23 +294,21 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 - `GET/POST /api/clients/:id/keywords`, `GET /api/rankings?client_id=`
 
 ### Keyword Research
-- `POST /api/keyword-research/start` — start research job with seed keywords, location, language
-- `GET /api/keyword-research/jobs/:id` — get job status and results
-- `GET /api/keyword-research/jobs/:id/clusters` — get keyword clusters
-- `GET /api/keyword-research/jobs/:id/mappings` — get page mapping recommendations
-- `POST /api/keyword-research/jobs/:id/mappings/:mappingId/create-brief` — create brief from mapping
+- `POST /api/keyword-research/start`
+- `GET /api/keyword-research/jobs/:id`
+- `GET /api/keyword-research/jobs/:id/clusters`
+- `GET /api/keyword-research/jobs/:id/mappings`
+- `POST /api/keyword-research/jobs/:id/mappings/:mappingId/create-brief`
 
-### Competitors
+### Competitors & Benchmarks
 - `GET/POST /api/clients/:id/competitors`
+- `GET /api/clients/:id/competitor-benchmarks`, `POST /api/competitor-benchmarks/start`
+- `GET /api/competitor-benchmarks/:id`
 
 ### Audit
 - `GET/POST /api/audit/runs`, `GET /api/audit/runs/:id`
 - `GET /api/audit/issues`, `GET/PATCH /api/audit/issues/:id`
 - `POST /api/audit/issues/:id/recheck`, `POST /api/audit/runs/:id/recheck`
-
-### Competitor Benchmark
-- `GET /api/clients/:id/competitor-benchmarks`, `POST /api/competitor-benchmarks/start`
-- `GET /api/competitor-benchmarks/:id`
 
 ### SEO Briefs & Drafts
 - `GET /api/clients/:id/briefs`, `GET /api/briefs/:id`
@@ -243,6 +322,18 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 - `PUT /api/articles/:id`, `POST /api/articles/:id/approve`
 - `PATCH /api/articles/:id/status`, `POST /api/articles/:id/publish`
 
+### Opportunities (with Planning Memory)
+- `GET /api/clients/:id/opportunities` — returns `OpportunityWithMemory[]`
+- `GET /api/clients/:id/opportunities/:oppId` — returns single `OpportunityWithMemory`
+- `PATCH /api/clients/:id/opportunities/:oppId` — update status
+
+### Content Inventory & Performance
+- `GET /api/clients/:id/content-inventory` — returns `ContentInventoryItem[]`
+- `GET /api/clients/:id/content-performance` — returns `ContentPerformanceSummary[]`
+- `GET /api/clients/:id/published-content` — returns `PublishedContentRecord[]`
+- `GET /api/clients/:id/page-relationships` — returns `PageRelationship[]`
+- `GET /api/clients/:id/rank-snapshots` — returns `RankSnapshot[]`
+
 ### Social & Video
 - `GET /api/articles/:id/social-posts`, `POST /api/social/generate`
 - `PUT /api/social/:id`, `POST /api/social/:id/approve`
@@ -251,19 +342,18 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 ### Publishing
 - `POST /api/publishing/schedule`, `POST /api/publishing/:id/retry`
 - `POST /api/publishing/:id/cancel`, `PUT /api/publishing/:id/reschedule`
-- `GET /api/clients/:id/publishing-jobs`, `GET /api/publishing-jobs`
+- `GET /api/clients/:id/publishing-jobs`
 
 ### AI Generation
 - `POST /api/ai/articles/generate`, `POST /api/ai/social/generate`, `POST /api/ai/videos/generate`
 
 ### Analytics
-- `GET /api/clients/:id/analytics-connections`, `POST /api/analytics/connect`
-- `POST /api/analytics/sync`
+- `GET /api/clients/:id/analytics-connections`, `POST /api/analytics/connect`, `POST /api/analytics/sync`
 - `GET /api/clients/:id/performance-summary`, `GET /api/clients/:id/page-performance`
 - `GET /api/clients/:id/keyword-performance`, `GET /api/clients/:id/asset-performance`
 - `GET /api/clients/:id/performance-insights`
 
-### Attribution (analytics-only)
+### Attribution (analytics-only — NOT CRM)
 - `GET /api/clients/:id/attribution/overview`
 - `GET /api/clients/:id/attribution/contacts`
 - `GET /api/clients/:id/attribution/deals`
@@ -271,20 +361,16 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 
 ### GBP / Local SEO
 - `GET /api/clients/:id/gbp-connection`, `GET /api/clients/:id/gbp-profile`
-- `GET /api/clients/:id/gbp-posts`, `GET /api/clients/:id/gbp-reviews`
-- `GET /api/clients/:id/gbp-qna`
+- `GET /api/clients/:id/gbp-posts`, `GET /api/clients/:id/gbp-reviews`, `GET /api/clients/:id/gbp-qna`
 - `POST /api/gbp/sync`, `POST /api/gbp/posts/generate`
-- `POST /api/gbp/posts/:id/approve`
-- `POST /api/gbp/reviews/:id/generate-response`, `POST /api/gbp/reviews/:id/approve`
-- `POST /api/gbp/qna/:id/generate-answer`, `POST /api/gbp/qna/:id/approve`
+- `POST /api/gbp/posts/:id/approve`, `POST /api/gbp/reviews/:id/generate-response`
+- `POST /api/gbp/reviews/:id/approve`, `POST /api/gbp/qna/:id/generate-answer`, `POST /api/gbp/qna/:id/approve`
 
 ### Google Ads
 - `GET /api/clients/:id/ads-campaigns`, `GET /api/clients/:id/ads-recommendations`
-- `GET /api/clients/:id/ads-performance`, `GET /api/clients/:id/ads-copy`
-- `GET /api/clients/:id/ads-insights`
+- `GET /api/clients/:id/ads-performance`, `GET /api/clients/:id/ads-copy`, `GET /api/clients/:id/ads-insights`
 - `POST /api/ads/recommendations/generate`, `POST /api/ads/copy/generate`
-- `POST /api/ads/copy/:id/approve`, `PUT /api/ads/recommendations/:id`
-- `POST /api/ads/sync`
+- `POST /api/ads/copy/:id/approve`, `PUT /api/ads/recommendations/:id`, `POST /api/ads/sync`
 
 ### Creative
 - `GET /api/clients/:id/creative-assets`, `GET /api/creative/:id`
@@ -294,11 +380,9 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 
 ### Command Center
 - `GET /api/clients/:id/command-center`, `GET /api/clients/:id/marketing-priorities`
-- `GET /api/clients/:id/cross-channel-recommendations`
-- `GET /api/clients/:id/quick-wins`
+- `GET /api/clients/:id/cross-channel-recommendations`, `GET /api/clients/:id/quick-wins`
 - `GET /api/clients/:id/weekly-action-plans`, `GET /api/clients/:id/marketing-goals`
-- `POST /api/clients/:id/priorities/recompute`
-- `POST /api/clients/:id/recommendations/generate`
+- `POST /api/clients/:id/priorities/recompute`, `POST /api/clients/:id/recommendations/generate`
 - `POST /api/clients/:id/weekly-action-plan/generate`
 - `PUT /api/command/priorities/:id`, `PUT /api/command/recommendations/:id`, `PUT /api/command/items/:id`
 
@@ -314,8 +398,7 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 - `GET /api/ai-visibility/prompt-sets/:id/prompts`
 - `POST /api/ai-visibility/prompts`, `POST /api/ai-visibility/prompts/bulk`, `DELETE /api/ai-visibility/prompts/:id`
 - `POST /api/ai-visibility/runs`, `GET /api/clients/:id/ai-visibility/runs`
-- `GET /api/ai-visibility/runs/:id/observations`
-- `GET /api/clients/:id/ai-visibility/overview`
+- `GET /api/ai-visibility/runs/:id/observations`, `GET /api/clients/:id/ai-visibility/overview`
 
 ### Onboarding & Setup
 - `POST /api/onboarding/start`, `GET /api/onboarding/:id`, `PUT /api/onboarding/:id`
@@ -332,7 +415,6 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 ### Content Plan & Internal Links
 - `GET /api/clients/:id/content-plan`, `PATCH /api/clients/:id/content-plan/:id`
 - `GET /api/clients/:id/internal-links`, `PATCH /api/clients/:id/internal-links/:id`
-- `GET /api/clients/:id/opportunities`, `PATCH /api/clients/:id/opportunities/:id`
 
 ### CMS
 - `GET /api/clients/:id/cms`, `POST /api/clients/:id/cms`, `DELETE /api/clients/:id/cms`
@@ -340,9 +422,7 @@ These TypeScript interfaces in `src/lib/api.ts` define the data contracts the ba
 
 ---
 
-## 9. Database Schema (Backend — Pending)
-
-Tables needed (from existing migrations 001–040):
+## 7. Database Schema (Backend — Pending)
 
 ### Core
 `workspaces`, `users`, `user_roles`, `user_permissions`, `invites`, `sessions`
@@ -361,6 +441,9 @@ Tables needed (from existing migrations 001–040):
 
 ### Content
 `seo_briefs`, `seo_brief_drafts`, `draft_review_checks`, `seo_articles`, `cms_connections`, `publishing_jobs`, `social_posts`, `video_assets`
+
+### Planning Memory (NEW — required for AI decision loop)
+`opportunity_evidence`, `opportunity_lifecycle_events`, `content_inventory`, `content_performance_summaries`, `published_content_records`, `page_relationships`
 
 ### Analytics
 `analytics_connections`, `performance_snapshots`, `performance_insights`
@@ -398,7 +481,7 @@ Tables needed (from existing migrations 001–040):
 ### Activity & Notifications
 `activity_log`, `notifications`
 
-**Removed tables** (CRM/inbox — fully de-scoped in v6.0):
+### Removed Tables (do NOT create)
 - ~~`crm_contacts`~~, ~~`crm_deals`~~, ~~`crm_activities`~~, ~~`crm_insights`~~
 - ~~`conversations`~~, ~~`messages`~~, ~~`inboxes`~~
 - ~~`automation_rules`~~, ~~`canned_responses`~~
@@ -407,205 +490,139 @@ Tables needed (from existing migrations 001–040):
 
 ---
 
-## 10. Demo Mode
+## 8. Non-Goals / Later Phases
 
+These are intentionally deferred and should NOT be built in the initial backend:
+
+| Feature | Why Deferred |
+|---------|-------------|
+| **Backlink intelligence** | Requires dedicated DataForSEO integration; core SEO workflow works without it |
+| **Schema automation** | JSON-LD generator exists in frontend; auto-deployment is a later optimization |
+| **Content calendar expansion** | Basic calendar exists; advanced drag-and-drop scheduling is polish |
+| **Advanced social publishing automation** | Direct API publishing to social platforms requires per-platform OAuth — later phase |
+| **Deeper AI visibility tracking** | Current prompt-based tracking is functional; real-time monitoring is future |
+| **Multi-workspace billing** | SaaS packaging tables exist but billing integration (Stripe) is later |
+| **Advanced report templates** | Basic report generation first; custom template builder later |
+
+---
+
+## 9. Frontend Implementation Details
+
+### Global Client Context
+All modules use a persistent `activeClientId` via `ClientContext` and `GlobalClientSelector` in the header. Selection persists in `localStorage`. Data automatically filters to the selected client.
+
+### Mascot System
+3D anime-style mascot cast (NOT a chatbot):
+
+| Character | Role | Module |
+|-----------|------|--------|
+| **Sera** | SEO Director | SEO pages |
+| **Max** | SEM Director | Ads/SEM pages |
+| **Kai** | Content Creator | Content pages |
+
+Components: `MascotHeroBanner`, `MascotSectionHeader`, `MascotEmptyState`
+Assets: Transparent PNGs in `src/assets/` with ambient glow effects.
+
+### Design System
+- **Typography:** Space Grotesk (display), system sans-serif (body)
+- **Palette:** Indigo/Violet primary, Cyan accent — "AI Control Tower" aesthetic
+- **Mode:** Light-mode first, dark mode supported
+- **Tokens:** HSL semantic tokens in `index.css`
+- **Motion:** Framer Motion page transitions
+- **Components:** Full shadcn/ui library, Recharts for charts
+
+### Demo Mode
 - Frontend-only mock data in `src/lib/demo-data.ts`
-- `matchDemoRoute(path, method, body)` intercepts all failed API calls and returns realistic demo data
+- `matchDemoRoute(path, method, body)` intercepts all failed API calls
 - Same schema as live API endpoints
-- Auth fallback to demo user (`demo@webby.seo`) when no backend token
-- `isDemoMode` flag in AuthContext
-- QA checklist at `/qa` for manual testing
+- When `VITE_API_URL` is set and backend responds, mock data is bypassed automatically
+
+### Planning Memory UI Components
+- `PlanningMemoryTrail` — vertical timeline showing decision history for any entity
+- `LifecycleStatusBar` — compact icon strip: Brief → Draft → Article → Published → Tracked
 
 ---
 
-## 11. What Is Fully Built (Frontend)
-
-1. ✅ Dashboard with KPIs, charts, quick actions, mascot hero banner
-2. ✅ Command Center with priorities and recommendations
-3. ✅ Keyword Research with service-page-first clustering, page mapping, structure view
-4. ✅ Rankings tracking
-5. ✅ Technical SEO Audit with issues, rechecks, evidence, internal links
-6. ✅ Competitor Benchmark with gap analysis and strategic recommendations
-7. ✅ Opportunities management
-8. ✅ Brief Workflow (create → edit → generate draft → review → approve → ready for publishing)
-9. ✅ Articles management with status workflow
-10. ✅ Content Studio (scoring + rewriter)
-11. ✅ Topical Maps
-12. ✅ Bulk Content
-13. ✅ Content Calendar with drag-and-drop
-14. ✅ Social Media management
-15. ✅ Video Assets
-16. ✅ Creative Assets
-17. ✅ Analytics (GA4/GSC performance)
-18. ✅ AI Visibility (LLM citation tracking)
-19. ✅ Local SEO / GBP management
-20. ✅ Google Ads management
-21. ✅ Reports with scheduling
-22. ✅ Client management
-23. ✅ Client Portal (overview, performance, settings)
-24. ✅ Operations (job center + activity log)
-25. ✅ Workspace Settings (team, branding, billing)
-26. ✅ Onboarding wizard
-27. ✅ Global client context (persistent selection)
-28. ✅ Attribution reporting (analytics-only)
-29. ✅ Backlinks, Site Explorer, SERP Checker, Schema Creator
-30. ✅ Demo mode with comprehensive mock data
-31. ✅ Mascot cast system (Sera, Max, Kai) with ambient glow effects
-
----
-
-## 12. Removed (v6.0)
-
-- CRM module (contacts, deals, activities, pipeline)
-- Inbox/conversation module (Chatwoot-style)
-- Knowledge Base
-- Automations (event-driven rules)
-- CSAT Dashboard
-- All CRM-related sidebar navigation, dashboard widgets, routes
-- CRM permissions (`view_crm`, `manage_crm`)
-- All Chatwoot integration code and references
-
----
-
-## 13. Backend Tasks for Claude
+## 10. Backend Implementation Priorities
 
 ### Priority 1: Core API
 - Express server with JWT auth, role-based permissions
-- PostgreSQL with migrations (clean — no CRM tables)
+- PostgreSQL with clean migrations (NO CRM tables)
 - Client CRUD with workspace isolation
 - Keyword tracking + rank snapshots
 
 ### Priority 2: Audit & Research
-- Technical audit engine (mock → DataForSEO provider)
+- Technical audit engine (DataForSEO provider)
 - Competitor benchmark engine with gap analysis
 - Keyword research engine with service-page-first clustering and page mapping
 - Internal link suggestion engine
 
 ### Priority 3: Content Pipeline
-- Brief generation from keyword mappings (service-page-first)
+- Brief generation from keyword mappings
 - Draft generation via AI (OpenAI/Anthropic)
-- Article CRUD with status workflow (draft → review → approved → published)
+- Article CRUD with status workflow
 - Approval workflow with review checks
-- Publishing to WordPress via application passwords
+- Publishing to WordPress
 - Social post generation from articles
-- Video script generation
 
-### Priority 4: Channels
+### Priority 4: Planning Memory Infrastructure
+- `opportunity_evidence` table linking opportunities to source data
+- `opportunity_lifecycle_events` table tracking status changes
+- `content_inventory` table for site-wide page tracking
+- `content_performance_summaries` table for post-publish metrics
+- `published_content_records` table for publication tracking
+- `page_relationships` table for site structure mapping
+
+### Priority 5: Channels
 - Analytics sync (GA4/GSC via OAuth)
-- GBP management (profile, posts, reviews, Q&A)
-- Google Ads integration (campaigns, recommendations, ad copy)
-- Creative asset generation (AI image providers)
+- GBP management
+- Google Ads integration
+- Creative asset generation
 
-### Priority 5: Infrastructure
-- Background worker with cron jobs (rank tracking, analytics sync, scheduled publishing)
-- Report generation with PDF/HTML output and share tokens
-- Command Center scoring engine (cross-channel priority computation)
-- Attribution engine (analytics-only, lightweight)
-- AI Visibility run engine (prompt → LLM → observation)
-- Activity logging middleware
-- Notification system
+### Priority 6: Infrastructure
+- Background worker (rank tracking, analytics sync, scheduled publishing)
+- Report generation with PDF/HTML output
+- Command Center scoring engine
+- Attribution engine (analytics-only)
+- AI Visibility run engine
+- Activity logging + notifications
 
-### Priority 6: Backend Cleanup
+### Priority 7: Backend Cleanup
 - Remove all CRM-related backend files: `backend/src/services/crm/`, `backend/src/routes/crm.ts`
 - Remove inbox/automations/knowledge-base/csat routes
-- Remove Chatwoot/SearchAtlas migration (`037_chatwoot_searchatlas.sql`)
+- Remove Chatwoot migration (`037_chatwoot_searchatlas.sql`)
 - Clean CRM references from seed data
 
 ---
 
-## 14. Remaining Frontend Technical Debt
+## 11. Remaining Frontend Technical Debt
 
-- Attribution types still reference `deal_name`/`deal_stage` — acceptable for analytics reporting but naming could be refined
-- Some backend service/route files on disk reference removed modules (CRM, inbox) — backend cleanup for Claude
-- Portal sub-routes (`/portal/articles`, `/portal/social`, etc.) currently render `PortalOverview` as placeholder
+- Attribution types still reference `deal_name`/`deal_stage` — acceptable for analytics but naming could be refined
+- Some backend files on disk reference removed CRM modules — backend cleanup task
+- Portal sub-routes (`/portal/articles`, etc.) render `PortalOverview` as placeholder
+- Keyword Research and Analytics pages could show more planning memory context (what research led to published content)
 
 ---
 
-## 15. Key Files Reference
+## 12. Key Files Reference
 
 | File | Purpose |
 |------|---------|
 | `src/App.tsx` | Route definitions, auth guards |
-| `src/lib/api.ts` | All TypeScript interfaces + API client functions (464 lines) |
+| `src/lib/api.ts` | All TypeScript interfaces + API client functions |
 | `src/lib/demo-data.ts` | Mock data layer with `matchDemoRoute()` |
 | `src/contexts/AuthContext.tsx` | Auth state, demo mode flag |
 | `src/contexts/ClientContext.tsx` | Global client selection |
-| `src/components/AppSidebar.tsx` | Navigation structure with module groups |
+| `src/components/AppSidebar.tsx` | Navigation structure |
 | `src/components/MascotCast.tsx` | Mascot system (Sera, Max, Kai) |
+| `src/components/PlanningMemoryTrail.tsx` | Lifecycle trail + status bar components |
 | `src/components/AppLayout.tsx` | Main layout wrapper |
 | `src/index.css` | Design tokens (HSL semantic colors) |
 | `tailwind.config.ts` | Tailwind theme extensions |
-| `backend/src/index.ts` | Express server entry point |
-| `backend/db/migrations/` | 40 migration files (includes deprecated CRM ones to clean) |
-
----
-
-## 18. Planning Memory Model (v7.2)
-
-The platform supports structured long-term planning memory across five layers, enabling future AI-driven content planning decisions.
-
-### Memory Layers
-
-| Layer | Entities | Purpose |
-|-------|----------|---------|
-| **Planning** | `keyword_research_runs`, `keyword_clusters`, `page_mapping_recommendations`, `site_structure_recommendations` | What was researched and recommended |
-| **Evidence** | `audit_runs`, `audit_issues`, `audit_rechecks`, `competitor_benchmark_runs`, `competitor_page_classifications`, `competitor_gap_recommendations` | Supporting data for decisions |
-| **Execution** | `opportunities` (with lifecycle), `opportunity_evidence`, `seo_briefs`, `seo_brief_drafts`, `client_approvals`, `publishing_jobs`, `published_content_records` | What was acted on |
-| **Performance** | `rank_snapshots`, `analytics_snapshots`, `content_performance_summaries` | How things performed after execution |
-| **Site/Content** | `content_inventory`, `internal_link_suggestions`, `page_relationships` | Current state of the site |
-
-### Decision Flow
-
-```
-Evidence sources → Opportunity/Recommendation → Brief → Draft → Approval → Publish → Performance Feedback → Future Planning
-```
-
-### Key TypeScript Interfaces (api.ts)
-
-- `OpportunityWithMemory` — opportunity + lifecycle events + evidence records + linked brief/draft/article/publishing/performance IDs
-- `OpportunityLifecycleEvent` — tracks each stage: created → brief_created → draft_generated → approved → published → performance_checked
-- `OpportunityEvidence` — structured evidence linking to ranking/audit/competitor/keyword modules
-- `ContentInventoryItem` — per-URL inventory with brief/article/audit linkages
-- `ContentPerformanceSummary` — 7d/30d performance with trend classification
-- `PublishedContentRecord` — tracks position change and clicks since publication
-- `PageRelationship` — parent/child, sibling, hub-spoke relationships between pages
-- `RankSnapshot` — historical position tracking per keyword
-
-### Frontend Components
-
-- `PlanningMemoryTrail` — timeline component showing decision history for any entity
-- `LifecycleStatusBar` — compact icon strip showing Brief → Draft → Article → Published → Tracked progress
-
-### API Endpoints Expected for Backend
-
-| Endpoint | Method | Returns |
-|----------|--------|---------|
-| `/clients/:id/opportunities/:oppId` | GET | `OpportunityWithMemory` |
-| `/clients/:id/content-inventory` | GET | `ContentInventoryItem[]` |
-| `/clients/:id/content-performance` | GET | `ContentPerformanceSummary[]` |
-| `/clients/:id/published-content` | GET | `PublishedContentRecord[]` |
-| `/clients/:id/page-relationships` | GET | `PageRelationship[]` |
-| `/clients/:id/rank-snapshots` | GET | `RankSnapshot[]` |
-
-### Backend Tables Required
-
-```sql
--- content_inventory
--- content_performance_summaries
--- opportunity_evidence
--- opportunity_lifecycle_events
--- published_content_records
--- page_relationships
--- rank_snapshots (may already exist as keyword tracking)
-```
-
----
-
-| File | Role |
-|------|------|
-| `src/components/PlanningMemoryTrail.tsx` | Shared lifecycle trail + status bar components |
+| `backend/src/index.ts` | Express server entry point (needs implementation) |
+| `backend/db/migrations/` | 40 migration files (includes deprecated CRM ones to remove) |
 
 ---
 
 *Last updated: 2026-03-28*
-*Version: v7.2 — Planning memory contracts added, backend handoff ready*
+*Version: v8.0 — Comprehensive backend handoff with planning memory architecture*
