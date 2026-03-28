@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { usePageRestore } from "@/hooks/use-workspace-restore";
 import { MascotSectionHeader } from "@/components/MascotCast";
 import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,13 +56,18 @@ export default function Audit() {
   const { data: allIssues = [] } = useAuditIssues(activeClientId);
   const { data: apiLinks } = useInternalLinks(activeClientId);
   const internalLinks = (apiLinks as any[]) ?? [];
+  const { savedEntity, savedUI, savedFilters, trackEntity, trackUI, trackFilters } = usePageRestore("audit");
 
-  const [mainTab, setMainTab] = useState("runs");
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
-  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
+  const [mainTab, setMainTab] = useState(savedUI.activeTab || "runs");
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(savedEntity.entityType === "audit_run" ? savedEntity.entityId : null);
+  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(savedEntity.entityType === "audit_issue" ? savedEntity.entityId : null);
   const [showNewAudit, setShowNewAudit] = useState(false);
-  const [issueFilter, setIssueFilter] = useState<string>("all");
+  const [issueFilter, setIssueFilter] = useState<string>((savedFilters.severity as string) || "all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => { trackUI({ activeTab: mainTab }); }, [mainTab, trackUI]);
+  useEffect(() => { trackEntity(selectedIssueId ? "audit_issue" : selectedRunId ? "audit_run" : null, selectedIssueId || selectedRunId); }, [selectedRunId, selectedIssueId, trackEntity]);
+  useEffect(() => { trackFilters({ severity: issueFilter }); }, [issueFilter, trackFilters]);
 
   // New audit form
   const [newDomain, setNewDomain] = useState("");
