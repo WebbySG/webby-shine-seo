@@ -1,10 +1,11 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useActiveClient } from "@/contexts/ClientContext";
+import { useWorkspaceRestore } from "@/contexts/WorkspaceRestoreContext";
 import { Building2 } from "lucide-react";
 
 export function GlobalClientSelector() {
   const { activeClientId, setActiveClientId, clients, activeClient } = useActiveClient();
-
+  const { updateState } = useWorkspaceRestore();
   if (clients.length <= 1) return null;
 
   return (
