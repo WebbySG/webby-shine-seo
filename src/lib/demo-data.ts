@@ -96,13 +96,68 @@ const auditRechecks: Record<string, any[]> = {
   aud5: [{ id: "rc4", audit_issue_id: "aud5", audit_run_id: "arun2", provider: "mock", previous_status: "open", new_status: "fixed", previous_evidence: { title: "Blog" }, new_evidence: { title: "Blog — Page 2" }, diff_summary: "Title updated with pagination. Issue resolved.", checked_at: daysAgo(5) }],
 };
 
-// ─── Opportunities ───
+// ─── Opportunities (enhanced with memory) ───
 // 🔌 API: GET /api/clients/:id/opportunities
 const opportunities = [
-  { id: "opp1", type: "near_win" as const, keyword: "seo agency singapore", target_url: "/seo-agency", current_position: 4, recommended_action: "Add FAQ schema and improve internal linking", priority: "high" as const, status: "open" as const, created_at: daysAgo(5) },
-  { id: "opp2", type: "content_gap" as const, keyword: "ai seo tools", target_url: null, current_position: null, recommended_action: "Create comprehensive guide on AI SEO tools", priority: "medium" as const, status: "open" as const, created_at: daysAgo(3) },
-  { id: "opp3", type: "page_expansion" as const, keyword: "web design singapore price", target_url: "/web-design", current_position: 12, recommended_action: "Add pricing section and comparison table", priority: "high" as const, status: "in_progress" as const, created_at: daysAgo(7) },
-  { id: "opp4", type: "technical_fix" as const, keyword: null, target_url: "/blog", current_position: null, recommended_action: "Implement breadcrumb schema markup", priority: "low" as const, status: "open" as const, created_at: daysAgo(10) },
+  { id: "opp1", type: "near_win" as const, keyword: "seo agency singapore", target_url: "/seo-agency", current_position: 4, recommended_action: "Add FAQ schema and improve internal linking", priority: "high" as const, status: "open" as const, created_at: daysAgo(5), confidence: 92, sources: ["rankings", "keywords"], evidence_text: "Position improved from #8→#4 over 6 weeks. Competitor avg word count is 2,100 vs your 420.", expected_impact: "+45% organic traffic to /seo-agency", next_action: "Expand content to 1,500+ words and add 3 internal links", brief_id: "br1", draft_id: "brd1", article_id: "art1", publishing_job_id: "pj1", performance_summary_id: "cps1", lifecycle: [
+    { id: "lc1", opportunity_id: "opp1", event_type: "created" as const, entity_type: null, entity_id: null, summary: "Opportunity detected from ranking trend + competitor gap", actor: "system", created_at: daysAgo(30) },
+    { id: "lc2", opportunity_id: "opp1", event_type: "brief_created" as const, entity_type: "seo_brief", entity_id: "br1", summary: "SEO brief created: Best SEO Agency in Singapore", actor: "user", created_at: daysAgo(14) },
+    { id: "lc3", opportunity_id: "opp1", event_type: "draft_generated" as const, entity_type: "seo_brief_draft", entity_id: "brd1", summary: "Draft v1 generated (1,800 words)", actor: "system", created_at: daysAgo(12) },
+    { id: "lc4", opportunity_id: "opp1", event_type: "approved" as const, entity_type: "seo_brief_draft", entity_id: "brd1", summary: "Draft approved after review", actor: "user", created_at: daysAgo(9) },
+    { id: "lc5", opportunity_id: "opp1", event_type: "published" as const, entity_type: "publishing_job", entity_id: "pj1", summary: "Published to WordPress — webby.sg/blog/best-seo-agency-singapore", actor: "system", created_at: daysAgo(7) },
+    { id: "lc6", opportunity_id: "opp1", event_type: "performance_checked" as const, entity_type: "content_performance", entity_id: "cps1", summary: "Position improved #8→#4, +3,200 clicks in 7 days", actor: "system", created_at: daysAgo(1) },
+  ], evidence_records: [
+    { id: "ev1", opportunity_id: "opp1", evidence_type: "ranking" as const, source_module: "rankings", source_id: "kw1", summary: "Position #4 (was #8 four weeks ago)", detail: "Consistent upward trend", captured_at: daysAgo(1) },
+    { id: "ev2", opportunity_id: "opp1", evidence_type: "competitor" as const, source_module: "competitor_benchmark", source_id: "cbr1", summary: "Competitor has 2,100 words vs your 420", detail: null, captured_at: daysAgo(5) },
+    { id: "ev3", opportunity_id: "opp1", evidence_type: "audit" as const, source_module: "audit", source_id: "aud1", summary: "Missing meta description on /seo-agency", detail: null, captured_at: daysAgo(14) },
+  ] },
+  { id: "opp2", type: "content_gap" as const, keyword: "ai seo tools", target_url: null, current_position: null, recommended_action: "Create comprehensive guide on AI SEO tools", priority: "medium" as const, status: "open" as const, created_at: daysAgo(3), confidence: 74, sources: ["keywords", "competitor"], evidence_text: "Competitor ranks #3 for this term with 2,800 words. No page on your domain.", expected_impact: "~1,900 monthly search volume opportunity", next_action: "Create SEO brief for new guide", brief_id: null, draft_id: null, article_id: null, publishing_job_id: null, performance_summary_id: null, lifecycle: [
+    { id: "lc7", opportunity_id: "opp2", event_type: "created" as const, entity_type: null, entity_id: null, summary: "Content gap detected via keyword research", actor: "system", created_at: daysAgo(3) },
+  ], evidence_records: [
+    { id: "ev4", opportunity_id: "opp2", evidence_type: "keyword" as const, source_module: "keyword_research", source_id: "krj1", summary: "1,900 monthly volume, KD 42", detail: null, captured_at: daysAgo(3) },
+    { id: "ev5", opportunity_id: "opp2", evidence_type: "competitor" as const, source_module: "competitor_benchmark", source_id: "cbr1", summary: "competitor-one.com ranks #3 with 2,800 words", detail: null, captured_at: daysAgo(3) },
+  ] },
+  { id: "opp3", type: "page_expansion" as const, keyword: "web design singapore price", target_url: "/web-design", current_position: 12, recommended_action: "Add pricing section and comparison table", priority: "high" as const, status: "in_progress" as const, created_at: daysAgo(7), confidence: 81, sources: ["rankings", "audit"], evidence_text: "Page ranks #12 but has no pricing content. Competitors in top 5 all have pricing tables.", expected_impact: "+30% CTR with structured pricing", next_action: "Add pricing table and FAQ schema", brief_id: "br2", draft_id: null, article_id: null, publishing_job_id: null, performance_summary_id: null, lifecycle: [
+    { id: "lc8", opportunity_id: "opp3", event_type: "created" as const, entity_type: null, entity_id: null, summary: "Expansion opportunity detected from audit + rankings", actor: "system", created_at: daysAgo(7) },
+    { id: "lc9", opportunity_id: "opp3", event_type: "brief_created" as const, entity_type: "seo_brief", entity_id: "br2", summary: "SEO brief created: Web Design Services Singapore", actor: "user", created_at: daysAgo(5) },
+  ], evidence_records: [
+    { id: "ev6", opportunity_id: "opp3", evidence_type: "ranking" as const, source_module: "rankings", source_id: "kw3", summary: "Position #12, was #15 — improving but needs content", detail: null, captured_at: daysAgo(1) },
+  ] },
+  { id: "opp4", type: "technical_fix" as const, keyword: null, target_url: "/blog", current_position: null, recommended_action: "Implement breadcrumb schema markup", priority: "low" as const, status: "open" as const, created_at: daysAgo(10), confidence: 95, sources: ["audit"], evidence_text: "No structured data on blog pages. Breadcrumbs improve CTR by up to 15%.", expected_impact: "+10-15% CTR on blog pages", next_action: "Add BreadcrumbList schema", brief_id: null, draft_id: null, article_id: null, publishing_job_id: null, performance_summary_id: null, lifecycle: [
+    { id: "lc10", opportunity_id: "opp4", event_type: "created" as const, entity_type: null, entity_id: null, summary: "Technical issue detected in audit run arun1", actor: "system", created_at: daysAgo(10) },
+  ], evidence_records: [
+    { id: "ev7", opportunity_id: "opp4", evidence_type: "audit" as const, source_module: "audit", source_id: "aud6", summary: "No schema markup on blog pages", detail: null, captured_at: daysAgo(10) },
+  ] },
+];
+
+// ─── Content Inventory ───
+// 🔌 API: GET /api/clients/:id/content-inventory
+const contentInventory = [
+  { id: "ci1", client_id: DEMO_CLIENT_ID, url: "/seo-agency", page_type: "core_service", title: "SEO Agency Singapore", word_count: 1800, has_schema: true, schema_types: ["FAQ"], primary_keyword: "seo agency singapore", mapped_keyword_ids: ["kw1", "kw11"], brief_id: "br1", article_id: "art1", publish_status: "published", last_audit_run_id: "arun1", last_audit_score: 82, internal_links_in: 5, internal_links_out: 3, created_at: daysAgo(90), updated_at: daysAgo(7), last_crawled_at: daysAgo(1) },
+  { id: "ci2", client_id: DEMO_CLIENT_ID, url: "/web-design", page_type: "core_service", title: "Web Design Services Singapore", word_count: 890, has_schema: false, schema_types: [], primary_keyword: "web design singapore", mapped_keyword_ids: ["kw3"], brief_id: "br2", article_id: null, publish_status: "draft", last_audit_run_id: "arun1", last_audit_score: 58, internal_links_in: 2, internal_links_out: 1, created_at: daysAgo(90), updated_at: daysAgo(5), last_crawled_at: daysAgo(1) },
+  { id: "ci3", client_id: DEMO_CLIENT_ID, url: "/local-seo", page_type: "location_page", title: "Local SEO Services", word_count: 1200, has_schema: false, schema_types: [], primary_keyword: "local seo services", mapped_keyword_ids: ["kw6"], brief_id: "br4", article_id: null, publish_status: "ready_for_publishing", last_audit_run_id: "arun1", last_audit_score: 71, internal_links_in: 3, internal_links_out: 2, created_at: daysAgo(60), updated_at: daysAgo(10), last_crawled_at: daysAgo(1) },
+  { id: "ci4", client_id: DEMO_CLIENT_ID, url: "/content-marketing", page_type: "core_service", title: "Content Marketing Agency", word_count: 950, has_schema: false, schema_types: [], primary_keyword: "content marketing agency", mapped_keyword_ids: ["kw5"], brief_id: null, article_id: null, publish_status: "none", last_audit_run_id: "arun1", last_audit_score: 45, internal_links_in: 1, internal_links_out: 2, created_at: daysAgo(90), updated_at: daysAgo(30), last_crawled_at: daysAgo(1) },
+];
+
+// ─── Content Performance Summaries ───
+// 🔌 API: GET /api/clients/:id/content-performance
+const contentPerformanceSummaries = [
+  { id: "cps1", client_id: DEMO_CLIENT_ID, content_url: "/seo-agency", article_id: "art1", brief_id: "br1", keyword: "seo agency singapore", clicks_7d: 3200, clicks_30d: 11800, impressions_7d: 45000, impressions_30d: 168000, avg_position_7d: 4.2, avg_position_30d: 5.1, position_change_30d: 3.8, ctr_7d: 0.071, trend: "improving" as const, published_at: daysAgo(30), first_indexed_at: daysAgo(28), snapshot_date: daysAgo(0) },
+  { id: "cps2", client_id: DEMO_CLIENT_ID, content_url: "/web-design", article_id: null, brief_id: "br2", keyword: "web design singapore", clicks_7d: 1800, clicks_30d: 6500, impressions_7d: 32000, impressions_30d: 120000, avg_position_7d: 8.1, avg_position_30d: 9.4, position_change_30d: 1.3, ctr_7d: 0.056, trend: "stable" as const, published_at: daysAgo(90), first_indexed_at: daysAgo(88), snapshot_date: daysAgo(0) },
+  { id: "cps3", client_id: DEMO_CLIENT_ID, content_url: "/local-seo", article_id: null, brief_id: "br4", keyword: "local seo services", clicks_7d: 980, clicks_30d: 3800, impressions_7d: 18000, impressions_30d: 72000, avg_position_7d: 5.8, avg_position_30d: 7.2, position_change_30d: 2.1, ctr_7d: 0.054, trend: "improving" as const, published_at: daysAgo(60), first_indexed_at: daysAgo(58), snapshot_date: daysAgo(0) },
+  { id: "cps4", client_id: DEMO_CLIENT_ID, content_url: "/blog/seo-tips", article_id: null, brief_id: null, keyword: "seo tips", clicks_7d: 1200, clicks_30d: 4200, impressions_7d: 28000, impressions_30d: 105000, avg_position_7d: 12.5, avg_position_30d: 14.1, position_change_30d: -1.2, ctr_7d: 0.043, trend: "declining" as const, published_at: daysAgo(120), first_indexed_at: daysAgo(118), snapshot_date: daysAgo(0) },
+];
+
+// ─── Published Content Records ───
+const publishedContentRecords = [
+  { id: "pcr1", client_id: DEMO_CLIENT_ID, article_id: "art1", brief_id: "br1", opportunity_id: "opp1", url: "https://webby.sg/blog/best-seo-agency-singapore", title: "Best SEO Agency in Singapore — Complete Guide", published_at: daysAgo(7), publisher: "wordpress", platform: "wordpress", initial_position: 8, current_position: 4, position_change: 4, clicks_since_publish: 3200, impressions_since_publish: 45000, days_since_publish: 7 },
+];
+
+// ─── Page Relationships ───
+const pageRelationships = [
+  { id: "pr1", client_id: DEMO_CLIENT_ID, from_url: "/seo-agency", to_url: "/local-seo", relationship_type: "sibling" as const, strength: 0.85, brief_ids: ["br1", "br4"], keyword_ids: ["kw1", "kw6"], created_at: daysAgo(14) },
+  { id: "pr2", client_id: DEMO_CLIENT_ID, from_url: "/seo-agency", to_url: "/seo-consultant", relationship_type: "parent_child" as const, strength: 0.92, brief_ids: ["br1", "br3"], keyword_ids: ["kw1"], created_at: daysAgo(14) },
+  { id: "pr3", client_id: DEMO_CLIENT_ID, from_url: "/web-design", to_url: "/web-design/ecommerce", relationship_type: "parent_child" as const, strength: 0.88, brief_ids: ["br2"], keyword_ids: ["kw3"], created_at: daysAgo(7) },
 ];
 
 // ─── Internal Links ───
