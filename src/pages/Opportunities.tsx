@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePageRestore } from "@/hooks/use-workspace-restore";
 import { PageTransition, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
