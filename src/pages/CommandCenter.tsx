@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePageRestore } from "@/hooks/use-workspace-restore";
 import { PageTransition } from "@/components/motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,11 +13,12 @@ import {
   useCrossChannelRecommendations, useWeeklyActionPlans, useMarketingGoals,
   useQuickWins, useRecomputePriorities, useGenerateCrossChannelRecs,
   useGenerateWeeklyPlan, useUpdatePriorityStatus, useUpdateRecommendationStatus,
-  useUpdateWeeklyItemStatus,
+  useUpdateWeeklyItemStatus, useWeeklyPlanItems,
 } from "@/hooks/use-api";
 import {
   Target, Zap, TrendingUp, Calendar, ArrowRight, RefreshCw, CheckCircle,
   Clock, AlertTriangle, Lightbulb, BarChart3, Layers, Play, MoreHorizontal, Command,
+  User, Code, Palette, FileText, Megaphone, Users, ChevronDown, ChevronUp, Circle, CircleDot,
 } from "lucide-react";
 import { toast } from "sonner";
 
