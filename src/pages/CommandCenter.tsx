@@ -297,22 +297,102 @@ export default function CommandCenter() {
                 <Calendar className="mr-2 h-4 w-4" /> Generate Plan
               </Button>
             </div>
-            {weeklyPlans?.map((plan: any) => (
-              <Card key={plan.id} className="hover-lift">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">Week of {plan.week_start}</CardTitle>
-                      <CardDescription>{plan.summary}</CardDescription>
+            {weeklyPlans?.map((plan: any) => {
+              const isExpanded = expandedPlanId === plan.id;
+              return (
+                <Card key={plan.id} className="hover-lift">
+                  <CardHeader className="cursor-pointer" onClick={() => setExpandedPlanId(isExpanded ? "" : plan.id)}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <Calendar className="h-4.5 w-4.5 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <CardTitle className="text-lg">Week of {plan.week_start}</CardTitle>
+                          <CardDescription className="truncate">{plan.summary}</CardDescription>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge variant="outline">{plan.status}</Badge>
+                        {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                      </div>
                     </div>
-                    <Badge variant="outline">{plan.status}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground"><strong className="text-foreground">Top Goal:</strong> {plan.top_goal || "Complete priority tasks"}</p>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardHeader>
+                  {plan.top_goal && (
+                    <CardContent className="pt-0 pb-3">
+                      <p className="text-sm text-muted-foreground"><strong className="text-foreground">🎯 Top Goal:</strong> {plan.top_goal}</p>
+                    </CardContent>
+                  )}
+                  {isExpanded && (
+                    <CardContent className="pt-0 space-y-4">
+                      {planItemsLoading ? (
+                        <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-12 rounded-lg" />)}</div>
+                      ) : Object.keys(groupedItems).length > 0 ? (
+                        <>
+                          {/* Progress bar */}
+                          {(() => {
+                            const total = planItems?.length || 0;
+                            const done = planItems?.filter((i: any) => i.status === "done").length || 0;
+                            const inProgress = planItems?.filter((i: any) => i.status === "in_progress").length || 0;
+                            return (
+                              <div className="space-y-1.5">
+                                <div className="flex justify-between text-xs text-muted-foreground">
+                                  <span>{done} of {total} tasks complete</span>
+                                  <span>{inProgress} in progress</span>
+                                </div>
+                                <Progress value={total ? (done / total) * 100 : 0} className="h-2" />
+                              </div>
+                            );
+                          })()}
+
+                          {/* Grouped by owner_type */}
+                          {Object.entries(groupedItems).map(([ownerType, items]) => {
+                            const config = OWNER_CONFIG[ownerType] || { label: ownerType, icon: User, color: "bg-muted text-muted-foreground" };
+                            const OwnerIcon = config.icon;
+                            const doneCount = items.filter((i: any) => i.status === "done").length;
+                            return (
+                              <div key={ownerType}>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className={`h-6 w-6 rounded-md flex items-center justify-center ${config.color}`}>
+                                    <OwnerIcon className="h-3.5 w-3.5" />
+                                  </div>
+                                  <span className="text-sm font-semibold text-foreground">{config.label}</span>
+                                  <span className="text-xs text-muted-foreground">{doneCount}/{items.length}</span>
+                                </div>
+                                <div className="space-y-1 ml-8">
+                                  {items.map((item: any) => {
+                                    const statusInfo = STATUS_ICONS[item.status] || STATUS_ICONS.todo;
+                                    const StatusIcon = statusInfo.icon;
+                                    return (
+                                      <div key={item.id} className={`flex items-center gap-3 rounded-lg border p-2.5 transition-colors hover:bg-muted/30 ${item.status === "done" ? "opacity-60" : ""}`}>
+                                        <button
+                                          onClick={() => handleToggleItemStatus(item.id, item.status)}
+                                          className="shrink-0 focus:outline-none"
+                                          title={`Status: ${item.status} — click to toggle`}
+                                        >
+                                          <StatusIcon className={`h-5 w-5 ${statusInfo.color} transition-colors`} />
+                                        </button>
+                                        <div className="min-w-0 flex-1">
+                                          <p className={`text-sm font-medium ${item.status === "done" ? "line-through text-muted-foreground" : "text-foreground"}`}>{item.title}</p>
+                                          {item.description && <p className="text-xs text-muted-foreground truncate mt-0.5">{item.description}</p>}
+                                        </div>
+                                        <Badge variant="outline" className="text-[10px] shrink-0">{item.priority}</Badge>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">No tasks in this plan yet</p>
+                      )}
+                    </CardContent>
+                  )}
+                </Card>
+              );
+            })}
             {(!weeklyPlans || weeklyPlans.length === 0) && (
               <Card className="hover-lift"><CardContent className="flex flex-col items-center py-12">
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
