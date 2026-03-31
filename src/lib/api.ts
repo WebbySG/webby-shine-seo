@@ -215,9 +215,9 @@ export const createBriefFromMapping = async (data: any): Promise<SeoBrief> => {
   return result;
 };
 export const updateBrief = (briefId: string, data: Partial<SeoBrief>) =>
-  sbQuery<SeoBrief>(supabase.from("seo_briefs").update(data).eq("id", briefId).select().single());
+  sbQuery<SeoBrief>(supabase.from("seo_briefs").update(data as any).eq("id", briefId).select().single());
 export const updateBriefStatus = (clientId: string, briefId: string, status: string) =>
-  sbQuery<SeoBrief>(supabase.from("seo_briefs").update({ status }).eq("id", briefId).select().single());
+  sbQuery<SeoBrief>(supabase.from("seo_briefs").update({ status } as any).eq("id", briefId).select().single());
 export const generateDraftFromBrief = async (briefId: string): Promise<SeoBriefDraft> => {
   // Get brief to get client_id
   const brief = await getBriefDetail(briefId);
