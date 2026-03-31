@@ -196,27 +196,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    setUser(null);
-    setWorkspace(null);
-    setRoles([]);
-    setPermissions([]);
-    setToken(null);
-    activateDemoMode();
-    setIsDemoMode(true);
-    localStorage.setItem("demo_mode", "true");
+    clearAuth();
   };
 
   const toggleDemoMode = useCallback(() => {
-    setIsDemoMode((prev) => {
-      const next = !prev;
-      localStorage.setItem("demo_mode", String(next));
-      if (next) {
-        supabase.auth.signOut();
-        activateDemoMode();
-      }
-      return next;
-    });
-  }, [activateDemoMode]);
+    if (!isDemoMode) {
+      supabase.auth.signOut();
+      activateDemoMode();
+    } else {
+      setIsDemoMode(false);
+      clearAuth();
+    }
+  }, [isDemoMode, activateDemoMode, clearAuth]);
 
   const hasPermission = (perm: string) => permissions.includes(perm);
   const hasRole = (role: string) => roles.includes(role);
