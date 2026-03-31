@@ -708,6 +708,77 @@ export type Database = {
           },
         ]
       }
+      marketing_priorities: {
+        Row: {
+          client_id: string
+          confidence_score: number
+          created_at: string
+          description: string | null
+          effort_score: number
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          impact_score: number
+          keyword: string | null
+          priority_score: number
+          priority_type: string
+          recommended_action: string | null
+          source_module: string
+          status: string
+          target_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          confidence_score?: number
+          created_at?: string
+          description?: string | null
+          effort_score?: number
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          impact_score?: number
+          keyword?: string | null
+          priority_score?: number
+          priority_type?: string
+          recommended_action?: string | null
+          source_module?: string
+          status?: string
+          target_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          confidence_score?: number
+          created_at?: string
+          description?: string | null
+          effort_score?: number
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          impact_score?: number
+          keyword?: string | null
+          priority_score?: number
+          priority_type?: string
+          recommended_action?: string | null
+          source_module?: string
+          status?: string
+          target_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_priorities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       opportunities: {
         Row: {
           article_id: string | null
@@ -814,6 +885,56 @@ export type Database = {
           workspace_id?: string | null
         }
         Relationships: []
+      }
+      quick_wins: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string | null
+          effort_level: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          impact_level: string
+          module: string
+          status: string
+          title: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description?: string | null
+          effort_level?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          impact_level?: string
+          module?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          effort_level?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          impact_level?: string
+          module?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quick_wins_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rank_snapshots: {
         Row: {
@@ -1116,6 +1237,104 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      weekly_action_plans: {
+        Row: {
+          ai_model: string | null
+          client_id: string
+          created_at: string
+          id: string
+          status: string
+          summary: string | null
+          top_goal: string | null
+          updated_at: string
+          week_start: string
+        }
+        Insert: {
+          ai_model?: string | null
+          client_id: string
+          created_at?: string
+          id?: string
+          status?: string
+          summary?: string | null
+          top_goal?: string | null
+          updated_at?: string
+          week_start?: string
+        }
+        Update: {
+          ai_model?: string | null
+          client_id?: string
+          created_at?: string
+          id?: string
+          status?: string
+          summary?: string | null
+          top_goal?: string | null
+          updated_at?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_action_plans_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weekly_plan_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          owner_type: string
+          plan_id: string
+          priority: string
+          priority_id: string | null
+          sort_order: number
+          status: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          owner_type?: string
+          plan_id: string
+          priority?: string
+          priority_id?: string | null
+          sort_order?: number
+          status?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          owner_type?: string
+          plan_id?: string
+          priority?: string
+          priority_id?: string | null
+          sort_order?: number
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_plan_items_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_action_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weekly_plan_items_priority_id_fkey"
+            columns: ["priority_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_priorities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workspace_state: {
         Row: {

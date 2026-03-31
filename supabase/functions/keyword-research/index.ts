@@ -10,14 +10,8 @@ function adminClient() {
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 }
 
-function userClient(token: string) {
-  return createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  });
-}
-
 // DataForSEO helpers
-const dfsAuth = btoa(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`);
+const dfsAuth = DATAFORSEO_LOGIN && DATAFORSEO_PASSWORD ? btoa(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`) : "";
 
 async function dfsRequest(endpoint: string, body: unknown[]) {
   const res = await fetch(`https://api.dataforseo.com/v3/${endpoint}`, {
@@ -28,6 +22,51 @@ async function dfsRequest(endpoint: string, body: unknown[]) {
   return res.json();
 }
 
+// DataForSEO location code mapping
+const LOCATION_CODES: Record<string, number> = {
+  "Singapore": 2702,
+  "United States": 2840,
+  "United Kingdom": 2826,
+  "Australia": 2036,
+  "Canada": 2124,
+  "India": 2356,
+  "Malaysia": 2458,
+  "Indonesia": 2360,
+  "Philippines": 2608,
+  "Thailand": 2764,
+  "Vietnam": 2704,
+  "Japan": 2392,
+  "South Korea": 2410,
+  "Germany": 2276,
+  "France": 2250,
+  "Spain": 2724,
+  "Italy": 2380,
+  "Netherlands": 2528,
+  "Brazil": 2076,
+  "Mexico": 2484,
+  "Hong Kong": 2344,
+  "Taiwan": 2158,
+  "New Zealand": 2554,
+  "United Arab Emirates": 2784,
+  "Saudi Arabia": 2682,
+  "South Africa": 2710,
+  "Nigeria": 2566,
+  "Egypt": 2818,
+  "Ireland": 2372,
+  "Sweden": 2752,
+  "Norway": 2578,
+  "Denmark": 2208,
+  "Finland": 2246,
+  "Poland": 2616,
+  "Portugal": 2620,
+  "Turkey": 2792,
+  "Argentina": 2032,
+  "Colombia": 2170,
+  "Chile": 2152,
+  "Pakistan": 2586,
+  "Bangladesh": 2050,
+};
+
 // Scoring helpers
 function volumeScore(v: number): number {
   if (v >= 5000) return 95;
@@ -37,7 +76,6 @@ function volumeScore(v: number): number {
   return 25;
 }
 function difficultyScore(d: number): number {
-  // Lower difficulty = higher score (easier to rank)
   return Math.max(0, 100 - d);
 }
 function intentScore(intent: string): number {
@@ -77,7 +115,6 @@ function clusterKeywords(results: any[]): { clusters: any[]; resultUpdates: Map<
   let sortOrder = 0;
   for (const [, group] of clusterMap) {
     if (group.keywords.length < 2) {
-      // Merge singles into "Other"
       if (!clusterMap.has("__other")) {
         clusterMap.set("__other", { name: "Other Keywords", keywords: [] });
       }
@@ -143,10 +180,6 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const path = url.pathname.replace(/^\/keyword-research\/?/, "");
 
-  // Extract auth token
-  const authHeader = req.headers.get("authorization") || req.headers.get("apikey") || "";
-  const token = authHeader.replace("Bearer ", "");
-
   try {
     // POST /keyword-research/start
     if (req.method === "POST" && path === "start") {
@@ -160,6 +193,7 @@ Deno.serve(async (req) => {
       }
 
       const supabase = adminClient();
+      const location = target_location || "Singapore";
 
       // Create job record
       const { data: job, error: jobErr } = await supabase
@@ -170,7 +204,7 @@ Deno.serve(async (req) => {
           seed_topics,
           competitor_domains: competitor_domains || [],
           target_count: target_count || 20,
-          target_location: target_location || "Singapore",
+          target_location: location,
           target_language: target_language || "en",
           business_priority: business_priority || "leads",
           provider: provider || "dataforseo",
@@ -181,45 +215,88 @@ Deno.serve(async (req) => {
 
       if (jobErr) throw jobErr;
 
-      // Fetch keywords from DataForSEO
       let rawKeywords: any[] = [];
 
       if (provider === "dataforseo" && DATAFORSEO_LOGIN && DATAFORSEO_PASSWORD) {
-        // Use Keywords For Site + Keywords Suggestions
-        const tasks: any[] = [];
+        // Step 1: Get keyword suggestions
+        const suggestionTasks = seed_topics.slice(0, 3).map((topic: string) => ({
+          keyword: topic,
+          location_name: location,
+          language_code: target_language || "en",
+          limit: Math.ceil((target_count || 20) / seed_topics.length),
+          include_seed_keyword: true,
+          filters: ["keyword_info.search_volume", ">", 10],
+        }));
 
-        // Get keyword suggestions from seed topics
-        for (const topic of seed_topics.slice(0, 3)) {
-          tasks.push({
-            keyword: topic,
-            location_name: target_location || "Singapore",
-            language_code: target_language || "en",
-            limit: Math.ceil((target_count || 20) / seed_topics.length),
-            include_seed_keyword: true,
-            filters: ["keyword_info.search_volume", ">", 10],
-          });
-        }
-
-        const dfsResult = await dfsRequest("dataforseo_labs/google/keyword_suggestions/live", tasks);
-
+        const dfsResult = await dfsRequest("dataforseo_labs/google/keyword_suggestions/live", suggestionTasks);
+        
+        const allKeywords: string[] = [];
         if (dfsResult?.tasks) {
           for (const task of dfsResult.tasks) {
-            if (task?.result) {
-              for (const result of task.result) {
-                if (result?.items) {
-                  for (const item of result.items) {
-                    const ki = item.keyword_data?.keyword_info || {};
-                    rawKeywords.push({
-                      keyword: item.keyword_data?.keyword || item.keyword || "",
-                      search_volume: ki.search_volume || 0,
-                      keyword_difficulty: item.keyword_properties?.keyword_difficulty || 0,
-                      cpc: ki.cpc || 0,
-                      serp_features: (item.keyword_data?.serp_info?.serp_item_types || []).slice(0, 5),
+            for (const result of task?.result || []) {
+              for (const item of result?.items || []) {
+                const kw = item.keyword_data?.keyword || item.keyword || "";
+                if (kw) allKeywords.push(kw);
+                // Also collect initial data from suggestions
+                const ki = item.keyword_data?.keyword_info || {};
+                rawKeywords.push({
+                  keyword: kw,
+                  search_volume: ki.search_volume || 0,
+                  keyword_difficulty: item.keyword_properties?.keyword_difficulty || 0,
+                  cpc: ki.cpc || 0,
+                  competition: ki.competition || 0,
+                  serp_features: (item.keyword_data?.serp_info?.serp_item_types || []).slice(0, 5),
+                });
+              }
+            }
+          }
+        }
+
+        // Step 2: Get location-specific volumes via keyword_info endpoint
+        // This gives accurate per-location search_volume, CPC, competition
+        if (allKeywords.length > 0) {
+          const locationCode = LOCATION_CODES[location];
+          const keywordInfoTasks = [{
+            keywords: allKeywords.slice(0, 1000), // keyword_info supports up to 1000
+            ...(locationCode ? { location_code: locationCode } : { location_name: location }),
+            language_code: target_language || "en",
+          }];
+
+          const kiResult = await dfsRequest("dataforseo_labs/google/keyword_info/live", keywordInfoTasks);
+
+          if (kiResult?.tasks) {
+            // Build a lookup map from keyword_info response
+            const kiMap = new Map<string, any>();
+            for (const task of kiResult.tasks) {
+              for (const result of task?.result || []) {
+                for (const item of result?.items || []) {
+                  if (item?.keyword) {
+                    kiMap.set(item.keyword.toLowerCase(), {
+                      search_volume: item.search_volume ?? 0,
+                      cpc: item.cpc ?? 0,
+                      competition: item.competition ?? 0,
+                      keyword_difficulty: item.keyword_difficulty ?? 0,
+                      monthly_searches: item.monthly_searches || [],
                     });
                   }
                 }
               }
             }
+
+            // Override rawKeywords with location-specific data
+            rawKeywords = rawKeywords.map((rk) => {
+              const ki = kiMap.get(rk.keyword.toLowerCase());
+              if (ki) {
+                return {
+                  ...rk,
+                  search_volume: ki.search_volume,
+                  cpc: ki.cpc,
+                  keyword_difficulty: ki.keyword_difficulty || rk.keyword_difficulty,
+                  competition: ki.competition,
+                };
+              }
+              return rk;
+            });
           }
         }
       }
@@ -280,8 +357,6 @@ Deno.serve(async (req) => {
 
       // Cluster keywords
       const { clusters, resultUpdates } = clusterKeywords(results);
-
-      // Build page mappings
       const mappings = buildMappings(clusters, results, resultUpdates);
 
       // Insert results
@@ -306,63 +381,32 @@ Deno.serve(async (req) => {
         brief_queued: r.brief_queued,
       }));
 
-      if (resultRows.length > 0) {
-        await supabase.from("keyword_research_results").insert(resultRows);
-      }
+      if (resultRows.length > 0) await supabase.from("keyword_research_results").insert(resultRows);
+      if (clusters.length > 0) await supabase.from("keyword_research_clusters").insert(clusters.map((c) => ({ ...c, job_id: job.id })));
+      if (mappings.length > 0) await supabase.from("keyword_research_mappings").insert(mappings.map((m) => ({ ...m, job_id: job.id })));
 
-      // Insert clusters
-      if (clusters.length > 0) {
-        const clusterRows = clusters.map((c) => ({ ...c, job_id: job.id }));
-        await supabase.from("keyword_research_clusters").insert(clusterRows);
-      }
-
-      // Insert mappings
-      if (mappings.length > 0) {
-        const mappingRows = mappings.map((m) => ({ ...m, job_id: job.id }));
-        await supabase.from("keyword_research_mappings").insert(mappingRows);
-      }
-
-      // Update job as completed
-      await supabase
-        .from("keyword_research_jobs")
-        .update({
-          status: "completed",
-          total_keywords: results.length,
-          clusters_count: clusters.length,
-          pages_mapped: mappings.length,
-          completed_at: new Date().toISOString(),
-        })
-        .eq("id", job.id);
-
-      return new Response(JSON.stringify({
-        ...job,
+      await supabase.from("keyword_research_jobs").update({
         status: "completed",
         total_keywords: results.length,
         clusters_count: clusters.length,
         pages_mapped: mappings.length,
         completed_at: new Date().toISOString(),
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      }).eq("id", job.id);
+
+      return new Response(JSON.stringify({
+        ...job, status: "completed", total_keywords: results.length,
+        clusters_count: clusters.length, pages_mapped: mappings.length,
+        completed_at: new Date().toISOString(),
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // GET /keyword-research/{jobId} — get job detail with results, clusters, mappings
+    // GET /keyword-research/{jobId}
     const jobDetailMatch = path.match(/^([0-9a-f-]{36})$/);
     if (req.method === "GET" && jobDetailMatch) {
       const jobId = jobDetailMatch[1];
       const supabase = adminClient();
-
-      const { data: job, error: jobErr } = await supabase
-        .from("keyword_research_jobs")
-        .select("*")
-        .eq("id", jobId)
-        .single();
-
-      if (jobErr || !job) {
-        return new Response(JSON.stringify({ error: "Job not found" }), {
-          status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      const { data: job, error: jobErr } = await supabase.from("keyword_research_jobs").select("*").eq("id", jobId).single();
+      if (jobErr || !job) return new Response(JSON.stringify({ error: "Job not found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
       const [results, clusters, mappings] = await Promise.all([
         supabase.from("keyword_research_results").select("*").eq("job_id", jobId),
@@ -370,12 +414,7 @@ Deno.serve(async (req) => {
         supabase.from("keyword_research_mappings").select("*").eq("job_id", jobId),
       ]);
 
-      return new Response(JSON.stringify({
-        ...job,
-        results: results.data || [],
-        clusters: clusters.data || [],
-        mappings: mappings.data || [],
-      }), {
+      return new Response(JSON.stringify({ ...job, results: results.data || [], clusters: clusters.data || [], mappings: mappings.data || [] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -383,22 +422,17 @@ Deno.serve(async (req) => {
     // GET /keyword-research/list?client_id=xxx
     if (req.method === "GET" && (path === "list" || path.startsWith("list"))) {
       const clientId = url.searchParams.get("client_id");
-      if (!clientId) {
-        return new Response(JSON.stringify({ error: "client_id required" }), {
-          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      if (!clientId) return new Response(JSON.stringify({ error: "client_id required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const supabase = adminClient();
-      const { data, error } = await supabase
-        .from("keyword_research_jobs")
-        .select("*")
-        .eq("client_id", clientId)
-        .order("created_at", { ascending: false });
-
+      const { data, error } = await supabase.from("keyword_research_jobs").select("*").eq("client_id", clientId).order("created_at", { ascending: false });
       if (error) throw error;
-      return new Response(JSON.stringify(data || []), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify(data || []), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // GET /keyword-research/locations — return supported locations
+    if (req.method === "GET" && path === "locations") {
+      const locations = Object.entries(LOCATION_CODES).map(([name, code]) => ({ name, code }));
+      return new Response(JSON.stringify(locations), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // PATCH /keyword-research/results/{id}
@@ -407,17 +441,9 @@ Deno.serve(async (req) => {
       const resultId = resultPatchMatch[1];
       const body = await req.json();
       const supabase = adminClient();
-      const { data, error } = await supabase
-        .from("keyword_research_results")
-        .update(body)
-        .eq("id", resultId)
-        .select()
-        .single();
-
+      const { data, error } = await supabase.from("keyword_research_results").update(body).eq("id", resultId).select().single();
       if (error) throw error;
-      return new Response(JSON.stringify(data), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify(data), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // PATCH /keyword-research/mappings/{id}
@@ -426,25 +452,15 @@ Deno.serve(async (req) => {
       const mappingId = mappingPatchMatch[1];
       const body = await req.json();
       const supabase = adminClient();
-      const { data, error } = await supabase
-        .from("keyword_research_mappings")
-        .update(body)
-        .eq("id", mappingId)
-        .select()
-        .single();
-
+      const { data, error } = await supabase.from("keyword_research_mappings").update(body).eq("id", mappingId).select().single();
       if (error) throw error;
-      return new Response(JSON.stringify(data), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify(data), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // POST /keyword-research/mappings/{id}/create-brief
     const createBriefMatch = path.match(/^mappings\/([0-9a-f-]{36})\/create-brief$/);
     if (req.method === "POST" && createBriefMatch) {
-      return new Response(JSON.stringify({ status: "brief_created" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify({ status: "brief_created" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     return new Response(JSON.stringify({ error: "Not found", path: url.pathname }), {

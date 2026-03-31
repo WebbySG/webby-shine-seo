@@ -60,7 +60,7 @@ export default function CompetitorBenchmark() {
   const [competitorDomain, setCompetitorDomain] = useState("");
   const [scope, setScope] = useState("full_crawl");
   const [provider, setProvider] = useState("mock");
-  const [ownAuditRunId, setOwnAuditRunId] = useState("");
+  const [ownAuditRunId, setOwnAuditRunId] = useState("none");
 
   const startBenchmark = useStartCompetitorBenchmark(activeClientId);
   const { data: detail } = useCompetitorBenchmarkDetail(selectedRunId || "");
@@ -68,7 +68,7 @@ export default function CompetitorBenchmark() {
   const handleStart = () => {
     if (!competitorDomain) { toast.error("Enter a competitor domain"); return; }
     startBenchmark.mutate(
-      { target_domain: targetDomain, competitor_domain: competitorDomain, scope, provider, own_audit_run_id: ownAuditRunId || undefined },
+      { target_domain: targetDomain, competitor_domain: competitorDomain, scope, provider, own_audit_run_id: ownAuditRunId === "none" ? undefined : ownAuditRunId },
       { onSuccess: () => { toast.success("Benchmark started"); setShowNew(false); setCompetitorDomain(""); } }
     );
   };
@@ -366,7 +366,7 @@ export default function CompetitorBenchmark() {
                   <Select value={ownAuditRunId} onValueChange={setOwnAuditRunId}>
                     <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {(auditRuns as any[]).filter((r: any) => r.status === "completed").map((r: any) => (
                         <SelectItem key={r.id} value={r.id}>{r.domain} — {new Date(r.created_at).toLocaleDateString()}</SelectItem>
                       ))}

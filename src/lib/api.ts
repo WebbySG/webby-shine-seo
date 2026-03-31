@@ -414,18 +414,18 @@ export interface MarketingPriority { id: string; client_id: string; priority_typ
 export interface CrossChannelRecommendation { id: string; client_id: string; recommendation_type: string; source_asset_type: string | null; source_asset_id: string | null; target_channel: string | null; title: string; description: string | null; recommended_action: string | null; priority: string; status: string; metadata_json: any; created_at: string; }
 export interface WeeklyActionPlan { id: string; client_id: string; week_start: string; summary: string | null; top_goal: string | null; status: string; created_at: string; }
 export interface MarketingGoal { id: string; client_id: string; goal_type: string; goal_name: string; target_value: number | null; timeframe: string | null; status: string; created_at: string; }
-export const getCommandCenterSummary = async (clientId: string): Promise<CommandCenterSummary> => ({ totalPriorities: 0, highPriorityCount: 0, quickWinsCount: 0, repurposeCount: 0, decliningAssetsCount: 0, nearPage1Count: 0, gbpIssuesCount: 0, adsOpportunitiesCount: 0, weeklyTasksDue: 0, weeklyTasksCompleted: 0, topGrowthChannels: [], topUnderperformingChannels: [] });
-export const getMarketingPriorities = async (clientId: string, status?: string): Promise<MarketingPriority[]> => [];
-export const updateMarketingPriority = async (priorityId: string, status: string): Promise<MarketingPriority> => ({} as any);
-export const recomputePriorities = async (clientId: string) => ({ success: true, priorities_generated: 0 });
+export const getCommandCenterSummary = async (clientId: string): Promise<CommandCenterSummary> => request(`/command-center/summary?client_id=${clientId}`);
+export const getMarketingPriorities = async (clientId: string, status?: string): Promise<MarketingPriority[]> => request(`/command-center/priorities?client_id=${clientId}${status ? `&status=${status}` : ""}`);
+export const updateMarketingPriority = async (priorityId: string, status: string): Promise<MarketingPriority> => request(`/command-center/priorities/${priorityId}`, { method: "PATCH", body: JSON.stringify({ status }) });
+export const recomputePriorities = async (clientId: string) => request<{ success: boolean; priorities_generated: number }>("/command-center/recompute", { method: "POST", body: JSON.stringify({ client_id: clientId }) });
 export const getCrossChannelRecommendations = async (clientId: string, status?: string): Promise<CrossChannelRecommendation[]> => [];
 export const updateCrossChannelRecommendation = async (recId: string, status: string): Promise<CrossChannelRecommendation> => ({} as any);
 export const generateCrossChannelRecommendations = async (clientId: string) => ({ success: true, recommendations_generated: 0 });
-export const getWeeklyActionPlans = async (clientId: string): Promise<WeeklyActionPlan[]> => [];
-export const generateWeeklyPlan = async (clientId: string): Promise<WeeklyActionPlan> => ({} as any);
+export const getWeeklyActionPlans = async (clientId: string): Promise<WeeklyActionPlan[]> => request(`/command-center/weekly-plans?client_id=${clientId}`);
+export const generateWeeklyPlan = async (clientId: string): Promise<WeeklyActionPlan> => request("/command-center/generate-plan", { method: "POST", body: JSON.stringify({ client_id: clientId }) });
 export const updateWeeklyItem = async (itemId: string, status: string) => ({});
 export const getMarketingGoals = async (clientId: string): Promise<MarketingGoal[]> => [];
-export const getQuickWins = async (clientId: string): Promise<MarketingPriority[]> => [];
+export const getQuickWins = async (clientId: string): Promise<MarketingPriority[]> => request(`/command-center/quick-wins?client_id=${clientId}`);
 
 // Attribution stubs
 export interface AttributionOverview { byChannel: any[]; dealAttribution: any[]; }

@@ -827,7 +827,20 @@ export default function KeywordResearch() {
                 </div>
                 <div>
                   <label className="text-sm font-medium block mb-1.5">Location</label>
-                  <Input value={targetLocation} onChange={e => setTargetLocation(e.target.value)} />
+                  <Select value={targetLocation} onValueChange={setTargetLocation}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {[
+                        "Singapore", "United States", "United Kingdom", "Australia", "Canada", "India",
+                        "Malaysia", "Indonesia", "Philippines", "Thailand", "Vietnam", "Japan",
+                        "South Korea", "Germany", "France", "Spain", "Italy", "Netherlands",
+                        "Brazil", "Mexico", "Hong Kong", "Taiwan", "New Zealand",
+                        "United Arab Emirates", "Saudi Arabia", "South Africa", "Nigeria", "Egypt",
+                        "Ireland", "Sweden", "Norway", "Denmark", "Finland", "Poland", "Portugal",
+                        "Turkey", "Argentina", "Colombia", "Chile", "Pakistan", "Bangladesh",
+                      ].map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
