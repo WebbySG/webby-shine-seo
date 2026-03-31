@@ -34,6 +34,21 @@ const MODULE_COLORS: Record<string, string> = {
   
 };
 
+const OWNER_CONFIG: Record<string, { label: string; icon: any; color: string }> = {
+  seo: { label: "SEO", icon: Target, color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
+  developer: { label: "Developer", icon: Code, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
+  designer: { label: "Designer", icon: Palette, color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" },
+  content: { label: "Content", icon: FileText, color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
+  ads: { label: "Ads", icon: Megaphone, color: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400" },
+  manager: { label: "Manager", icon: Users, color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400" },
+};
+
+const STATUS_CYCLE = ["todo", "in_progress", "done"] as const;
+const STATUS_ICONS: Record<string, { icon: any; color: string }> = {
+  todo: { icon: Circle, color: "text-muted-foreground" },
+  in_progress: { icon: CircleDot, color: "text-blue-500" },
+  done: { icon: CheckCircle, color: "text-emerald-500" },
+};
 export default function CommandCenter() {
   const { savedUI, trackUI } = usePageRestore("command");
   const [selectedClientId, setSelectedClientId] = useState<string>("");
