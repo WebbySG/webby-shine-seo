@@ -14,7 +14,13 @@ const ClientContext = createContext<ClientContextType | null>(null);
 export function ClientProvider({ children }: { children: React.ReactNode }) {
   const { data: clients = [], isLoading } = useClients();
   const [activeClientId, setActiveClientIdRaw] = useState<string>(() => {
-    return localStorage.getItem("active_client_id") || "";
+    const stored = localStorage.getItem("active_client_id") || "";
+    // Clear stale demo IDs
+    if (stored.startsWith("00000000")) {
+      localStorage.removeItem("active_client_id");
+      return "";
+    }
+    return stored;
   });
 
   const setActiveClientId = (id: string) => {
