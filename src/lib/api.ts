@@ -249,7 +249,7 @@ export const updateArticle = (articleId: string, data: { title?: string; meta_de
 export const approveArticle = (articleId: string) =>
   sbQuery<SeoArticle>(supabase.from("seo_articles").update({ status: "approved" }).eq("id", articleId).select().single());
 export const updateArticleStatus = (articleId: string, status: string) =>
-  sbQuery<SeoArticle>(supabase.from("seo_articles").update({ status }).eq("id", articleId).select().single());
+  sbQuery<SeoArticle>(supabase.from("seo_articles").update({ status } as any).eq("id", articleId).select().single());
 export interface PublishResult { article: SeoArticle; wordpress: { id: number; url: string; status: string }; }
 export const publishArticle = async (articleId: string, scheduleDate?: string): Promise<PublishResult> => {
   const article = await sbQuery<SeoArticle>(
