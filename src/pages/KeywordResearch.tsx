@@ -777,7 +777,7 @@ export default function KeywordResearch() {
           </CardContent>
         </Card>
       )}
-      {hasValidClient && (
+      {hasValidClient && <>
       <div className="flex items-center justify-end flex-wrap gap-3">
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
