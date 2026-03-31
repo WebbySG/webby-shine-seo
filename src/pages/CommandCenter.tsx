@@ -52,6 +52,7 @@ const STATUS_ICONS: Record<string, { icon: any; color: string }> = {
 export default function CommandCenter() {
   const { savedUI, trackUI } = usePageRestore("command");
   const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const [expandedPlanId, setExpandedPlanId] = useState<string>("");
   const { data: clients } = useClients();
   const { data: summary, isLoading: summaryLoading } = useCommandCenterSummary(selectedClientId);
   const { data: priorities, isLoading: prioritiesLoading } = useMarketingPriorities(selectedClientId);
@@ -59,12 +60,38 @@ export default function CommandCenter() {
   const { data: weeklyPlans } = useWeeklyActionPlans(selectedClientId);
   const { data: goals } = useMarketingGoals(selectedClientId);
   const { data: quickWins } = useQuickWins(selectedClientId);
+  const { data: planItems, isLoading: planItemsLoading } = useWeeklyPlanItems(expandedPlanId);
 
   const recomputeMutation = useRecomputePriorities();
   const generateRecsMutation = useGenerateCrossChannelRecs();
   const generatePlanMutation = useGenerateWeeklyPlan();
   const updatePriorityMutation = useUpdatePriorityStatus(selectedClientId);
   const updateRecMutation = useUpdateRecommendationStatus(selectedClientId);
+  const updateItemMutation = useUpdateWeeklyItemStatus(selectedClientId, expandedPlanId);
+
+  // Auto-expand the latest plan
+  useEffect(() => {
+    if (weeklyPlans?.length && !expandedPlanId) {
+      setExpandedPlanId(weeklyPlans[0].id);
+    }
+  }, [weeklyPlans]);
+
+  // Group plan items by owner_type
+  const groupedItems = useMemo(() => {
+    if (!planItems?.length) return {};
+    return planItems.reduce((acc: Record<string, any[]>, item: any) => {
+      const owner = item.owner_type || "seo";
+      if (!acc[owner]) acc[owner] = [];
+      acc[owner].push(item);
+      return acc;
+    }, {});
+  }, [planItems]);
+
+  const handleToggleItemStatus = (itemId: string, currentStatus: string) => {
+    const idx = STATUS_CYCLE.indexOf(currentStatus as any);
+    const nextStatus = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+    updateItemMutation.mutate({ itemId, status: nextStatus });
+  };
 
   const handleRecompute = () => {
     if (!selectedClientId) return;
