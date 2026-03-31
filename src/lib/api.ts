@@ -266,6 +266,14 @@ export const getRankSnapshots = (clientId: string, keywordId?: string) => {
   return sbQuery<RankSnapshot[]>(query);
 };
 
+export const fetchRankings = async (clientId: string): Promise<{ message: string; snapshots_count: number }> => {
+  const { data, error } = await supabase.functions.invoke("fetch-rankings", {
+    body: { client_id: clientId },
+  });
+  if (error) throw new Error(error.message || "Failed to fetch rankings");
+  return data;
+};
+
 // ======================== WORKSPACE STATE ========================
 export const getWorkspaceState = async () => {
   const { data: { user } } = await supabase.auth.getUser();

@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { useKeywords } from "@/hooks/use-api";
+import { useKeywords, useFetchRankings } from "@/hooks/use-api";
 import { useActiveClient } from "@/contexts/ClientContext";
 
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, TrendingUp, TrendingDown, BarChart3, Target, RefreshCw } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown, BarChart3, Target, RefreshCw, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -19,6 +20,7 @@ type SortDir = "asc" | "desc";
 export default function Rankings() {
   const { activeClientId: clientId } = useActiveClient();
   const { data: apiKeywords, isLoading } = useKeywords(clientId);
+  const fetchRankings = useFetchRankings(clientId);
 
   const [sortKey, setSortKey] = useState<SortKey>("current_position");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
@@ -52,8 +54,15 @@ export default function Rankings() {
           <p className="text-muted-foreground text-sm mt-1.5">Weekly position tracking across all keywords</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button size="sm" variant="outline" disabled title="Rankings are auto-tracked weekly">
-            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
+          <Button size="sm" variant="outline"
+            disabled={fetchRankings.isPending}
+            onClick={() => fetchRankings.mutate(undefined, {
+              onSuccess: (data) => toast.success(data.message),
+              onError: (err: any) => toast.error(err.message || "Failed to fetch rankings"),
+            })}
+            title="Fetch live rankings from DataForSEO"
+          >
+            {fetchRankings.isPending ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5 mr-1" />} Refresh Rankings
           </Button>
         </div>
       </div>
