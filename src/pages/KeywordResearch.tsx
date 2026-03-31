@@ -760,10 +760,24 @@ export default function KeywordResearch() {
   }
 
   // ─── Jobs List ───
+  const hasValidClient = !!activeClient && !!clientId && !clientId.startsWith("00000000");
+
   return (
     <PageTransition className="space-y-6">
       <MascotSectionHeader role="seo" title="Keyword Research" subtitle="Research, score, cluster, and map keywords to pages">
       </MascotSectionHeader>
+      {!hasValidClient && (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <Target className="h-10 w-10 text-muted-foreground/40 mb-3" />
+            <h3 className="text-lg font-semibold text-foreground mb-1">No client selected</h3>
+            <p className="text-sm text-muted-foreground max-w-md">
+              Create a client first from the Dashboard, then come back here to start keyword research.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+      {hasValidClient && (
       <div className="flex items-center justify-end flex-wrap gap-3">
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
