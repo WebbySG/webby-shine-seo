@@ -407,6 +407,266 @@ export type Database = {
           },
         ]
       }
+      keyword_research_clusters: {
+        Row: {
+          avg_difficulty: number
+          avg_volume: number
+          cluster_name: string
+          cluster_theme: string | null
+          created_at: string
+          id: string
+          job_id: string
+          keyword_count: number
+          primary_keyword: string
+          priority: string
+          recommended_content_type: string
+          sort_order: number
+        }
+        Insert: {
+          avg_difficulty?: number
+          avg_volume?: number
+          cluster_name: string
+          cluster_theme?: string | null
+          created_at?: string
+          id?: string
+          job_id: string
+          keyword_count?: number
+          primary_keyword: string
+          priority?: string
+          recommended_content_type?: string
+          sort_order?: number
+        }
+        Update: {
+          avg_difficulty?: number
+          avg_volume?: number
+          cluster_name?: string
+          cluster_theme?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string
+          keyword_count?: number
+          primary_keyword?: string
+          priority?: string
+          recommended_content_type?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyword_research_clusters_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "keyword_research_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      keyword_research_jobs: {
+        Row: {
+          business_priority: string
+          client_id: string
+          clusters_count: number
+          competitor_domains: string[]
+          completed_at: string | null
+          created_at: string
+          domain: string
+          id: string
+          pages_mapped: number
+          provider: string
+          seed_topics: string[]
+          status: string
+          target_count: number
+          target_language: string
+          target_location: string
+          total_keywords: number
+        }
+        Insert: {
+          business_priority?: string
+          client_id: string
+          clusters_count?: number
+          competitor_domains?: string[]
+          completed_at?: string | null
+          created_at?: string
+          domain?: string
+          id?: string
+          pages_mapped?: number
+          provider?: string
+          seed_topics?: string[]
+          status?: string
+          target_count?: number
+          target_language?: string
+          target_location?: string
+          total_keywords?: number
+        }
+        Update: {
+          business_priority?: string
+          client_id?: string
+          clusters_count?: number
+          competitor_domains?: string[]
+          completed_at?: string | null
+          created_at?: string
+          domain?: string
+          id?: string
+          pages_mapped?: number
+          provider?: string
+          seed_topics?: string[]
+          status?: string
+          target_count?: number
+          target_language?: string
+          target_location?: string
+          total_keywords?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyword_research_jobs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      keyword_research_mappings: {
+        Row: {
+          created_at: string
+          id: string
+          is_existing: boolean
+          job_id: string
+          keyword_count: number
+          page_title: string
+          page_type: string
+          page_url: string | null
+          parent_mapping_id: string | null
+          primary_keyword: string
+          priority: string
+          recommended_word_count: number
+          secondary_keywords: string[]
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_existing?: boolean
+          job_id: string
+          keyword_count?: number
+          page_title: string
+          page_type?: string
+          page_url?: string | null
+          parent_mapping_id?: string | null
+          primary_keyword?: string
+          priority?: string
+          recommended_word_count?: number
+          secondary_keywords?: string[]
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_existing?: boolean
+          job_id?: string
+          keyword_count?: number
+          page_title?: string
+          page_type?: string
+          page_url?: string | null
+          parent_mapping_id?: string | null
+          primary_keyword?: string
+          priority?: string
+          recommended_word_count?: number
+          secondary_keywords?: string[]
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyword_research_mappings_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "keyword_research_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      keyword_research_results: {
+        Row: {
+          authority_gap_score: number
+          brief_queued: boolean
+          cluster_id: string | null
+          cpc: number
+          created_at: string
+          difficulty_score: number
+          existing_url: string | null
+          id: string
+          intent_score: number
+          job_id: string
+          keyword: string
+          keyword_difficulty: number
+          mapping_notes: string | null
+          mapping_status: string
+          overall_score: number
+          recommended_page_type: string
+          relevance_score: number
+          search_intent: string
+          search_volume: number
+          serp_features: string[]
+          serp_score: number
+          volume_score: number
+        }
+        Insert: {
+          authority_gap_score?: number
+          brief_queued?: boolean
+          cluster_id?: string | null
+          cpc?: number
+          created_at?: string
+          difficulty_score?: number
+          existing_url?: string | null
+          id?: string
+          intent_score?: number
+          job_id: string
+          keyword: string
+          keyword_difficulty?: number
+          mapping_notes?: string | null
+          mapping_status?: string
+          overall_score?: number
+          recommended_page_type?: string
+          relevance_score?: number
+          search_intent?: string
+          search_volume?: number
+          serp_features?: string[]
+          serp_score?: number
+          volume_score?: number
+        }
+        Update: {
+          authority_gap_score?: number
+          brief_queued?: boolean
+          cluster_id?: string | null
+          cpc?: number
+          created_at?: string
+          difficulty_score?: number
+          existing_url?: string | null
+          id?: string
+          intent_score?: number
+          job_id?: string
+          keyword?: string
+          keyword_difficulty?: number
+          mapping_notes?: string | null
+          mapping_status?: string
+          overall_score?: number
+          recommended_page_type?: string
+          relevance_score?: number
+          search_intent?: string
+          search_volume?: number
+          serp_features?: string[]
+          serp_score?: number
+          volume_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyword_research_results_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "keyword_research_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       keywords: {
         Row: {
           client_id: string
