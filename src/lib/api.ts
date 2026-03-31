@@ -1,72 +1,16 @@
-import { matchDemoRoute } from "./demo-data";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
-
-export async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = localStorage.getItem("auth_token");
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...((options?.headers as Record<string, string>) || {}),
-  };
-
-  try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      ...options,
-      headers,
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || `API error ${res.status}`);
-    }
-    return res.json();
-  } catch (err) {
-    // If backend is unreachable, fall back to demo data
-    const method = options?.method || "GET";
-    let body: any;
-    if (options?.body && typeof options.body === "string") {
-      try { body = JSON.parse(options.body); } catch {}
-    }
-    const demoResult = matchDemoRoute(path, method, body);
-    if (demoResult !== undefined) {
-      console.info(`[Demo Mode] ${method} ${path} → demo data`);
-      return demoResult as T;
-    }
-    // No demo match — rethrow original error
-    throw err;
-  }
-}
+import { supabase } from "@/integrations/supabase/client";
 
 // ---------- Types ----------
 export interface Client {
   id: string; name: string; domain: string; keywords_count: number; competitors_count: number;
   health_score: number; status: string; created_at: string; updated_at: string;
+  user_id?: string;
 }
 export interface KeywordRanking {
   id: string; keyword: string; current_position: number | null; last_position: number | null;
   change: number | null; ranking_url: string | null; tracked_date: string | null;
 }
 export interface Competitor { id: string; domain: string; label: string | null; source: string; confirmed: boolean; }
-
-// ---------- Clients ----------
-export const getClients = () => request<Client[]>("/clients");
-export const getClient = (id: string) => request<Client>(`/clients/${id}`);
-export const createClient = (data: { name: string; domain: string }) =>
-  request<Client>("/clients", { method: "POST", body: JSON.stringify(data) });
-export const updateClient = (id: string, data: Partial<Client>) =>
-  request<Client>(`/clients/${id}`, { method: "PUT", body: JSON.stringify(data) });
-export const deleteClient = (id: string) =>
-  request<{ deleted: boolean }>(`/clients/${id}`, { method: "DELETE" });
-
-// ---------- Keywords ----------
-export const getKeywords = (clientId: string) => request<KeywordRanking[]>(`/clients/${clientId}/keywords`);
-export const createKeyword = (clientId: string, data: { keyword: string }) =>
-  request<any>(`/clients/${clientId}/keywords`, { method: "POST", body: JSON.stringify(data) });
-
-// ---------- Competitors ----------
-export const getCompetitors = (clientId: string) => request<Competitor[]>(`/clients/${clientId}/competitors`);
-export const createCompetitor = (clientId: string, data: { domain: string; label?: string }) =>
-  request<Competitor>(`/clients/${clientId}/competitors`, { method: "POST", body: JSON.stringify(data) });
 
 export interface AuditIssue {
   id: string; issue_type: string; severity: "critical" | "warning" | "info"; affected_url: string;
@@ -97,49 +41,13 @@ export interface AuditRecheck {
   diff_summary: string | null; checked_at: string;
 }
 
-// ---------- Audit ----------
-export const getAuditRuns = (clientId: string) => request<AuditRun[]>(`/audit/runs?client_id=${clientId}`);
-export const getAuditRunDetail = (runId: string) => request<AuditRun>(`/audit/runs/${runId}`);
-export const startAudit = (data: { client_id: string; domain: string; scope?: string; provider?: string }) =>
-  request<AuditRun>(`/audit/runs`, { method: "POST", body: JSON.stringify(data) });
-export const getAuditIssues = (clientId: string) => request<AuditIssue[]>(`/audit/issues?client_id=${clientId}`);
-export const getAuditIssueDetail = (issueId: string) => request<AuditIssue>(`/audit/issues/${issueId}`);
-export const updateAuditIssueStatus = (issueId: string, status: string) =>
-  request<AuditIssue>(`/audit/issues/${issueId}`, { method: "PATCH", body: JSON.stringify({ status }) });
-export const recheckAuditIssue = (issueId: string) =>
-  request<AuditRecheck>(`/audit/issues/${issueId}/recheck`, { method: "POST" });
-export const recheckAuditRun = (runId: string) =>
-  request<{ rechecked: number; rechecks: AuditRecheck[] }>(`/audit/runs/${runId}/recheck`, { method: "POST" });
-
-// ---------- Opportunities ----------
 export interface Opportunity {
   id: string; type: "near_win" | "content_gap" | "page_expansion" | "technical_fix";
   keyword: string | null; target_url: string | null; current_position: number | null;
   recommended_action: string; priority: "high" | "medium" | "low";
   status: "open" | "in_progress" | "done" | "dismissed"; created_at: string;
 }
-export const getOpportunities = (clientId: string) => request<Opportunity[]>(`/clients/${clientId}/opportunities`);
-export const updateOpportunityStatus = (clientId: string, oppId: string, status: string) =>
-  request<Opportunity>(`/clients/${clientId}/opportunities/${oppId}`, { method: "PATCH", body: JSON.stringify({ status }) });
 
-// ---------- Internal Links ----------
-export interface InternalLinkSuggestion {
-  id: string; from_url: string; to_url: string; anchor_text: string; reason: string;
-  priority: "high" | "medium" | "low"; status: "pending" | "implemented" | "dismissed"; created_at: string;
-}
-export const getInternalLinks = (clientId: string) => request<InternalLinkSuggestion[]>(`/clients/${clientId}/internal-links`);
-export const updateInternalLinkStatus = (clientId: string, linkId: string, status: string) =>
-  request<InternalLinkSuggestion>(`/clients/${clientId}/internal-links/${linkId}`, { method: "PATCH", body: JSON.stringify({ status }) });
-
-// ---------- Content Plan ----------
-export interface ContentSuggestion { id: string; cluster_name: string; keyword: string; suggested_slug: string | null; reason: string; priority: "high" | "medium" | "low"; status: "pending" | "planned" | "published" | "dismissed"; created_at: string; }
-export interface ContentPlanCluster { cluster_name: string; suggestions: ContentSuggestion[]; high_priority_count: number; }
-export interface ContentPlanResponse { total: number; clusters: ContentPlanCluster[]; flat: ContentSuggestion[]; }
-export const getContentPlan = (clientId: string) => request<ContentPlanResponse>(`/clients/${clientId}/content-plan`);
-export const updateContentSuggestionStatus = (clientId: string, suggestionId: string, status: string) =>
-  request<ContentSuggestion>(`/clients/${clientId}/content-plan/${suggestionId}`, { method: "PATCH", body: JSON.stringify({ status }) });
-
-// ---------- SEO Briefs ----------
 export interface SeoBriefHeading { level: string; text: string; }
 export interface SeoBriefFaq { question: string; answer: string; }
 export interface SeoBriefLink { from: string; to: string; anchor: string; }
@@ -150,12 +58,12 @@ export interface SeoBrief {
   faq: SeoBriefFaq[]; entities: string[]; internal_links: SeoBriefLink[];
   status: "draft" | "approved" | "published" | "under_review" | "changes_requested" | "rejected" | "ready_for_publishing";
   created_at: string;
-  // Enhanced fields
   page_type?: string; secondary_keywords?: string[]; search_intent?: string;
   target_audience?: string; page_goal?: string; recommended_slug?: string;
   suggested_h1?: string; cta_angle?: string; sections?: SeoBriefSection[];
   competitor_context?: string[]; audit_context?: string[]; evidence?: SeoBriefEvidence[];
   priority?: "high" | "medium" | "low"; source_mapping_id?: string;
+  client_id?: string;
 }
 export interface SeoBriefDraft {
   id: string; brief_id: string; title: string; slug: string; content: string;
@@ -167,376 +75,412 @@ export interface DraftReviewCheck {
   id: string; check_type: string; label: string; status: "pass" | "fail" | "warning" | "pending";
   detail: string;
 }
-export const getBriefs = (clientId: string) => request<SeoBrief[]>(`/clients/${clientId}/briefs`);
-export const getBriefDetail = (briefId: string) => request<SeoBrief>(`/briefs/${briefId}`);
-export const generateBrief = (clientId: string, keyword: string) =>
-  request<SeoBrief>(`/briefs/generate`, { method: "POST", body: JSON.stringify({ client_id: clientId, keyword }) });
-export const createBriefFromMapping = (data: { client_id: string; mapping_id: string; page_type: string; primary_keyword: string; secondary_keywords: string[]; search_intent?: string; target_audience?: string; page_goal?: string; cta_angle?: string; priority?: string }) =>
-  request<SeoBrief>(`/briefs/from-mapping`, { method: "POST", body: JSON.stringify(data) });
-export const updateBrief = (briefId: string, data: Partial<SeoBrief>) =>
-  request<SeoBrief>(`/briefs/${briefId}`, { method: "PUT", body: JSON.stringify(data) });
-export const updateBriefStatus = (clientId: string, briefId: string, status: string) =>
-  request<SeoBrief>(`/clients/${clientId}/briefs/${briefId}`, { method: "PATCH", body: JSON.stringify({ status }) });
-export const generateDraftFromBrief = (briefId: string) =>
-  request<SeoBriefDraft>(`/briefs/${briefId}/generate-draft`, { method: "POST" });
-export const getBriefDrafts = (briefId: string) => request<SeoBriefDraft[]>(`/briefs/${briefId}/drafts`);
-export const updateDraft = (draftId: string, data: Partial<SeoBriefDraft>) =>
-  request<SeoBriefDraft>(`/drafts/${draftId}`, { method: "PUT", body: JSON.stringify(data) });
-export const updateDraftStatus = (draftId: string, status: string) =>
-  request<SeoBriefDraft>(`/drafts/${draftId}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
 
-// ---------- SEO Articles ----------
 export interface SeoArticle {
   id: string; brief_id: string | null; title: string; meta_description: string; content: string;
   status: "draft" | "review" | "approved" | "published"; target_keyword: string; slug: string | null;
   publish_date: string | null; cms_post_id: string | null; cms_post_url: string | null;
   created_at: string; updated_at: string;
 }
-export const getArticles = (clientId: string) => request<SeoArticle[]>(`/clients/${clientId}/articles`);
-export const generateArticle = (clientId: string, briefId: string) =>
-  request<SeoArticle>(`/articles/generate`, { method: "POST", body: JSON.stringify({ client_id: clientId, brief_id: briefId }) });
+
+export interface RankSnapshot {
+  id: string; client_id: string; keyword_id: string; keyword: string;
+  position: number | null; previous_position: number | null;
+  url: string | null; snapshot_date: string; provider: string;
+}
+
+// ======================== HELPER ========================
+async function sbQuery<T>(query: any): Promise<T> {
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return data as T;
+}
+
+// ======================== CLIENTS ========================
+export const getClients = async (): Promise<Client[]> => {
+  const { data, error } = await supabase.from("clients").select("*").order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data || []).map((c: any) => ({
+    ...c, keywords_count: 0, competitors_count: 0,
+  }));
+};
+export const getClient = (id: string) => sbQuery<Client>(supabase.from("clients").select("*").eq("id", id).single());
+export const createClient = async (data: { name: string; domain: string }): Promise<Client> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  return sbQuery<Client>(supabase.from("clients").insert({ ...data, user_id: user.id }).select().single());
+};
+export const updateClient = (id: string, data: Partial<Client>) =>
+  sbQuery<Client>(supabase.from("clients").update(data).eq("id", id).select().single());
+export const deleteClient = async (id: string) => {
+  const { error } = await supabase.from("clients").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  return { deleted: true };
+};
+
+// ======================== KEYWORDS ========================
+export const getKeywords = async (clientId: string): Promise<KeywordRanking[]> => {
+  const { data, error } = await supabase.from("keywords").select("*").eq("client_id", clientId);
+  if (error) throw new Error(error.message);
+  return (data || []).map((k: any) => ({
+    id: k.id, keyword: k.keyword, current_position: null, last_position: null,
+    change: null, ranking_url: null, tracked_date: k.created_at,
+  }));
+};
+export const createKeyword = async (clientId: string, data: { keyword: string }) =>
+  sbQuery<any>(supabase.from("keywords").insert({ client_id: clientId, keyword: data.keyword }).select().single());
+
+// ======================== COMPETITORS ========================
+export const getCompetitors = (clientId: string) =>
+  sbQuery<Competitor[]>(supabase.from("competitors").select("*").eq("client_id", clientId));
+export const createCompetitor = (clientId: string, data: { domain: string; label?: string }) =>
+  sbQuery<Competitor>(supabase.from("competitors").insert({ client_id: clientId, ...data }).select().single());
+
+// ======================== AUDIT ========================
+export const getAuditRuns = (clientId: string) =>
+  sbQuery<AuditRun[]>(supabase.from("audit_runs").select("*").eq("client_id", clientId).order("created_at", { ascending: false }));
+export const getAuditRunDetail = async (runId: string): Promise<AuditRun> => {
+  const run = await sbQuery<AuditRun>(supabase.from("audit_runs").select("*").eq("id", runId).single());
+  const issues = await sbQuery<AuditIssue[]>(supabase.from("audit_issues").select("*").eq("audit_run_id", runId));
+  const pages = await sbQuery<AuditPage[]>(supabase.from("audit_pages").select("*").eq("audit_run_id", runId));
+  return { ...run, issues, pages };
+};
+export const startAudit = async (data: { client_id: string; domain: string; scope?: string; provider?: string }) =>
+  sbQuery<AuditRun>(supabase.from("audit_runs").insert({
+    client_id: data.client_id, domain: data.domain, scope: data.scope || "full",
+    provider: data.provider || "internal", status: "pending",
+  }).select().single());
+export const getAuditIssues = (clientId: string) =>
+  sbQuery<AuditIssue[]>(supabase.from("audit_issues").select("*").eq("client_id", clientId));
+export const getAuditIssueDetail = async (issueId: string): Promise<AuditIssue> => {
+  const issue = await sbQuery<AuditIssue>(supabase.from("audit_issues").select("*").eq("id", issueId).single());
+  const evidence = await sbQuery<AuditEvidence[]>(supabase.from("audit_evidence").select("*").eq("audit_issue_id", issueId));
+  const rechecks = await sbQuery<AuditRecheck[]>(supabase.from("audit_rechecks").select("*").eq("audit_issue_id", issueId));
+  return { ...issue, evidence, rechecks };
+};
+export const updateAuditIssueStatus = (issueId: string, status: string) =>
+  sbQuery<AuditIssue>(supabase.from("audit_issues").update({ status }).eq("id", issueId).select().single());
+export const recheckAuditIssue = async (issueId: string): Promise<AuditRecheck> => {
+  // Placeholder — actual recheck requires external API
+  return sbQuery<AuditRecheck>(supabase.from("audit_rechecks").insert({
+    audit_issue_id: issueId, provider: "manual", previous_status: "open",
+    new_status: "open", diff_summary: "Manual recheck — pending external verification",
+  }).select().single());
+};
+export const recheckAuditRun = async (runId: string) => {
+  return { rechecked: 0, rechecks: [] };
+};
+
+// ======================== OPPORTUNITIES ========================
+export const getOpportunities = (clientId: string) =>
+  sbQuery<Opportunity[]>(supabase.from("opportunities").select("*").eq("client_id", clientId).order("created_at", { ascending: false }));
+export const updateOpportunityStatus = (clientId: string, oppId: string, status: string) =>
+  sbQuery<Opportunity>(supabase.from("opportunities").update({ status }).eq("id", oppId).select().single());
+
+// ======================== SEO BRIEFS ========================
+export const getBriefs = (clientId: string) =>
+  sbQuery<SeoBrief[]>(supabase.from("seo_briefs").select("*").eq("client_id", clientId).order("created_at", { ascending: false }));
+export const getBriefDetail = (briefId: string) =>
+  sbQuery<SeoBrief>(supabase.from("seo_briefs").select("*").eq("id", briefId).single());
+export const generateBrief = async (clientId: string, keyword: string): Promise<SeoBrief> => {
+  const { data, error } = await supabase.functions.invoke("generate-brief", {
+    body: { client_id: clientId, keyword },
+  });
+  if (error) throw new Error(error.message || "Brief generation failed");
+  return data;
+};
+export const createBriefFromMapping = async (data: any): Promise<SeoBrief> => {
+  const { data: result, error } = await supabase.functions.invoke("generate-brief", {
+    body: data,
+  });
+  if (error) throw new Error(error.message || "Brief generation failed");
+  return result;
+};
+export const updateBrief = (briefId: string, data: Partial<SeoBrief>) =>
+  sbQuery<SeoBrief>(supabase.from("seo_briefs").update(data).eq("id", briefId).select().single());
+export const updateBriefStatus = (clientId: string, briefId: string, status: string) =>
+  sbQuery<SeoBrief>(supabase.from("seo_briefs").update({ status }).eq("id", briefId).select().single());
+export const generateDraftFromBrief = async (briefId: string): Promise<SeoBriefDraft> => {
+  // Get brief to get client_id
+  const brief = await getBriefDetail(briefId);
+  const { data, error } = await supabase.functions.invoke("generate-article", {
+    body: { client_id: (brief as any).client_id, brief_id: briefId },
+  });
+  if (error) throw new Error(error.message || "Draft generation failed");
+  return data;
+};
+export const getBriefDrafts = (briefId: string) =>
+  sbQuery<SeoBriefDraft[]>(supabase.from("seo_brief_drafts").select("*").eq("brief_id", briefId).order("version", { ascending: false }));
+export const updateDraft = (draftId: string, data: Partial<SeoBriefDraft>) =>
+  sbQuery<SeoBriefDraft>(supabase.from("seo_brief_drafts").update(data).eq("id", draftId).select().single());
+export const updateDraftStatus = (draftId: string, status: string) =>
+  sbQuery<SeoBriefDraft>(supabase.from("seo_brief_drafts").update({ status }).eq("id", draftId).select().single());
+
+// ======================== SEO ARTICLES ========================
+export const getArticles = (clientId: string) =>
+  sbQuery<SeoArticle[]>(supabase.from("seo_articles").select("*").eq("client_id", clientId).order("created_at", { ascending: false }));
+export const generateArticle = async (clientId: string, briefId: string): Promise<SeoArticle> => {
+  const { data, error } = await supabase.functions.invoke("generate-article", {
+    body: { client_id: clientId, brief_id: briefId },
+  });
+  if (error) throw new Error(error.message || "Article generation failed");
+  return data;
+};
 export const updateArticle = (articleId: string, data: { title?: string; meta_description?: string; content?: string; slug?: string }) =>
-  request<SeoArticle>(`/articles/${articleId}`, { method: "PUT", body: JSON.stringify(data) });
-export const approveArticle = (articleId: string) => request<SeoArticle>(`/articles/${articleId}/approve`, { method: "POST" });
+  sbQuery<SeoArticle>(supabase.from("seo_articles").update(data).eq("id", articleId).select().single());
+export const approveArticle = (articleId: string) =>
+  sbQuery<SeoArticle>(supabase.from("seo_articles").update({ status: "approved" }).eq("id", articleId).select().single());
 export const updateArticleStatus = (articleId: string, status: string) =>
-  request<SeoArticle>(`/articles/${articleId}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
+  sbQuery<SeoArticle>(supabase.from("seo_articles").update({ status }).eq("id", articleId).select().single());
 export interface PublishResult { article: SeoArticle; wordpress: { id: number; url: string; status: string }; }
-export const publishArticle = (articleId: string, scheduleDate?: string) =>
-  request<PublishResult>(`/articles/${articleId}/publish`, { method: "POST", body: JSON.stringify({ schedule_date: scheduleDate }) });
+export const publishArticle = async (articleId: string, scheduleDate?: string): Promise<PublishResult> => {
+  const article = await sbQuery<SeoArticle>(
+    supabase.from("seo_articles").update({ status: "published", publish_date: scheduleDate || new Date().toISOString() })
+      .eq("id", articleId).select().single()
+  );
+  return { article, wordpress: { id: 0, url: "", status: "pending" } };
+};
 
-// ---------- CMS Connections ----------
+// ======================== RANK SNAPSHOTS ========================
+export const getRankSnapshots = (clientId: string, keywordId?: string) => {
+  let query = supabase.from("rank_snapshots").select("*").eq("client_id", clientId).order("snapshot_date", { ascending: false });
+  if (keywordId) query = query.eq("keyword_id", keywordId);
+  return sbQuery<RankSnapshot[]>(query);
+};
+
+// ======================== WORKSPACE STATE ========================
+export const getWorkspaceState = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase.from("workspace_state").select("*").eq("user_id", user.id).single();
+  return data;
+};
+export const upsertWorkspaceState = async (state: any) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("workspace_state").upsert({ user_id: user.id, ...state }, { onConflict: "user_id" });
+};
+
+// ======================== ACTIVITY LOG ========================
+export interface ActivityLogEntry { id: string; user_id: string | null; client_id: string | null; actor_name: string; action: string; entity_type: string; entity_id: string | null; summary: string | null; metadata_json: any; created_at: string; }
+export const getActivityLog = async (params?: { client_id?: string; entity_type?: string; limit?: number }) => {
+  let query = supabase.from("activity_log").select("*").order("created_at", { ascending: false });
+  if (params?.client_id) query = query.eq("client_id", params.client_id);
+  if (params?.entity_type) query = query.eq("entity_type", params.entity_type);
+  if (params?.limit) query = query.limit(params.limit);
+  return sbQuery<ActivityLogEntry[]>(query);
+};
+
+// ======================== STUBS for modules not yet migrated ========================
+// These return empty arrays to prevent UI crashes. Will be implemented in Phase 2.
+
+export interface InternalLinkSuggestion { id: string; from_url: string; to_url: string; anchor_text: string; reason: string; priority: "high" | "medium" | "low"; status: "pending" | "implemented" | "dismissed"; created_at: string; }
+export const getInternalLinks = async (clientId: string): Promise<InternalLinkSuggestion[]> => [];
+export const updateInternalLinkStatus = async (clientId: string, linkId: string, status: string): Promise<InternalLinkSuggestion> => ({} as any);
+
+export interface ContentSuggestion { id: string; cluster_name: string; keyword: string; suggested_slug: string | null; reason: string; priority: "high" | "medium" | "low"; status: "pending" | "planned" | "published" | "dismissed"; created_at: string; }
+export interface ContentPlanCluster { cluster_name: string; suggestions: ContentSuggestion[]; high_priority_count: number; }
+export interface ContentPlanResponse { total: number; clusters: ContentPlanCluster[]; flat: ContentSuggestion[]; }
+export const getContentPlan = async (clientId: string): Promise<ContentPlanResponse> => ({ total: 0, clusters: [], flat: [] });
+export const updateContentSuggestionStatus = async (clientId: string, sid: string, status: string): Promise<ContentSuggestion> => ({} as any);
+
 export interface CmsConnection { id: string; cms_type: "wordpress"; site_url: string; username: string; created_at: string; }
-export const getCmsConnection = (clientId: string) => request<CmsConnection | null>(`/clients/${clientId}/cms`);
-export const saveCmsConnection = (clientId: string, data: { site_url: string; username: string; application_password: string }) =>
-  request<CmsConnection>(`/clients/${clientId}/cms`, { method: "POST", body: JSON.stringify(data) });
-export const deleteCmsConnection = (clientId: string) => request<{ deleted: boolean }>(`/clients/${clientId}/cms`, { method: "DELETE" });
-export const testCmsConnection = (clientId: string) => request<{ success: boolean; message: string }>(`/clients/${clientId}/cms/test`, { method: "POST" });
+export const getCmsConnection = async (clientId: string): Promise<CmsConnection | null> => null;
+export const saveCmsConnection = async (clientId: string, data: any): Promise<CmsConnection> => ({} as any);
+export const deleteCmsConnection = async (clientId: string) => ({ deleted: true });
+export const testCmsConnection = async (clientId: string) => ({ success: false, message: "Not configured" });
 
-// ---------- Social Posts ----------
-export interface SocialPost {
-  id: string; client_id: string; article_id: string; platform: "facebook" | "instagram" | "linkedin" | "twitter" | "tiktok";
-  content: string; status: "draft" | "approved" | "scheduled" | "published"; scheduled_time: string | null; created_at: string;
-}
-export const getSocialPosts = (articleId: string) => request<SocialPost[]>(`/articles/${articleId}/social-posts`);
-export const generateSocialPosts = (clientId: string, articleId: string) =>
-  request<SocialPost[]>(`/social/generate`, { method: "POST", body: JSON.stringify({ client_id: clientId, article_id: articleId }) });
-export const updateSocialPost = (postId: string, data: { content?: string; scheduled_time?: string }) =>
-  request<SocialPost>(`/social/${postId}`, { method: "PUT", body: JSON.stringify(data) });
-export const approveSocialPost = (postId: string) => request<SocialPost>(`/social/${postId}/approve`, { method: "POST" });
+export interface SocialPost { id: string; client_id: string; article_id: string; platform: "facebook" | "instagram" | "linkedin" | "twitter" | "tiktok"; content: string; status: "draft" | "approved" | "scheduled" | "published"; scheduled_time: string | null; created_at: string; }
+export const getSocialPosts = async (articleId: string): Promise<SocialPost[]> => [];
+export const generateSocialPosts = async (clientId: string, articleId: string): Promise<SocialPost[]> => [];
+export const updateSocialPost = async (postId: string, data: any): Promise<SocialPost> => ({} as any);
+export const approveSocialPost = async (postId: string): Promise<SocialPost> => ({} as any);
 
-// ---------- Video Assets ----------
 export interface VideoSceneBreakdown { scene_number: number; duration: string; visual: string; voiceover: string; }
-export interface VideoAsset {
-  id: string; client_id: string; article_id: string | null; social_post_id: string | null;
-  platform: "tiktok" | "instagram_reels" | "facebook_reels" | "youtube_shorts";
-  video_script: string; scene_breakdown: VideoSceneBreakdown[]; caption_text: string;
-  avatar_type: string; voice_type: string; video_url: string | null; thumbnail_url: string | null;
-  status: "draft" | "rendering" | "review" | "approved" | "published"; created_at: string;
-}
-export const getVideos = (clientId: string) => request<VideoAsset[]>(`/clients/${clientId}/videos`);
-export const generateVideo = (data: { client_id: string; article_id?: string; social_post_id?: string; platform: string; avatar_type?: string; voice_type?: string; }) =>
-  request<VideoAsset>(`/videos/generate`, { method: "POST", body: JSON.stringify(data) });
-export const updateVideo = (videoId: string, data: { video_script?: string; caption_text?: string; avatar_type?: string; voice_type?: string }) =>
-  request<VideoAsset>(`/videos/${videoId}`, { method: "PUT", body: JSON.stringify(data) });
-export const approveVideo = (videoId: string) => request<VideoAsset>(`/videos/${videoId}/approve`, { method: "POST" });
+export interface VideoAsset { id: string; client_id: string; article_id: string | null; social_post_id: string | null; platform: string; video_script: string; scene_breakdown: VideoSceneBreakdown[]; caption_text: string; avatar_type: string; voice_type: string; video_url: string | null; thumbnail_url: string | null; status: string; created_at: string; }
+export const getVideos = async (clientId: string): Promise<VideoAsset[]> => [];
+export const generateVideo = async (data: any): Promise<VideoAsset> => ({} as any);
+export const updateVideo = async (videoId: string, data: any): Promise<VideoAsset> => ({} as any);
+export const approveVideo = async (videoId: string): Promise<VideoAsset> => ({} as any);
 
-// ---------- Publishing Jobs ----------
-export interface PublishingJob {
-  id: string; client_id: string; asset_type: "article" | "social_post" | "video_asset"; asset_id: string;
-  platform: string; scheduled_time: string | null; job_type: "publish" | "render" | "schedule";
-  publish_status: "queued" | "scheduled" | "processing" | "published" | "failed" | "cancelled";
-  provider: string | null; external_post_id: string | null; published_url: string | null;
-  error_message: string | null; retry_count: number; created_at: string; updated_at: string;
-}
-export const getPublishingJobs = (clientId: string) => request<PublishingJob[]>(`/clients/${clientId}/publishing-jobs`);
-export const schedulePublishingJob = (data: { client_id: string; asset_type: string; asset_id: string; platform: string; job_type: string; scheduled_time?: string; }) =>
-  request<PublishingJob>(`/publishing/schedule`, { method: "POST", body: JSON.stringify(data) });
-export const retryPublishingJob = (jobId: string) => request<PublishingJob>(`/publishing/${jobId}/retry`, { method: "POST" });
-export const cancelPublishingJob = (jobId: string) => request<PublishingJob>(`/publishing/${jobId}/cancel`, { method: "POST" });
-export const reschedulePublishingJob = (jobId: string, scheduledTime: string) =>
-  request<PublishingJob>(`/publishing/${jobId}/reschedule`, { method: "PUT", body: JSON.stringify({ scheduled_time: scheduledTime }) });
+export interface PublishingJob { id: string; client_id: string; asset_type: string; asset_id: string; platform: string; scheduled_time: string | null; job_type: string; publish_status: string; provider: string | null; external_post_id: string | null; published_url: string | null; error_message: string | null; retry_count: number; created_at: string; updated_at: string; }
+export const getPublishingJobs = async (clientId: string): Promise<PublishingJob[]> => [];
+export const schedulePublishingJob = async (data: any): Promise<PublishingJob> => ({} as any);
+export const retryPublishingJob = async (jobId: string): Promise<PublishingJob> => ({} as any);
+export const cancelPublishingJob = async (jobId: string): Promise<PublishingJob> => ({} as any);
+export const reschedulePublishingJob = async (jobId: string, time: string): Promise<PublishingJob> => ({} as any);
 
-// ---------- AI Generation ----------
-export const aiGenerateArticle = (clientId: string, briefId: string) =>
-  request<SeoArticle>(`/ai/articles/generate`, { method: "POST", body: JSON.stringify({ client_id: clientId, brief_id: briefId }) });
-export const aiGenerateSocial = (clientId: string, articleId: string) =>
-  request<SocialPost[]>(`/ai/social/generate`, { method: "POST", body: JSON.stringify({ client_id: clientId, article_id: articleId }) });
-export const aiGenerateVideo = (data: { client_id: string; article_id?: string; social_post_id?: string; platform: string; avatar_type?: string; voice_type?: string; }) =>
-  request<VideoAsset>(`/ai/videos/generate`, { method: "POST", body: JSON.stringify(data) });
+export const aiGenerateArticle = generateArticle;
+export const aiGenerateSocial = generateSocialPosts;
+export const aiGenerateVideo = generateVideo;
 
-// ---------- Analytics ----------
-export interface AnalyticsConnection { id: string; client_id: string; provider: "gsc" | "ga4"; property_id: string | null; site_url: string | null; status: "active" | "expired" | "disconnected"; created_at: string; updated_at: string; }
-export interface PerformanceInsight { id: string; client_id: string; asset_type: string | null; asset_id: string | null; insight_type: string; priority: "high" | "medium" | "low"; title: string; description: string; recommended_action: string | null; status: "open" | "reviewed" | "done"; created_at: string; }
+export interface AnalyticsConnection { id: string; client_id: string; provider: string; property_id: string | null; site_url: string | null; status: string; created_at: string; updated_at: string; }
+export interface PerformanceInsight { id: string; client_id: string; asset_type: string | null; asset_id: string | null; insight_type: string; priority: string; title: string; description: string; recommended_action: string | null; status: string; created_at: string; }
 export interface PerformanceSummaryResponse { summary: { total_clicks: number; total_impressions: number; avg_ctr: number; avg_position: number; total_sessions: number; }; topPages: any[]; topKeywords: any[]; insightCounts: any[]; }
-export const getAnalyticsConnections = (clientId: string) => request<AnalyticsConnection[]>(`/clients/${clientId}/analytics-connections`);
-export const connectAnalytics = (data: { client_id: string; provider: string; property_id?: string; site_url?: string; access_token?: string; refresh_token?: string }) =>
-  request<AnalyticsConnection>(`/analytics/connect`, { method: "POST", body: JSON.stringify(data) });
-export const disconnectAnalytics = (connectionId: string) => request<{ success: boolean }>(`/analytics/${connectionId}/disconnect`, { method: "DELETE" });
-export const syncAnalytics = (clientId: string) => request<{ success: boolean; insights_generated: number }>(`/analytics/sync`, { method: "POST", body: JSON.stringify({ client_id: clientId }) });
-export const getPerformanceSummary = (clientId: string, days?: number) => request<PerformanceSummaryResponse>(`/clients/${clientId}/performance-summary?days=${days || 14}`);
-export const getPagePerformance = (clientId: string, days?: number) => request<any[]>(`/clients/${clientId}/page-performance?days=${days || 14}`);
-export const getKeywordPerformance = (clientId: string, days?: number) => request<any[]>(`/clients/${clientId}/keyword-performance?days=${days || 14}`);
-export const getAssetPerformance = (clientId: string, days?: number, assetType?: string) => request<any[]>(`/clients/${clientId}/asset-performance?days=${days || 14}${assetType ? `&asset_type=${assetType}` : ""}`);
-export const getPerformanceInsights = (clientId: string, status?: string) => request<PerformanceInsight[]>(`/clients/${clientId}/performance-insights?status=${status || "open"}`);
-export const updateInsightStatus = (insightId: string, status: string) => request<PerformanceInsight>(`/analytics/insights/${insightId}`, { method: "PATCH", body: JSON.stringify({ status }) });
+export const getAnalyticsConnections = async (clientId: string): Promise<AnalyticsConnection[]> => [];
+export const connectAnalytics = async (data: any): Promise<AnalyticsConnection> => ({} as any);
+export const disconnectAnalytics = async (connectionId: string) => ({ success: true });
+export const syncAnalytics = async (clientId: string) => ({ success: true, insights_generated: 0 });
+export const getPerformanceSummary = async (clientId: string, days?: number): Promise<PerformanceSummaryResponse> => ({
+  summary: { total_clicks: 0, total_impressions: 0, avg_ctr: 0, avg_position: 0, total_sessions: 0 },
+  topPages: [], topKeywords: [], insightCounts: [],
+});
+export const getPagePerformance = async (clientId: string, days?: number): Promise<any[]> => [];
+export const getKeywordPerformance = async (clientId: string, days?: number): Promise<any[]> => [];
+export const getAssetPerformance = async (clientId: string, days?: number, assetType?: string): Promise<any[]> => [];
+export const getPerformanceInsights = async (clientId: string, status?: string): Promise<PerformanceInsight[]> => [];
+export const updateInsightStatus = async (insightId: string, status: string): Promise<PerformanceInsight> => ({} as any);
 
-// ---------- GBP / Local SEO ----------
+// GBP stubs
 export interface GbpConnection { id: string; client_id: string; location_id: string | null; account_id: string | null; business_name: string | null; primary_category: string | null; site_url: string | null; status: string; created_at: string; updated_at: string; }
 export interface GbpProfile { business_name: string; primary_category: string; reviews_count: number; average_rating: number; photos_count: number; posts_count: number; qna_count: number; completeness: { score: number; missingItems: string[]; priorityActions: string[] }; [key: string]: any; }
 export interface GbpPostDraft { id: string; client_id: string; article_id: string | null; title: string; content: string; cta_type: string | null; cta_url: string | null; image_prompt: string | null; status: string; scheduled_time: string | null; created_at: string; }
 export interface GbpReviewItem { id: string; client_id: string; review_id: string; reviewer_name: string; rating: number; review_text: string; review_date: string; response_draft: string | null; response_status: string; created_at: string; }
 export interface GbpQnaItem { id: string; client_id: string; question_id: string; question_text: string; answer_draft: string | null; status: string; created_at: string; }
 export interface LocalSeoInsight { id: string; client_id: string; insight_type: string; priority: string; title: string; description: string; recommended_action: string | null; status: string; created_at: string; }
-export const getGbpConnection = (clientId: string) => request<GbpConnection | null>(`/clients/${clientId}/gbp-connection`);
-export const getGbpProfile = (clientId: string) => request<GbpProfile | null>(`/clients/${clientId}/gbp-profile`);
-export const getGbpPosts = (clientId: string) => request<GbpPostDraft[]>(`/clients/${clientId}/gbp-posts`);
-export const getGbpReviews = (clientId: string) => request<GbpReviewItem[]>(`/clients/${clientId}/gbp-reviews`);
-export const getGbpQna = (clientId: string) => request<GbpQnaItem[]>(`/clients/${clientId}/gbp-qna`);
-export const getLocalSeoInsights = (clientId: string, status?: string) => request<LocalSeoInsight[]>(`/clients/${clientId}/local-seo-insights?status=${status || "open"}`);
-export const syncGbp = (clientId: string) => request<any>(`/gbp/sync`, { method: "POST", body: JSON.stringify({ client_id: clientId }) });
-export const generateGbpPost = (clientId: string, articleId: string) => request<GbpPostDraft>(`/gbp/posts/generate`, { method: "POST", body: JSON.stringify({ client_id: clientId, article_id: articleId }) });
-export const approveGbpPost = (postId: string) => request<GbpPostDraft>(`/gbp/posts/${postId}/approve`, { method: "POST" });
-export const generateReviewResponse = (reviewId: string) => request<GbpReviewItem>(`/gbp/reviews/${reviewId}/generate-response`, { method: "POST" });
-export const approveReviewResponse = (reviewId: string) => request<GbpReviewItem>(`/gbp/reviews/${reviewId}/approve`, { method: "POST" });
-export const generateQnaAnswer = (qnaId: string) => request<GbpQnaItem>(`/gbp/qna/${qnaId}/generate-answer`, { method: "POST" });
-export const approveQnaAnswer = (qnaId: string) => request<GbpQnaItem>(`/gbp/qna/${qnaId}/approve`, { method: "POST" });
-export const updateLocalInsightStatus = (insightId: string, status: string) => request<LocalSeoInsight>(`/gbp/insights/${insightId}`, { method: "PATCH", body: JSON.stringify({ status }) });
+export const getGbpConnection = async (clientId: string): Promise<GbpConnection | null> => null;
+export const getGbpProfile = async (clientId: string): Promise<GbpProfile | null> => null;
+export const getGbpPosts = async (clientId: string): Promise<GbpPostDraft[]> => [];
+export const getGbpReviews = async (clientId: string): Promise<GbpReviewItem[]> => [];
+export const getGbpQna = async (clientId: string): Promise<GbpQnaItem[]> => [];
+export const getLocalSeoInsights = async (clientId: string, status?: string): Promise<LocalSeoInsight[]> => [];
+export const syncGbp = async (clientId: string) => ({});
+export const generateGbpPost = async (clientId: string, articleId: string): Promise<GbpPostDraft> => ({} as any);
+export const approveGbpPost = async (postId: string): Promise<GbpPostDraft> => ({} as any);
+export const generateReviewResponse = async (reviewId: string): Promise<GbpReviewItem> => ({} as any);
+export const approveReviewResponse = async (reviewId: string): Promise<GbpReviewItem> => ({} as any);
+export const generateQnaAnswer = async (qnaId: string): Promise<GbpQnaItem> => ({} as any);
+export const approveQnaAnswer = async (qnaId: string): Promise<GbpQnaItem> => ({} as any);
+export const updateLocalInsightStatus = async (insightId: string, status: string): Promise<LocalSeoInsight> => ({} as any);
 
-// ---------- Creative Assets ----------
+// Creative stubs
 export interface CreativeAsset { id: string; client_id: string; asset_type: string; source_type: string; source_id: string; platform: string | null; title: string | null; prompt: string | null; aspect_ratio: string; style_preset: string; provider: string | null; file_url: string | null; thumbnail_url: string | null; status: string; metadata_json: any; created_at: string; updated_at: string; variants?: any[]; }
 export interface BrandProfile { id: string; client_id: string; brand_name: string | null; primary_color: string | null; secondary_color: string | null; font_style: string | null; tone: string | null; logo_url: string | null; image_style_notes: string | null; }
-export const getCreativeAssets = (clientId: string, sourceType?: string) => request<CreativeAsset[]>(`/clients/${clientId}/creative-assets${sourceType ? `?source_type=${sourceType}` : ""}`);
-export const getCreativeAsset = (id: string) => request<CreativeAsset>(`/creative/${id}`);
-export const generateCreativeAsset = (data: { client_id: string; source_type: string; source_id: string; asset_type: string; platform?: string; style_preset?: string; aspect_ratio?: string; variant_count?: number; custom_prompt?: string; }) => request<CreativeAsset>(`/creative/generate`, { method: "POST", body: JSON.stringify(data) });
-export const approveCreativeAsset = (id: string) => request<CreativeAsset>(`/creative/${id}/approve`, { method: "POST" });
-export const regenerateCreativeAsset = (id: string, prompt?: string) => request<CreativeAsset>(`/creative/${id}/regenerate`, { method: "POST", body: JSON.stringify({ prompt }) });
-export const deleteCreativeAsset = (id: string) => request<{ deleted: boolean }>(`/creative/${id}/delete`, { method: "POST" });
-export const getBrandProfile = (clientId: string) => request<BrandProfile | null>(`/creative/brand/${clientId}`);
-export const saveBrandProfile = (data: { client_id: string; brand_name?: string; primary_color?: string; secondary_color?: string; font_style?: string; tone?: string; logo_url?: string; image_style_notes?: string }) => request<BrandProfile>(`/creative/brand`, { method: "POST", body: JSON.stringify(data) });
+export const getCreativeAssets = async (clientId: string, sourceType?: string): Promise<CreativeAsset[]> => [];
+export const getCreativeAsset = async (id: string): Promise<CreativeAsset> => ({} as any);
+export const generateCreativeAsset = async (data: any): Promise<CreativeAsset> => ({} as any);
+export const approveCreativeAsset = async (id: string): Promise<CreativeAsset> => ({} as any);
+export const regenerateCreativeAsset = async (id: string, prompt?: string): Promise<CreativeAsset> => ({} as any);
+export const deleteCreativeAsset = async (id: string) => ({ deleted: true });
+export const getBrandProfile = async (clientId: string): Promise<BrandProfile | null> => null;
+export const saveBrandProfile = async (data: any): Promise<BrandProfile> => ({} as any);
 
-// ---------- Google Ads ----------
+// Ads stubs
 export interface AdsCampaign { id: string; client_id: string; name: string; campaign_type: string; status: string; budget_daily: number | null; location_targets: string[]; created_at: string; }
 export interface AdsRecommendation { id: string; recommendation_type: string; campaign_name: string | null; ad_group_name: string | null; keyword_text: string | null; landing_page_url: string | null; recommended_budget: number | null; recommended_action: string; priority: string; status: string; }
 export interface AdsCopyDraft { id: string; target_keyword: string; headline_1: string; headline_2: string; headline_3: string; description_1: string; description_2: string; final_url: string; path_1: string; path_2: string; status: string; }
 export interface AdsInsight { id: string; insight_type: string; priority: string; title: string; description: string; recommended_action: string | null; status: string; }
 export interface AdsPerformanceResponse { summary: { total_impressions: number; total_clicks: number; avg_ctr: number; avg_cpc: number; total_cost: number; total_conversions: number; cost_per_conversion: number }; campaigns: any[]; }
-export const getAdsCampaigns = (clientId: string) => request<AdsCampaign[]>(`/clients/${clientId}/ads-campaigns`);
-export const getAdsRecommendations = (clientId: string) => request<AdsRecommendation[]>(`/clients/${clientId}/ads-recommendations`);
-export const getAdsCopy = (clientId: string) => request<AdsCopyDraft[]>(`/clients/${clientId}/ads-copy`);
-export const getAdsInsights = (clientId: string) => request<AdsInsight[]>(`/clients/${clientId}/ads-insights`);
-export const getAdsPerformance = (clientId: string, days?: number) => request<AdsPerformanceResponse>(`/clients/${clientId}/ads-performance?days=${days || 14}`);
-export const generateAdsRecommendations = (clientId: string) => request<{ count: number }>(`/ads/recommendations/generate`, { method: "POST", body: JSON.stringify({ client_id: clientId }) });
-export const generateAdCopy = (data: { clientId: string; targetKeyword: string; finalUrl?: string; campaignId?: string; adGroupId?: string }) =>
-  request<AdsCopyDraft>(`/ads/copy/generate`, { method: "POST", body: JSON.stringify({ client_id: data.clientId, target_keyword: data.targetKeyword, final_url: data.finalUrl, campaign_id: data.campaignId, ad_group_id: data.adGroupId }) });
-export const approveAdCopy = (id: string) => request<AdsCopyDraft>(`/ads/copy/${id}/approve`, { method: "POST" });
-export const updateAdsRecommendation = (id: string, status: string) => request<AdsRecommendation>(`/ads/recommendations/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
-export const syncAds = (clientId: string) => request<any>(`/ads/sync`, { method: "POST", body: JSON.stringify({ client_id: clientId }) });
+export const getAdsCampaigns = async (clientId: string): Promise<AdsCampaign[]> => [];
+export const getAdsRecommendations = async (clientId: string): Promise<AdsRecommendation[]> => [];
+export const getAdsCopy = async (clientId: string): Promise<AdsCopyDraft[]> => [];
+export const getAdsInsights = async (clientId: string): Promise<AdsInsight[]> => [];
+export const getAdsPerformance = async (clientId: string, days?: number): Promise<AdsPerformanceResponse> => ({ summary: { total_impressions: 0, total_clicks: 0, avg_ctr: 0, avg_cpc: 0, total_cost: 0, total_conversions: 0, cost_per_conversion: 0 }, campaigns: [] });
+export const generateAdsRecommendations = async (clientId: string) => ({ count: 0 });
+export const generateAdCopy = async (data: any): Promise<AdsCopyDraft> => ({} as any);
+export const approveAdCopy = async (id: string): Promise<AdsCopyDraft> => ({} as any);
+export const updateAdsRecommendation = async (id: string, status: string): Promise<AdsRecommendation> => ({} as any);
+export const syncAds = async (clientId: string) => ({});
 
-// ---------- Command Center ----------
+// Command center stubs
 export interface CommandCenterSummary { totalPriorities: number; highPriorityCount: number; quickWinsCount: number; repurposeCount: number; decliningAssetsCount: number; nearPage1Count: number; gbpIssuesCount: number; adsOpportunitiesCount: number; weeklyTasksDue: number; weeklyTasksCompleted: number; topGrowthChannels: { channel: string; score: number }[]; topUnderperformingChannels: { channel: string; score: number }[]; }
 export interface MarketingPriority { id: string; client_id: string; priority_type: string; source_module: string; source_id: string | null; title: string; description: string | null; recommended_action: string | null; priority_score: number; impact_score: number; effort_score: number; confidence_score: number; status: string; due_date: string | null; created_at: string; }
 export interface CrossChannelRecommendation { id: string; client_id: string; recommendation_type: string; source_asset_type: string | null; source_asset_id: string | null; target_channel: string | null; title: string; description: string | null; recommended_action: string | null; priority: string; status: string; metadata_json: any; created_at: string; }
 export interface WeeklyActionPlan { id: string; client_id: string; week_start: string; summary: string | null; top_goal: string | null; status: string; created_at: string; }
 export interface MarketingGoal { id: string; client_id: string; goal_type: string; goal_name: string; target_value: number | null; timeframe: string | null; status: string; created_at: string; }
-export const getCommandCenterSummary = (clientId: string) => request<CommandCenterSummary>(`/clients/${clientId}/command-center`);
-export const getMarketingPriorities = (clientId: string, status?: string) => request<MarketingPriority[]>(`/clients/${clientId}/marketing-priorities${status ? `?status=${status}` : ""}`);
-export const updateMarketingPriority = (priorityId: string, status: string) => request<MarketingPriority>(`/command/priorities/${priorityId}`, { method: "PUT", body: JSON.stringify({ status }) });
-export const recomputePriorities = (clientId: string) => request<{ success: boolean; priorities_generated: number }>(`/clients/${clientId}/priorities/recompute`, { method: "POST" });
-export const getCrossChannelRecommendations = (clientId: string, status?: string) => request<CrossChannelRecommendation[]>(`/clients/${clientId}/cross-channel-recommendations${status ? `?status=${status}` : ""}`);
-export const updateCrossChannelRecommendation = (recId: string, status: string) => request<CrossChannelRecommendation>(`/command/recommendations/${recId}`, { method: "PUT", body: JSON.stringify({ status }) });
-export const generateCrossChannelRecommendations = (clientId: string) => request<{ success: boolean; recommendations_generated: number }>(`/clients/${clientId}/recommendations/generate`, { method: "POST" });
-export const getWeeklyActionPlans = (clientId: string) => request<WeeklyActionPlan[]>(`/clients/${clientId}/weekly-action-plans`);
-export const generateWeeklyPlan = (clientId: string) => request<WeeklyActionPlan>(`/clients/${clientId}/weekly-action-plan/generate`, { method: "POST" });
-export const updateWeeklyItem = (itemId: string, status: string) => request<any>(`/command/items/${itemId}`, { method: "PUT", body: JSON.stringify({ status }) });
-export const getMarketingGoals = (clientId: string) => request<MarketingGoal[]>(`/clients/${clientId}/marketing-goals`);
-export const getQuickWins = (clientId: string) => request<MarketingPriority[]>(`/clients/${clientId}/quick-wins`);
+export const getCommandCenterSummary = async (clientId: string): Promise<CommandCenterSummary> => ({ totalPriorities: 0, highPriorityCount: 0, quickWinsCount: 0, repurposeCount: 0, decliningAssetsCount: 0, nearPage1Count: 0, gbpIssuesCount: 0, adsOpportunitiesCount: 0, weeklyTasksDue: 0, weeklyTasksCompleted: 0, topGrowthChannels: [], topUnderperformingChannels: [] });
+export const getMarketingPriorities = async (clientId: string, status?: string): Promise<MarketingPriority[]> => [];
+export const updateMarketingPriority = async (priorityId: string, status: string): Promise<MarketingPriority> => ({} as any);
+export const recomputePriorities = async (clientId: string) => ({ success: true, priorities_generated: 0 });
+export const getCrossChannelRecommendations = async (clientId: string, status?: string): Promise<CrossChannelRecommendation[]> => [];
+export const updateCrossChannelRecommendation = async (recId: string, status: string): Promise<CrossChannelRecommendation> => ({} as any);
+export const generateCrossChannelRecommendations = async (clientId: string) => ({ success: true, recommendations_generated: 0 });
+export const getWeeklyActionPlans = async (clientId: string): Promise<WeeklyActionPlan[]> => [];
+export const generateWeeklyPlan = async (clientId: string): Promise<WeeklyActionPlan> => ({} as any);
+export const updateWeeklyItem = async (itemId: string, status: string) => ({});
+export const getMarketingGoals = async (clientId: string): Promise<MarketingGoal[]> => [];
+export const getQuickWins = async (clientId: string): Promise<MarketingPriority[]> => [];
 
-// ---------- Attribution (analytics-only) ----------
-export interface AttributionOverview { byChannel: { channel: string; attribution_model: string; total_credit: number; contacts: number }[]; dealAttribution: { channel: string; attribution_model: string; attributed_revenue: number; deals: number }[]; }
+// Attribution stubs
+export interface AttributionOverview { byChannel: any[]; dealAttribution: any[]; }
 export interface AttributionContact { id: string; channel: string; attribution_model: string; credit: number; campaign_name: string | null; full_name: string; email: string | null; contact_status: string; }
 export interface AttributionDeal { channel: string; attribution_model: string; credit: number; campaign_name: string | null; deal_name: string; deal_value: number; deal_stage: string; won_date: string | null; contact_name: string; }
-export const getAttributionOverview = (clientId: string) => request<AttributionOverview>(`/clients/${clientId}/attribution/overview`);
-export const getAttributionContacts = (clientId: string) => request<AttributionContact[]>(`/clients/${clientId}/attribution/contacts`);
-export const getAttributionDeals = (clientId: string) => request<AttributionDeal[]>(`/clients/${clientId}/attribution/deals`);
-export const recomputeAttribution = (clientId: string) => request<any>(`/clients/${clientId}/attribution/recompute`, { method: "POST" });
+export const getAttributionOverview = async (clientId: string): Promise<AttributionOverview> => ({ byChannel: [], dealAttribution: [] });
+export const getAttributionContacts = async (clientId: string): Promise<AttributionContact[]> => [];
+export const getAttributionDeals = async (clientId: string): Promise<AttributionDeal[]> => [];
+export const recomputeAttribution = async (clientId: string) => ({});
 
-// ---------- Onboarding ----------
-export const startOnboarding = (workspaceId: string) => request<any>(`/onboarding/start`, { method: "POST", body: JSON.stringify({ workspace_id: workspaceId }) });
-export const getOnboarding = (workspaceId: string) => request<any>(`/onboarding/${workspaceId}`);
-export const updateOnboarding = (workspaceId: string, data: any) => request<any>(`/onboarding/${workspaceId}`, { method: "PUT", body: JSON.stringify(data) });
-export const completeOnboarding = (workspaceId: string) => request<any>(`/onboarding/${workspaceId}/complete`, { method: "POST" });
+// Onboarding stubs
+export const startOnboarding = async (workspaceId: string) => ({});
+export const getOnboarding = async (workspaceId: string) => ({});
+export const updateOnboarding = async (workspaceId: string, data: any) => ({});
+export const completeOnboarding = async (workspaceId: string) => ({});
+export const getTemplates = async (industry?: string): Promise<any[]> => [];
+export const getTemplate = async (id: string) => ({});
+export const runSetup = async (data: any) => ({});
+export const getSetupStatus = async (workspaceId: string) => ({});
+export const getActivationChecklist = async (clientId: string): Promise<any[]> => [];
+export const updateChecklistItem = async (itemId: string, status: string) => ({});
 
-// ---------- Templates ----------
-export const getTemplates = (industry?: string) => request<any[]>(`/templates${industry ? `?industry=${industry}` : ""}`);
-export const getTemplate = (id: string) => request<any>(`/templates/${id}`);
+// Reports stubs
+export const getReportTemplates = async (workspaceId?: string): Promise<any[]> => [];
+export const getReportRuns = async (clientId: string): Promise<any[]> => [];
+export const generateReportApi = async (data: any) => ({});
+export const getReportByToken = async (token: string) => ({});
+export const getScheduledReports = async (workspaceId: string): Promise<any[]> => [];
+export const createScheduledReport = async (data: any) => ({});
+export const updateScheduledReport = async (id: string, data: any) => ({});
+export const deleteScheduledReport = async (id: string) => ({ deleted: true });
 
-// ---------- Setup ----------
-export const runSetup = (data: { workspace_id: string; client_id: string; template_id: string }) => request<any>(`/setup/run`, { method: "POST", body: JSON.stringify(data) });
-export const getSetupStatus = (workspaceId: string) => request<any>(`/setup/${workspaceId}/status`);
-
-// ---------- Activation Checklist ----------
-export const getActivationChecklist = (clientId: string) => request<any[]>(`/clients/${clientId}/activation-checklist`);
-export const updateChecklistItem = (itemId: string, status: string) => request<any>(`/activation-checklist/${itemId}`, { method: "PUT", body: JSON.stringify({ status }) });
-
-// ---------- Reports ----------
-export const getReportTemplates = (workspaceId?: string) => request<any[]>(`/report-templates${workspaceId ? `?workspace_id=${workspaceId}` : ""}`);
-export const getReportRuns = (clientId: string) => request<any[]>(`/clients/${clientId}/reports`);
-export const generateReportApi = (data: { workspace_id: string; client_id: string; template_id: string; date_from: string; date_to: string }) =>
-  request<any>(`/reports/generate`, { method: "POST", body: JSON.stringify(data) });
-export const getReportByToken = (token: string) => request<any>(`/reports/share/${token}`);
-export const getScheduledReports = (workspaceId: string) => request<any[]>(`/workspaces/${workspaceId}/scheduled-reports`);
-export const createScheduledReport = (data: any) => request<any>(`/scheduled-reports`, { method: "POST", body: JSON.stringify(data) });
-export const updateScheduledReport = (id: string, data: any) => request<any>(`/scheduled-reports/${id}`, { method: "PUT", body: JSON.stringify(data) });
-export const deleteScheduledReport = (id: string) => request<{ deleted: boolean }>(`/scheduled-reports/${id}`, { method: "DELETE" });
-
-// ---------- Activity Log ----------
-export interface ActivityLogEntry { id: string; workspace_id: string | null; client_id: string | null; user_id: string | null; actor_name: string; action: string; entity_type: string; entity_id: string | null; summary: string | null; metadata_json: any; created_at: string; }
-export const getActivityLog = (params?: { client_id?: string; entity_type?: string; limit?: number }) => {
-  const q = new URLSearchParams();
-  if (params?.client_id) q.set("client_id", params.client_id);
-  if (params?.entity_type) q.set("entity_type", params.entity_type);
-  if (params?.limit) q.set("limit", String(params.limit));
-  return request<ActivityLogEntry[]>(`/activity?${q.toString()}`);
-};
-
-// ---------- Notifications ----------
+// Notifications stubs
 export interface AppNotification { id: string; workspace_id: string | null; user_id: string | null; type: string; category: string; title: string; message: string | null; entity_type: string | null; entity_id: string | null; is_read: boolean; created_at: string; }
-export const getNotifications = (params?: { is_read?: boolean; category?: string }) => {
-  const q = new URLSearchParams();
-  if (params?.is_read !== undefined) q.set("is_read", String(params.is_read));
-  if (params?.category) q.set("category", params.category);
-  return request<AppNotification[]>(`/notifications?${q.toString()}`);
-};
-export const markNotificationRead = (id: string) => request<AppNotification>(`/notifications/${id}/read`, { method: "PUT" });
-export const markAllNotificationsRead = () => request<{ success: boolean }>(`/notifications/read-all`, { method: "PUT" });
-export const getUnreadCount = () => request<{ count: number }>(`/notifications/unread-count`);
+export const getNotifications = async (params?: any): Promise<AppNotification[]> => [];
+export const markNotificationRead = async (id: string): Promise<AppNotification> => ({} as any);
+export const markAllNotificationsRead = async () => ({ success: true });
+export const getUnreadCount = async () => ({ count: 0 });
+export const getAllPublishingJobs = async (params?: any): Promise<any[]> => [];
 
-// ---------- Job Center ----------
-export const getAllPublishingJobs = (params?: { status?: string; client_id?: string }) => {
-  const q = new URLSearchParams();
-  if (params?.status) q.set("status", params.status);
-  if (params?.client_id) q.set("client_id", params.client_id);
-  return request<(PublishingJob & { client_name?: string })[]>(`/publishing-jobs?${q.toString()}`);
-};
-
-// ---------- AI Visibility ----------
+// AI Visibility stubs
 export interface AiVisPromptSet { id: string; client_id: string; name: string; description: string | null; topic_cluster: string | null; intent_type: string; status: string; prompt_count: number; run_count: number; created_at: string; }
 export interface AiVisPrompt { id: string; prompt_set_id: string; prompt_text: string; target_entities: string[]; competitor_entities: string[]; created_at: string; }
 export interface AiVisRun { id: string; client_id: string; prompt_set_id: string | null; prompt_set_name: string | null; provider: string; status: string; total_prompts: number; prompts_with_mention: number; prompts_with_citation: number; started_at: string | null; completed_at: string | null; created_at: string; }
 export interface AiVisObservation { id: string; run_id: string; prompt_id: string; prompt_text: string; provider: string; brand_mentioned: boolean; brand_position: number | null; competitor_mentioned: boolean; competitor_names: string[]; citation_present: boolean; citation_url: string | null; sentiment: string | null; prominence: string; raw_snippet: string | null; }
 export interface AiVisOverview { summary: { total_runs: number; total_prompts_checked: number; total_mentions: number; total_citations: number; visibility_rate: number; citation_rate: number }; trend: AiVisRun[]; byPromptSet: any[]; competitorMentions: { competitor: string; mention_count: number }[]; }
+export const getAiVisPromptSets = async (clientId: string): Promise<AiVisPromptSet[]> => [];
+export const createAiVisPromptSet = async (data: any): Promise<AiVisPromptSet> => ({} as any);
+export const updateAiVisPromptSet = async (id: string, data: any): Promise<AiVisPromptSet> => ({} as any);
+export const deleteAiVisPromptSet = async (id: string) => ({ deleted: true });
+export const getAiVisPrompts = async (setId: string): Promise<AiVisPrompt[]> => [];
+export const createAiVisPrompt = async (data: any): Promise<AiVisPrompt> => ({} as any);
+export const createAiVisPromptsBulk = async (data: any): Promise<AiVisPrompt[]> => [];
+export const deleteAiVisPrompt = async (id: string) => ({ deleted: true });
+export const getAiVisRuns = async (clientId: string): Promise<AiVisRun[]> => [];
+export const startAiVisRun = async (data: any): Promise<AiVisRun> => ({} as any);
+export const getAiVisObservations = async (runId: string): Promise<AiVisObservation[]> => [];
+export const updateAiVisObservation = async (id: string, data: any): Promise<AiVisObservation> => ({} as any);
+export const getAiVisOverview = async (clientId: string): Promise<AiVisOverview> => ({ summary: { total_runs: 0, total_prompts_checked: 0, total_mentions: 0, total_citations: 0, visibility_rate: 0, citation_rate: 0 }, trend: [], byPromptSet: [], competitorMentions: [] });
+export const getAiVisCompetitors = async (clientId: string): Promise<any[]> => [];
+export const createAiVisCompetitor = async (data: any) => ({});
 
-export const getAiVisPromptSets = (clientId: string) => request<AiVisPromptSet[]>(`/clients/${clientId}/ai-visibility/prompt-sets`);
-export const createAiVisPromptSet = (data: { client_id: string; name: string; description?: string; topic_cluster?: string; intent_type?: string }) => request<AiVisPromptSet>(`/ai-visibility/prompt-sets`, { method: "POST", body: JSON.stringify(data) });
-export const updateAiVisPromptSet = (id: string, data: any) => request<AiVisPromptSet>(`/ai-visibility/prompt-sets/${id}`, { method: "PUT", body: JSON.stringify(data) });
-export const deleteAiVisPromptSet = (id: string) => request<{ deleted: boolean }>(`/ai-visibility/prompt-sets/${id}`, { method: "DELETE" });
+// Planning memory stubs
+export interface ContentInventoryItem { id: string; client_id: string; url: string; page_type: string; title: string | null; word_count: number | null; has_schema: boolean; schema_types: string[]; primary_keyword: string | null; mapped_keyword_ids: string[]; brief_id: string | null; article_id: string | null; publish_status: string; last_audit_run_id: string | null; last_audit_score: number | null; internal_links_in: number; internal_links_out: number; created_at: string; updated_at: string; last_crawled_at: string | null; }
+export const getContentInventory = async (clientId: string): Promise<ContentInventoryItem[]> => [];
+export interface ContentPerformanceSummary { id: string; client_id: string; content_url: string; article_id: string | null; brief_id: string | null; keyword: string | null; clicks_7d: number; clicks_30d: number; impressions_7d: number; impressions_30d: number; avg_position_7d: number | null; avg_position_30d: number | null; position_change_30d: number | null; ctr_7d: number | null; trend: "improving" | "stable" | "declining" | "new"; published_at: string | null; first_indexed_at: string | null; snapshot_date: string; }
+export const getContentPerformance = async (clientId: string): Promise<ContentPerformanceSummary[]> => [];
+export interface OpportunityEvidence { id: string; opportunity_id: string; evidence_type: string; source_module: string; source_id: string | null; summary: string; detail: string | null; captured_at: string; }
+export interface OpportunityLifecycleEvent { id: string; opportunity_id: string; event_type: string; entity_type: string | null; entity_id: string | null; summary: string; actor: string | null; created_at: string; }
+export interface OpportunityWithMemory extends Opportunity { confidence: number; sources: string[]; evidence_text: string; expected_impact: string; next_action: string; brief_id: string | null; draft_id: string | null; article_id: string | null; publishing_job_id: string | null; performance_summary_id: string | null; lifecycle: OpportunityLifecycleEvent[]; evidence_records: OpportunityEvidence[]; }
+export const getOpportunityDetail = async (clientId: string, oppId: string): Promise<OpportunityWithMemory> => {
+  const opp = await sbQuery<any>(supabase.from("opportunities").select("*").eq("id", oppId).single());
+  return { ...opp, confidence: opp.confidence || 0.5, sources: opp.sources || [], evidence_text: opp.evidence_text || "", expected_impact: opp.expected_impact || "", next_action: opp.next_action || "", publishing_job_id: null, performance_summary_id: null, lifecycle: [], evidence_records: [] };
+};
+export interface PageRelationship { id: string; client_id: string; from_url: string; to_url: string; relationship_type: string; strength: number; brief_ids: string[]; keyword_ids: string[]; created_at: string; }
+export const getPageRelationships = async (clientId: string): Promise<PageRelationship[]> => [];
+export interface PublishedContentRecord { id: string; client_id: string; article_id: string | null; brief_id: string | null; opportunity_id: string | null; url: string; title: string; published_at: string; publisher: string; platform: string; initial_position: number | null; current_position: number | null; position_change: number | null; clicks_since_publish: number; impressions_since_publish: number; days_since_publish: number; }
+export const getPublishedContentRecords = async (clientId: string): Promise<PublishedContentRecord[]> => [];
 
-export const getAiVisPrompts = (setId: string) => request<AiVisPrompt[]>(`/ai-visibility/prompt-sets/${setId}/prompts`);
-export const createAiVisPrompt = (data: { prompt_set_id: string; prompt_text: string; target_entities?: string[]; competitor_entities?: string[] }) => request<AiVisPrompt>(`/ai-visibility/prompts`, { method: "POST", body: JSON.stringify(data) });
-export const createAiVisPromptsBulk = (data: { prompt_set_id: string; prompts: { prompt_text: string; target_entities?: string[]; competitor_entities?: string[] }[] }) => request<AiVisPrompt[]>(`/ai-visibility/prompts/bulk`, { method: "POST", body: JSON.stringify(data) });
-export const deleteAiVisPrompt = (id: string) => request<{ deleted: boolean }>(`/ai-visibility/prompts/${id}`, { method: "DELETE" });
-
-export const getAiVisRuns = (clientId: string) => request<AiVisRun[]>(`/clients/${clientId}/ai-visibility/runs`);
-export const startAiVisRun = (data: { client_id: string; prompt_set_id: string; provider?: string }) => request<AiVisRun>(`/ai-visibility/runs`, { method: "POST", body: JSON.stringify(data) });
-
-export const getAiVisObservations = (runId: string) => request<AiVisObservation[]>(`/ai-visibility/runs/${runId}/observations`);
-export const updateAiVisObservation = (id: string, data: Partial<AiVisObservation>) => request<AiVisObservation>(`/ai-visibility/observations/${id}`, { method: "PUT", body: JSON.stringify(data) });
-
-export const getAiVisOverview = (clientId: string) => request<AiVisOverview>(`/clients/${clientId}/ai-visibility/overview`);
-
-export const getAiVisCompetitors = (clientId: string) => request<any[]>(`/clients/${clientId}/ai-visibility/competitors`);
-export const createAiVisCompetitor = (data: { client_id: string; competitor_name: string; competitor_domain?: string }) => request<any>(`/ai-visibility/competitors`, { method: "POST", body: JSON.stringify(data) });
-
-// ---------- Planning Memory: Content Inventory ----------
-export interface ContentInventoryItem {
-  id: string; client_id: string; url: string; page_type: string; title: string | null;
-  word_count: number | null; has_schema: boolean; schema_types: string[];
-  primary_keyword: string | null; mapped_keyword_ids: string[];
-  brief_id: string | null; article_id: string | null; publish_status: string;
-  last_audit_run_id: string | null; last_audit_score: number | null;
-  internal_links_in: number; internal_links_out: number;
-  created_at: string; updated_at: string; last_crawled_at: string | null;
-}
-export const getContentInventory = (clientId: string) => request<ContentInventoryItem[]>(`/clients/${clientId}/content-inventory`);
-
-// ---------- Planning Memory: Content Performance ----------
-export interface ContentPerformanceSummary {
-  id: string; client_id: string; content_url: string; article_id: string | null;
-  brief_id: string | null; keyword: string | null;
-  clicks_7d: number; clicks_30d: number; impressions_7d: number; impressions_30d: number;
-  avg_position_7d: number | null; avg_position_30d: number | null;
-  position_change_30d: number | null; ctr_7d: number | null;
-  trend: "improving" | "stable" | "declining" | "new";
-  published_at: string | null; first_indexed_at: string | null;
-  snapshot_date: string;
-}
-export const getContentPerformance = (clientId: string) => request<ContentPerformanceSummary[]>(`/clients/${clientId}/content-performance`);
-
-// ---------- Planning Memory: Opportunity Evidence ----------
-export interface OpportunityEvidence {
-  id: string; opportunity_id: string; evidence_type: "ranking" | "audit" | "competitor" | "keyword" | "performance";
-  source_module: string; source_id: string | null;
-  summary: string; detail: string | null; captured_at: string;
-}
-
-// ---------- Planning Memory: Opportunity Lifecycle ----------
-export interface OpportunityLifecycleEvent {
-  id: string; opportunity_id: string; event_type: "created" | "brief_created" | "draft_generated" | "approved" | "published" | "performance_checked" | "dismissed" | "reopened";
-  entity_type: string | null; entity_id: string | null;
-  summary: string; actor: string | null; created_at: string;
-}
-
-// Enhanced Opportunity with memory fields
-export interface OpportunityWithMemory extends Opportunity {
-  confidence: number; sources: string[]; evidence_text: string;
-  expected_impact: string; next_action: string;
-  brief_id: string | null; draft_id: string | null; article_id: string | null;
-  publishing_job_id: string | null; performance_summary_id: string | null;
-  lifecycle: OpportunityLifecycleEvent[];
-  evidence_records: OpportunityEvidence[];
-}
-export const getOpportunityDetail = (clientId: string, oppId: string) => request<OpportunityWithMemory>(`/clients/${clientId}/opportunities/${oppId}`);
-
-// ---------- Planning Memory: Rank Snapshots ----------
-export interface RankSnapshot {
-  id: string; client_id: string; keyword_id: string; keyword: string;
-  position: number | null; previous_position: number | null;
-  url: string | null; snapshot_date: string; provider: string;
-}
-export const getRankSnapshots = (clientId: string, keywordId?: string) => request<RankSnapshot[]>(`/clients/${clientId}/rank-snapshots${keywordId ? `?keyword_id=${keywordId}` : ""}`);
-
-// ---------- Planning Memory: Page Relationships ----------
-export interface PageRelationship {
-  id: string; client_id: string; from_url: string; to_url: string;
-  relationship_type: "parent_child" | "sibling" | "hub_spoke" | "internal_link" | "topical_cluster";
-  strength: number; brief_ids: string[]; keyword_ids: string[];
-  created_at: string;
-}
-export const getPageRelationships = (clientId: string) => request<PageRelationship[]>(`/clients/${clientId}/page-relationships`);
-
-// ---------- Planning Memory: Published Content Records ----------
-export interface PublishedContentRecord {
-  id: string; client_id: string; article_id: string | null; brief_id: string | null;
-  opportunity_id: string | null; url: string; title: string;
-  published_at: string; publisher: string; platform: string;
-  initial_position: number | null; current_position: number | null;
-  position_change: number | null; clicks_since_publish: number;
-  impressions_since_publish: number; days_since_publish: number;
-}
-export const getPublishedContentRecords = (clientId: string) => request<PublishedContentRecord[]>(`/clients/${clientId}/published-content`);
-
-// ---------- Competitor Benchmarks ----------
-export interface CompetitorBenchmarkRun {
-  id: string; client_id: string; target_domain: string; competitor_domain: string;
-  scope: string; provider: string; status: string; own_audit_run_id: string | null;
-  pages_crawled: number; indexable_pages: number; avg_crawl_depth: number | null;
-  broken_links: number; redirect_issues: number; duplicate_titles: number;
-  missing_titles: number; missing_meta: number; missing_h1: number; canonical_issues: number;
-  avg_load_time_ms: number | null; lcp_avg_ms: number | null; cls_avg: number | null; fid_avg_ms: number | null;
-  started_at: string | null; completed_at: string | null; created_at: string;
-  pages?: any[]; recommendations?: any[];
-}
-export const getCompetitorBenchmarks = (clientId: string) => request<CompetitorBenchmarkRun[]>(`/competitor-benchmarks?client_id=${clientId}`);
-export const getCompetitorBenchmarkDetail = (id: string) => request<CompetitorBenchmarkRun>(`/competitor-benchmarks/${id}`);
-export const startCompetitorBenchmark = (data: { client_id: string; target_domain: string; competitor_domain: string; scope?: string; provider?: string; own_audit_run_id?: string }) =>
-  request<CompetitorBenchmarkRun>(`/competitor-benchmarks`, { method: "POST", body: JSON.stringify(data) });
+// Competitor benchmarks stubs
+export interface CompetitorBenchmarkRun { id: string; client_id: string; target_domain: string; competitor_domain: string; scope: string; provider: string; status: string; own_audit_run_id: string | null; pages_crawled: number; indexable_pages: number; avg_crawl_depth: number | null; broken_links: number; redirect_issues: number; duplicate_titles: number; missing_titles: number; missing_meta: number; missing_h1: number; canonical_issues: number; avg_load_time_ms: number | null; lcp_avg_ms: number | null; cls_avg: number | null; fid_avg_ms: number | null; started_at: string | null; completed_at: string | null; created_at: string; pages?: any[]; recommendations?: any[]; }
+export const getCompetitorBenchmarks = async (clientId: string): Promise<CompetitorBenchmarkRun[]> => [];
+export const getCompetitorBenchmarkDetail = async (id: string): Promise<CompetitorBenchmarkRun> => ({} as any);
+export const startCompetitorBenchmark = async (data: any): Promise<CompetitorBenchmarkRun> => ({} as any);
