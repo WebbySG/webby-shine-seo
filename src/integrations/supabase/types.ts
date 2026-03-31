@@ -14,6 +14,322 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action: string
+          actor_name: string | null
+          client_id: string | null
+          created_at: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          metadata_json: Json | null
+          summary: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_name?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata_json?: Json | null
+          summary?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_name?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata_json?: Json | null
+          summary?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_evidence: {
+        Row: {
+          audit_issue_id: string
+          created_at: string | null
+          evidence_type: string
+          expected_value: string | null
+          id: string
+          key: string
+          value: string | null
+        }
+        Insert: {
+          audit_issue_id: string
+          created_at?: string | null
+          evidence_type: string
+          expected_value?: string | null
+          id?: string
+          key: string
+          value?: string | null
+        }
+        Update: {
+          audit_issue_id?: string
+          created_at?: string | null
+          evidence_type?: string
+          expected_value?: string | null
+          id?: string
+          key?: string
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_evidence_audit_issue_id_fkey"
+            columns: ["audit_issue_id"]
+            isOneToOne: false
+            referencedRelation: "audit_issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_issues: {
+        Row: {
+          affected_url: string
+          audit_run_id: string
+          category: string | null
+          client_id: string | null
+          created_at: string | null
+          description: string
+          first_seen_at: string | null
+          fix_instruction: string | null
+          id: string
+          issue_type: string
+          last_checked_at: string | null
+          provider: string | null
+          recheck_count: number | null
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["issue_severity"]
+          status: Database["public"]["Enums"]["issue_status"] | null
+          why_it_matters: string | null
+        }
+        Insert: {
+          affected_url: string
+          audit_run_id: string
+          category?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          description: string
+          first_seen_at?: string | null
+          fix_instruction?: string | null
+          id?: string
+          issue_type: string
+          last_checked_at?: string | null
+          provider?: string | null
+          recheck_count?: number | null
+          resolved_at?: string | null
+          severity: Database["public"]["Enums"]["issue_severity"]
+          status?: Database["public"]["Enums"]["issue_status"] | null
+          why_it_matters?: string | null
+        }
+        Update: {
+          affected_url?: string
+          audit_run_id?: string
+          category?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          description?: string
+          first_seen_at?: string | null
+          fix_instruction?: string | null
+          id?: string
+          issue_type?: string
+          last_checked_at?: string | null
+          provider?: string | null
+          recheck_count?: number | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["issue_severity"]
+          status?: Database["public"]["Enums"]["issue_status"] | null
+          why_it_matters?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_issues_audit_run_id_fkey"
+            columns: ["audit_run_id"]
+            isOneToOne: false
+            referencedRelation: "audit_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_issues_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_pages: {
+        Row: {
+          audit_run_id: string
+          created_at: string | null
+          id: string
+          issues_count: number | null
+          load_time_ms: number | null
+          meta_description: string | null
+          status_code: number | null
+          title: string | null
+          url: string
+          word_count: number | null
+        }
+        Insert: {
+          audit_run_id: string
+          created_at?: string | null
+          id?: string
+          issues_count?: number | null
+          load_time_ms?: number | null
+          meta_description?: string | null
+          status_code?: number | null
+          title?: string | null
+          url: string
+          word_count?: number | null
+        }
+        Update: {
+          audit_run_id?: string
+          created_at?: string | null
+          id?: string
+          issues_count?: number | null
+          load_time_ms?: number | null
+          meta_description?: string | null
+          status_code?: number | null
+          title?: string | null
+          url?: string
+          word_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_pages_audit_run_id_fkey"
+            columns: ["audit_run_id"]
+            isOneToOne: false
+            referencedRelation: "audit_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_rechecks: {
+        Row: {
+          audit_issue_id: string
+          checked_at: string | null
+          diff_summary: string | null
+          id: string
+          new_evidence: Json | null
+          new_status: string | null
+          previous_evidence: Json | null
+          previous_status: string | null
+          provider: string | null
+        }
+        Insert: {
+          audit_issue_id: string
+          checked_at?: string | null
+          diff_summary?: string | null
+          id?: string
+          new_evidence?: Json | null
+          new_status?: string | null
+          previous_evidence?: Json | null
+          previous_status?: string | null
+          provider?: string | null
+        }
+        Update: {
+          audit_issue_id?: string
+          checked_at?: string | null
+          diff_summary?: string | null
+          id?: string
+          new_evidence?: Json | null
+          new_status?: string | null
+          previous_evidence?: Json | null
+          previous_status?: string | null
+          provider?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_rechecks_audit_issue_id_fkey"
+            columns: ["audit_issue_id"]
+            isOneToOne: false
+            referencedRelation: "audit_issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_runs: {
+        Row: {
+          client_id: string
+          completed_at: string | null
+          created_at: string | null
+          critical_count: number | null
+          domain: string | null
+          id: string
+          info_count: number | null
+          pages_crawled: number | null
+          pages_limit: number | null
+          provider: string | null
+          scope: string | null
+          score: number | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["audit_status"] | null
+          total_issues: number | null
+          warning_count: number | null
+        }
+        Insert: {
+          client_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          critical_count?: number | null
+          domain?: string | null
+          id?: string
+          info_count?: number | null
+          pages_crawled?: number | null
+          pages_limit?: number | null
+          provider?: string | null
+          scope?: string | null
+          score?: number | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["audit_status"] | null
+          total_issues?: number | null
+          warning_count?: number | null
+        }
+        Update: {
+          client_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          critical_count?: number | null
+          domain?: string | null
+          id?: string
+          info_count?: number | null
+          pages_crawled?: number | null
+          pages_limit?: number | null
+          provider?: string | null
+          scope?: string | null
+          score?: number | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["audit_status"] | null
+          total_issues?: number | null
+          warning_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_runs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           created_at: string | null
@@ -132,6 +448,80 @@ export type Database = {
           },
         ]
       }
+      opportunities: {
+        Row: {
+          article_id: string | null
+          brief_id: string | null
+          client_id: string
+          confidence: number | null
+          created_at: string | null
+          current_position: number | null
+          draft_id: string | null
+          evidence_text: string | null
+          expected_impact: string | null
+          id: string
+          keyword: string | null
+          next_action: string | null
+          priority: Database["public"]["Enums"]["opportunity_priority"] | null
+          recommended_action: string
+          sources: string[] | null
+          status: Database["public"]["Enums"]["opportunity_status"] | null
+          target_url: string | null
+          type: Database["public"]["Enums"]["opportunity_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          brief_id?: string | null
+          client_id: string
+          confidence?: number | null
+          created_at?: string | null
+          current_position?: number | null
+          draft_id?: string | null
+          evidence_text?: string | null
+          expected_impact?: string | null
+          id?: string
+          keyword?: string | null
+          next_action?: string | null
+          priority?: Database["public"]["Enums"]["opportunity_priority"] | null
+          recommended_action: string
+          sources?: string[] | null
+          status?: Database["public"]["Enums"]["opportunity_status"] | null
+          target_url?: string | null
+          type: Database["public"]["Enums"]["opportunity_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          brief_id?: string | null
+          client_id?: string
+          confidence?: number | null
+          created_at?: string | null
+          current_position?: number | null
+          draft_id?: string | null
+          evidence_text?: string | null
+          expected_impact?: string | null
+          id?: string
+          keyword?: string | null
+          next_action?: string | null
+          priority?: Database["public"]["Enums"]["opportunity_priority"] | null
+          recommended_action?: string
+          sources?: string[] | null
+          status?: Database["public"]["Enums"]["opportunity_status"] | null
+          target_url?: string | null
+          type?: Database["public"]["Enums"]["opportunity_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -222,6 +612,230 @@ export type Database = {
           },
         ]
       }
+      seo_articles: {
+        Row: {
+          brief_id: string | null
+          client_id: string
+          cms_post_id: string | null
+          cms_post_url: string | null
+          content: string | null
+          created_at: string | null
+          id: string
+          meta_description: string | null
+          publish_date: string | null
+          slug: string | null
+          status: Database["public"]["Enums"]["article_status"] | null
+          target_keyword: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          brief_id?: string | null
+          client_id: string
+          cms_post_id?: string | null
+          cms_post_url?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          meta_description?: string | null
+          publish_date?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["article_status"] | null
+          target_keyword?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          brief_id?: string | null
+          client_id?: string
+          cms_post_id?: string | null
+          cms_post_url?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          meta_description?: string | null
+          publish_date?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["article_status"] | null
+          target_keyword?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_articles_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "seo_briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_articles_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_brief_drafts: {
+        Row: {
+          brief_id: string
+          client_id: string | null
+          content: string | null
+          created_at: string | null
+          id: string
+          internal_link_suggestions: Json | null
+          meta_description: string | null
+          review_checks: Json | null
+          slug: string | null
+          status: Database["public"]["Enums"]["draft_status"] | null
+          title: string
+          updated_at: string | null
+          version: number | null
+        }
+        Insert: {
+          brief_id: string
+          client_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          internal_link_suggestions?: Json | null
+          meta_description?: string | null
+          review_checks?: Json | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["draft_status"] | null
+          title: string
+          updated_at?: string | null
+          version?: number | null
+        }
+        Update: {
+          brief_id?: string
+          client_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          internal_link_suggestions?: Json | null
+          meta_description?: string | null
+          review_checks?: Json | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["draft_status"] | null
+          title?: string
+          updated_at?: string | null
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_brief_drafts_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "seo_briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_brief_drafts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_briefs: {
+        Row: {
+          audit_context: string[] | null
+          client_id: string
+          competitor_context: string[] | null
+          created_at: string | null
+          cta_angle: string | null
+          entities: string[] | null
+          evidence: Json | null
+          faq: Json | null
+          headings: Json | null
+          id: string
+          internal_links: Json | null
+          keyword: string
+          meta_description: string | null
+          page_goal: string | null
+          page_type: string | null
+          priority: Database["public"]["Enums"]["opportunity_priority"] | null
+          recommended_slug: string | null
+          search_intent: string | null
+          secondary_keywords: string[] | null
+          sections: Json | null
+          source_mapping_id: string | null
+          status: Database["public"]["Enums"]["brief_status"] | null
+          suggested_h1: string | null
+          target_audience: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          audit_context?: string[] | null
+          client_id: string
+          competitor_context?: string[] | null
+          created_at?: string | null
+          cta_angle?: string | null
+          entities?: string[] | null
+          evidence?: Json | null
+          faq?: Json | null
+          headings?: Json | null
+          id?: string
+          internal_links?: Json | null
+          keyword: string
+          meta_description?: string | null
+          page_goal?: string | null
+          page_type?: string | null
+          priority?: Database["public"]["Enums"]["opportunity_priority"] | null
+          recommended_slug?: string | null
+          search_intent?: string | null
+          secondary_keywords?: string[] | null
+          sections?: Json | null
+          source_mapping_id?: string | null
+          status?: Database["public"]["Enums"]["brief_status"] | null
+          suggested_h1?: string | null
+          target_audience?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          audit_context?: string[] | null
+          client_id?: string
+          competitor_context?: string[] | null
+          created_at?: string | null
+          cta_angle?: string | null
+          entities?: string[] | null
+          evidence?: Json | null
+          faq?: Json | null
+          headings?: Json | null
+          id?: string
+          internal_links?: Json | null
+          keyword?: string
+          meta_description?: string | null
+          page_goal?: string | null
+          page_type?: string | null
+          priority?: Database["public"]["Enums"]["opportunity_priority"] | null
+          recommended_slug?: string | null
+          search_intent?: string | null
+          secondary_keywords?: string[] | null
+          sections?: Json | null
+          source_mapping_id?: string | null
+          status?: Database["public"]["Enums"]["brief_status"] | null
+          suggested_h1?: string | null
+          target_audience?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_briefs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -239,6 +853,42 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workspace_state: {
+        Row: {
+          entity_focus: Json | null
+          filters: Json | null
+          id: string
+          last_route: string | null
+          module_key: string | null
+          selected_client_id: string | null
+          ui_state: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          entity_focus?: Json | null
+          filters?: Json | null
+          id?: string
+          last_route?: string | null
+          module_key?: string | null
+          selected_client_id?: string | null
+          ui_state?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          entity_focus?: Json | null
+          filters?: Json | null
+          id?: string
+          last_route?: string | null
+          module_key?: string | null
+          selected_client_id?: string | null
+          ui_state?: Json | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
