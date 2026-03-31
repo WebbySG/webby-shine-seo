@@ -230,9 +230,9 @@ export const generateDraftFromBrief = async (briefId: string): Promise<SeoBriefD
 export const getBriefDrafts = (briefId: string) =>
   sbQuery<SeoBriefDraft[]>(supabase.from("seo_brief_drafts").select("*").eq("brief_id", briefId).order("version", { ascending: false }));
 export const updateDraft = (draftId: string, data: Partial<SeoBriefDraft>) =>
-  sbQuery<SeoBriefDraft>(supabase.from("seo_brief_drafts").update(data).eq("id", draftId).select().single());
+  sbQuery<SeoBriefDraft>(supabase.from("seo_brief_drafts").update(data as any).eq("id", draftId).select().single());
 export const updateDraftStatus = (draftId: string, status: string) =>
-  sbQuery<SeoBriefDraft>(supabase.from("seo_brief_drafts").update({ status }).eq("id", draftId).select().single());
+  sbQuery<SeoBriefDraft>(supabase.from("seo_brief_drafts").update({ status } as any).eq("id", draftId).select().single());
 
 // ======================== SEO ARTICLES ========================
 export const getArticles = (clientId: string) =>
