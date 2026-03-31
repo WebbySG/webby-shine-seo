@@ -963,7 +963,7 @@ export default function KeywordResearch() {
           ))}
         </div>
       )}
-      )}
+      </>}
     </PageTransition>
   );
 }
