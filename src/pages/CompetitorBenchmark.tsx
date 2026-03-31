@@ -366,7 +366,7 @@ export default function CompetitorBenchmark() {
                   <Select value={ownAuditRunId} onValueChange={setOwnAuditRunId}>
                     <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {(auditRuns as any[]).filter((r: any) => r.status === "completed").map((r: any) => (
                         <SelectItem key={r.id} value={r.id}>{r.domain} — {new Date(r.created_at).toLocaleDateString()}</SelectItem>
                       ))}
