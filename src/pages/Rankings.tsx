@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RankChangeIndicator } from "@/components/RankChangeIndicator";
-import { useKeywords } from "@/hooks/use-api";
+import { useKeywords, useFetchRankings } from "@/hooks/use-api";
 import { useActiveClient } from "@/contexts/ClientContext";
 
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, TrendingUp, TrendingDown, BarChart3, Target, RefreshCw } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown, BarChart3, Target, RefreshCw, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
