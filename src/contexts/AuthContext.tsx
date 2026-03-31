@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
 
 interface User {
   id: string;
@@ -46,7 +48,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+const ALL_PERMISSIONS = [
+  "view_dashboard", "manage_clients", "manage_articles", "approve_articles",
+  "publish_articles", "manage_social", "manage_videos", "manage_gbp",
+  "manage_ads", "view_analytics", "view_billing",
+  "manage_branding", "manage_team", "manage_settings",
+];
 
 const DEMO_USER: User = {
   id: "00000000-0000-0000-0000-000000000100",
@@ -61,131 +68,151 @@ const DEMO_WORKSPACE: Workspace = {
   workspace_type: "agency", status: "active", brand_name: "Webby SEO",
 };
 
-const ALL_PERMISSIONS = [
-  "view_dashboard", "manage_clients", "manage_articles", "approve_articles",
-  "publish_articles", "manage_social", "manage_videos", "manage_gbp",
-  "manage_ads", "view_analytics", "view_billing",
-  "manage_branding", "manage_team", "manage_settings",
-];
+function mapSupabaseUser(su: SupabaseUser, profile?: any): User {
+  return {
+    id: su.id,
+    workspace_id: profile?.workspace_id || su.id,
+    first_name: profile?.first_name || su.user_metadata?.first_name || su.email?.split("@")[0] || "",
+    last_name: profile?.last_name || su.user_metadata?.last_name || "",
+    full_name: profile?.full_name || `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || su.email?.split("@")[0] || "",
+    email: su.email || "",
+    status: "active",
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
   const [permissions, setPermissions] = useState<string[]>([]);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem("auth_token"));
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDemoMode, setIsDemoMode] = useState(() => localStorage.getItem("demo_mode") === "true");
-
-  const clearAuth = useCallback(() => {
-    setUser(null);
-    setWorkspace(null);
-    setRoles([]);
-    setPermissions([]);
-    setToken(null);
-    localStorage.removeItem("auth_token");
-  }, []);
 
   const activateDemoMode = useCallback(() => {
     setUser(DEMO_USER);
     setWorkspace(DEMO_WORKSPACE);
     setRoles(["owner"]);
     setPermissions(ALL_PERMISSIONS);
+    setToken(null);
     setIsLoading(false);
   }, []);
+
+  const loadUserData = useCallback(async (supabaseUser: SupabaseUser, sessionToken: string) => {
+    try {
+      // Load profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", supabaseUser.id)
+        .single();
+
+      // Load roles
+      const { data: userRoles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", supabaseUser.id);
+
+      const mappedUser = mapSupabaseUser(supabaseUser, profile);
+      const roleList = userRoles?.map((r: any) => r.role) || ["owner"];
+
+      setUser(mappedUser);
+      setWorkspace({
+        id: mappedUser.workspace_id,
+        name: "My Workspace",
+        slug: "workspace",
+        workspace_type: "agency",
+        status: "active",
+        brand_name: "Webby SEO",
+      });
+      setRoles(roleList);
+      setPermissions(ALL_PERMISSIONS); // All perms for owner
+      setToken(sessionToken);
+      setIsDemoMode(false);
+      localStorage.setItem("demo_mode", "false");
+    } catch (err) {
+      console.error("Failed to load user data:", err);
+      activateDemoMode();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [activateDemoMode]);
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user && !isDemoMode) {
+          // Use setTimeout to avoid Supabase deadlock
+          setTimeout(() => loadUserData(session.user, session.access_token), 0);
+        } else if (event === "SIGNED_OUT") {
+          activateDemoMode();
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user && !isDemoMode) {
+        loadUserData(session.user, session.access_token);
+      } else {
+        activateDemoMode();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [isDemoMode, loadUserData, activateDemoMode]);
+
+  const login = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
+    if (data.session) {
+      await loadUserData(data.user, data.session.access_token);
+    }
+  };
+
+  const register = async (regData: { email: string; password: string; firstName: string; lastName: string; workspaceName?: string }) => {
+    const { data, error } = await supabase.auth.signUp({
+      email: regData.email,
+      password: regData.password,
+      options: {
+        data: {
+          first_name: regData.firstName,
+          last_name: regData.lastName,
+          full_name: `${regData.firstName} ${regData.lastName}`.trim(),
+        },
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    if (error) throw new Error(error.message);
+    if (data.session) {
+      await loadUserData(data.user!, data.session.access_token);
+    }
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setWorkspace(null);
+    setRoles([]);
+    setPermissions([]);
+    setToken(null);
+    activateDemoMode();
+    setIsDemoMode(true);
+    localStorage.setItem("demo_mode", "true");
+  };
 
   const toggleDemoMode = useCallback(() => {
     setIsDemoMode((prev) => {
       const next = !prev;
       localStorage.setItem("demo_mode", String(next));
       if (next) {
-        localStorage.removeItem("auth_token");
-        setToken(null);
+        supabase.auth.signOut();
         activateDemoMode();
       }
       return next;
     });
   }, [activateDemoMode]);
-
-  useEffect(() => {
-    if (!token) {
-      // No token — activate demo/preview mode
-      activateDemoMode();
-      return;
-    }
-    fetch(`${API_BASE}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => {
-        if (!r.ok) throw new Error("Unauthorized");
-        return r.json();
-      })
-      .then((data) => {
-        setUser(data.user);
-        setWorkspace(data.workspace);
-        setRoles(data.roles?.map((r: any) => r.role) || []);
-        setPermissions(data.permissions?.map((p: any) => p.permission_key) || []);
-        setIsDemoMode(false);
-        localStorage.setItem("demo_mode", "false");
-      })
-      .catch(() => {
-        clearAuth();
-        activateDemoMode();
-      })
-      .finally(() => setIsLoading(false));
-  }, [token, clearAuth, activateDemoMode]);
-
-  const login = async (email: string, password: string) => {
-    const res = await fetch(`${API_BASE}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || "Login failed");
-    }
-    const data = await res.json();
-    localStorage.setItem("auth_token", data.token);
-    localStorage.setItem("demo_mode", "false");
-    setToken(data.token);
-    setUser(data.user);
-    setRoles(data.roles?.map((r: any) => r.role) || []);
-    setPermissions(data.permissions?.map((p: any) => p.permission_key) || []);
-    setIsDemoMode(false);
-  };
-
-  const register = async (regData: { email: string; password: string; firstName: string; lastName: string; workspaceName?: string }) => {
-    const res = await fetch(`${API_BASE}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(regData),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || "Registration failed");
-    }
-    const data = await res.json();
-    localStorage.setItem("auth_token", data.token);
-    localStorage.setItem("demo_mode", "false");
-    setToken(data.token);
-    setUser(data.user);
-    setWorkspace(data.workspace);
-    setIsDemoMode(false);
-  };
-
-  const logout = () => {
-    if (token) {
-      fetch(`${API_BASE}/auth/logout`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      }).catch(() => {});
-    }
-    clearAuth();
-    activateDemoMode();
-    setIsDemoMode(true);
-    localStorage.setItem("demo_mode", "true");
-  };
 
   const hasPermission = (perm: string) => permissions.includes(perm);
   const hasRole = (role: string) => roles.includes(role);
@@ -196,7 +223,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, workspace, clientId: workspace?.id || "00000000-0000-0000-0000-000000000001", roles, permissions, token, isLoading, isAuthenticated, isAgency, isClientUser, isDemoMode, login, register, logout, hasPermission, hasRole, toggleDemoMode }}
+      value={{ user, workspace, clientId: workspace?.id || "", roles, permissions, token, isLoading, isAuthenticated, isAgency, isClientUser, isDemoMode, login, register, logout, hasPermission, hasRole, toggleDemoMode }}
     >
       {children}
     </AuthContext.Provider>
