@@ -1,5 +1,23 @@
 import { supabase } from "@/integrations/supabase/client";
 
+// Re-export request for pages that still use it directly
+export async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...((options?.headers as Record<string, string>) || {}),
+  };
+  const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+  const res = await fetch(`${baseUrl}${path}`, { ...options, headers });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || `API error ${res.status}`);
+  }
+  return res.json();
+}
+
 // ---------- Types ----------
 export interface Client {
   id: string; name: string; domain: string; keywords_count: number; competitors_count: number;
