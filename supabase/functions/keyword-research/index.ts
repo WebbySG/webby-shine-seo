@@ -380,13 +380,14 @@ Deno.serve(async (req) => {
       });
     }
 
-    // GET — list jobs for a client (path: clients/{clientId}/keyword-research called from frontend as /clients/{id}/keyword-research)
-    // The frontend calls request(`/clients/${clientId}/keyword-research`) which becomes /keyword-research with the full original path
-    // Actually the edge function name IS "keyword-research", so the path after stripping is just the remainder
-    // Let's handle the case where the URL contains /clients/
-    const clientJobsMatch = url.pathname.match(/\/clients\/([0-9a-f-]{36})\/keyword-research/);
-    if (req.method === "GET" && clientJobsMatch) {
-      const clientId = clientJobsMatch[1];
+    // GET /keyword-research/list?client_id=xxx
+    if (req.method === "GET" && (path === "list" || path.startsWith("list"))) {
+      const clientId = url.searchParams.get("client_id");
+      if (!clientId) {
+        return new Response(JSON.stringify({ error: "client_id required" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       const supabase = adminClient();
       const { data, error } = await supabase
         .from("keyword_research_jobs")
