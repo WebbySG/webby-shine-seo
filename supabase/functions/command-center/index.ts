@@ -373,6 +373,24 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify(data || []), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // GET /command-center/plan-items?plan_id=xxx
+    if (req.method === "GET" && path === "plan-items") {
+      const planId = url.searchParams.get("plan_id");
+      if (!planId) return new Response(JSON.stringify({ error: "plan_id required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const { data, error } = await supabase.from("weekly_plan_items").select("*").eq("plan_id", planId).order("sort_order");
+      if (error) throw error;
+      return new Response(JSON.stringify(data || []), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // PATCH /command-center/plan-items/{id}
+    const planItemPatch = path.match(/^plan-items\/([0-9a-f-]{36})$/);
+    if (req.method === "PATCH" && planItemPatch) {
+      const { status } = await req.json();
+      const { data, error } = await supabase.from("weekly_plan_items").update({ status }).eq("id", planItemPatch[1]).select().single();
+      if (error) throw error;
+      return new Response(JSON.stringify(data), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     // GET /command-center/quick-wins?client_id=xxx
     if (req.method === "GET" && path === "quick-wins") {
       const clientId = url.searchParams.get("client_id");
