@@ -20,6 +20,7 @@ type SortDir = "asc" | "desc";
 export default function Rankings() {
   const { activeClientId: clientId } = useActiveClient();
   const { data: apiKeywords, isLoading } = useKeywords(clientId);
+  const fetchRankings = useFetchRankings(clientId);
 
   const [sortKey, setSortKey] = useState<SortKey>("current_position");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
