@@ -760,7 +760,7 @@ export default function KeywordResearch() {
   }
 
   // ─── Jobs List ───
-  const hasValidClient = !!activeClient && !!clientId && !clientId.startsWith("00000000");
+  const hasValidClient = !!activeClient && !!clientId;
 
   return (
     <PageTransition className="space-y-6">

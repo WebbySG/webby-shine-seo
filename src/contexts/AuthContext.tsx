@@ -87,7 +87,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [permissions, setPermissions] = useState<string[]>([]);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDemoMode, setIsDemoMode] = useState(() => localStorage.getItem("demo_mode") === "true");
+  const [isDemoMode, setIsDemoMode] = useState(false);
+
+  const clearAuth = useCallback(() => {
+    setUser(null);
+    setWorkspace(null);
+    setRoles([]);
+    setPermissions([]);
+    setToken(null);
+    setIsLoading(false);
+  }, []);
 
   const activateDemoMode = useCallback(() => {
     setUser(DEMO_USER);
@@ -95,19 +104,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setRoles(["owner"]);
     setPermissions(ALL_PERMISSIONS);
     setToken(null);
+    setIsDemoMode(true);
     setIsLoading(false);
   }, []);
 
   const loadUserData = useCallback(async (supabaseUser: SupabaseUser, sessionToken: string) => {
     try {
-      // Load profile
       const { data: profile } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", supabaseUser.id)
         .single();
 
-      // Load roles
       const { data: userRoles } = await supabase
         .from("user_roles")
         .select("role")
@@ -126,42 +134,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         brand_name: "Webby SEO",
       });
       setRoles(roleList);
-      setPermissions(ALL_PERMISSIONS); // All perms for owner
+      setPermissions(ALL_PERMISSIONS);
       setToken(sessionToken);
       setIsDemoMode(false);
-      localStorage.setItem("demo_mode", "false");
     } catch (err) {
       console.error("Failed to load user data:", err);
-      activateDemoMode();
+      clearAuth();
     } finally {
       setIsLoading(false);
     }
-  }, [activateDemoMode]);
+  }, [clearAuth]);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (session?.user && !isDemoMode) {
-          // Use setTimeout to avoid Supabase deadlock
+        if (session?.user) {
           setTimeout(() => loadUserData(session.user, session.access_token), 0);
         } else if (event === "SIGNED_OUT") {
-          activateDemoMode();
+          clearAuth();
         }
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user && !isDemoMode) {
+      if (session?.user) {
         loadUserData(session.user, session.access_token);
       } else {
-        activateDemoMode();
+        clearAuth();
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [isDemoMode, loadUserData, activateDemoMode]);
+  }, [loadUserData, clearAuth]);
 
   const login = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -192,27 +196,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    setUser(null);
-    setWorkspace(null);
-    setRoles([]);
-    setPermissions([]);
-    setToken(null);
-    activateDemoMode();
-    setIsDemoMode(true);
-    localStorage.setItem("demo_mode", "true");
+    clearAuth();
   };
 
   const toggleDemoMode = useCallback(() => {
-    setIsDemoMode((prev) => {
-      const next = !prev;
-      localStorage.setItem("demo_mode", String(next));
-      if (next) {
-        supabase.auth.signOut();
-        activateDemoMode();
-      }
-      return next;
-    });
-  }, [activateDemoMode]);
+    if (!isDemoMode) {
+      supabase.auth.signOut();
+      activateDemoMode();
+    } else {
+      setIsDemoMode(false);
+      clearAuth();
+    }
+  }, [isDemoMode, activateDemoMode, clearAuth]);
 
   const hasPermission = (perm: string) => permissions.includes(perm);
   const hasRole = (role: string) => roles.includes(role);
