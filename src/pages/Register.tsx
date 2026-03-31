@@ -36,6 +36,32 @@ export default function Register() {
 
   const update = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }));
 
+  if (emailSent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
+        <div className="w-full max-w-md space-y-8 text-center">
+          <div className="flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg">
+              <CheckCircle className="h-8 w-8" />
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Check your email</h1>
+          <p className="text-sm text-muted-foreground">
+            We sent a verification link to <span className="font-medium text-foreground">{form.email}</span>. 
+            Click the link in the email to activate your account, then sign in.
+          </p>
+          <Card className="border-border/50">
+            <CardContent className="pt-6">
+              <Link to="/login">
+                <Button className="w-full gap-2"><ArrowRight className="h-4 w-4" /> Go to Sign In</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
       <div className="w-full max-w-md space-y-8">
