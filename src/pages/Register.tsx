@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function Register() {
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "", workspaceName: "" });
   const [loading, setLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -24,7 +25,8 @@ export default function Register() {
     setLoading(true);
     try {
       await register(form);
-      navigate("/");
+      // If auto-confirm is off, user needs to verify email first
+      setEmailSent(true);
     } catch (err: any) {
       toast({ title: "Registration failed", description: err.message, variant: "destructive" });
     } finally {
