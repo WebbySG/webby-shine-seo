@@ -177,7 +177,7 @@ export const getAuditIssueDetail = async (issueId: string): Promise<AuditIssue> 
   return { ...issue, evidence, rechecks };
 };
 export const updateAuditIssueStatus = (issueId: string, status: string) =>
-  sbQuery<AuditIssue>(supabase.from("audit_issues").update({ status }).eq("id", issueId).select().single());
+  sbQuery<AuditIssue>(supabase.from("audit_issues").update({ status } as any).eq("id", issueId).select().single());
 export const recheckAuditIssue = async (issueId: string): Promise<AuditRecheck> => {
   // Placeholder — actual recheck requires external API
   return sbQuery<AuditRecheck>(supabase.from("audit_rechecks").insert({
