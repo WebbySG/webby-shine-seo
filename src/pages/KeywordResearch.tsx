@@ -133,7 +133,7 @@ export default function KeywordResearch() {
   // ─── Queries ───
   const { data: jobs = [], isLoading } = useQuery<KWResearchJob[]>({
     queryKey: ["keyword-research", clientId],
-    queryFn: () => request(`/clients/${clientId}/keyword-research`),
+    queryFn: () => request(`/keyword-research/list?client_id=${clientId}`),
     enabled: !!clientId,
   });
 
