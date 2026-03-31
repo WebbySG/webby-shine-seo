@@ -20,11 +20,17 @@ interface ModuleData {
 }
 
 async function gatherModuleData(supabase: any, clientId: string): Promise<ModuleData> {
+  // First fetch job IDs for this client
+  const { data: jobRows } = await supabase.from("keyword_research_jobs").select("id").eq("client_id", clientId);
+  const jobIds = (jobRows || []).map((j: any) => j.id);
+
   const [keywords, auditIssues, opportunities, briefs, articles, rankSnapshots] = await Promise.all([
-    supabase.from("keyword_research_results")
-      .select("keyword, search_volume, keyword_difficulty, overall_score, search_intent, mapping_status, recommended_page_type")
-      .in("job_id", supabase.from("keyword_research_jobs").select("id").eq("client_id", clientId))
-      .order("overall_score", { ascending: false }).limit(30),
+    jobIds.length > 0
+      ? supabase.from("keyword_research_results")
+          .select("keyword, search_volume, keyword_difficulty, overall_score, search_intent, mapping_status, recommended_page_type")
+          .in("job_id", jobIds)
+          .order("overall_score", { ascending: false }).limit(30)
+      : Promise.resolve({ data: [] }),
     supabase.from("audit_issues")
       .select("issue_type, severity, affected_url, status, description")
       .eq("client_id", clientId).eq("status", "open")
