@@ -14,6 +14,124 @@ export type Database = {
   }
   public: {
     Tables: {
+      clients: {
+        Row: {
+          created_at: string | null
+          domain: string
+          health_score: number | null
+          id: string
+          max_competitors: number | null
+          max_keywords: number | null
+          name: string
+          status: Database["public"]["Enums"]["client_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          domain: string
+          health_score?: number | null
+          id?: string
+          max_competitors?: number | null
+          max_keywords?: number | null
+          name: string
+          status?: Database["public"]["Enums"]["client_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string
+          health_score?: number | null
+          id?: string
+          max_competitors?: number | null
+          max_keywords?: number | null
+          name?: string
+          status?: Database["public"]["Enums"]["client_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      competitors: {
+        Row: {
+          client_id: string
+          confirmed: boolean | null
+          created_at: string | null
+          domain: string
+          id: string
+          label: string | null
+          source: string | null
+        }
+        Insert: {
+          client_id: string
+          confirmed?: boolean | null
+          created_at?: string | null
+          domain: string
+          id?: string
+          label?: string | null
+          source?: string | null
+        }
+        Update: {
+          client_id?: string
+          confirmed?: boolean | null
+          created_at?: string | null
+          domain?: string
+          id?: string
+          label?: string | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitors_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      keywords: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          keyword: string
+          locale: string | null
+          location: string | null
+          search_engine: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          keyword: string
+          locale?: string | null
+          location?: string | null
+          search_engine?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          keyword?: string
+          locale?: string | null
+          location?: string | null
+          search_engine?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keywords_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -46,6 +164,63 @@ export type Database = {
           workspace_id?: string | null
         }
         Relationships: []
+      }
+      rank_snapshots: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          domain: string
+          id: string
+          keyword: string | null
+          keyword_id: string
+          position: number | null
+          previous_position: number | null
+          provider: string | null
+          snapshot_date: string
+          url: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          domain: string
+          id?: string
+          keyword?: string | null
+          keyword_id: string
+          position?: number | null
+          previous_position?: number | null
+          provider?: string | null
+          snapshot_date?: string
+          url?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          domain?: string
+          id?: string
+          keyword?: string | null
+          keyword_id?: string
+          position?: number | null
+          previous_position?: number | null
+          provider?: string | null
+          snapshot_date?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rank_snapshots_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rank_snapshots_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "keywords"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
