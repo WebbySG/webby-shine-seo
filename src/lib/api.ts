@@ -193,7 +193,7 @@ export const recheckAuditRun = async (runId: string) => {
 export const getOpportunities = (clientId: string) =>
   sbQuery<Opportunity[]>(supabase.from("opportunities").select("*").eq("client_id", clientId).order("created_at", { ascending: false }));
 export const updateOpportunityStatus = (clientId: string, oppId: string, status: string) =>
-  sbQuery<Opportunity>(supabase.from("opportunities").update({ status }).eq("id", oppId).select().single());
+  sbQuery<Opportunity>(supabase.from("opportunities").update({ status } as any).eq("id", oppId).select().single());
 
 // ======================== SEO BRIEFS ========================
 export const getBriefs = (clientId: string) =>
