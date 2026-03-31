@@ -60,7 +60,7 @@ export default function CompetitorBenchmark() {
   const [competitorDomain, setCompetitorDomain] = useState("");
   const [scope, setScope] = useState("full_crawl");
   const [provider, setProvider] = useState("mock");
-  const [ownAuditRunId, setOwnAuditRunId] = useState("");
+  const [ownAuditRunId, setOwnAuditRunId] = useState("none");
 
   const startBenchmark = useStartCompetitorBenchmark(activeClientId);
   const { data: detail } = useCompetitorBenchmarkDetail(selectedRunId || "");
