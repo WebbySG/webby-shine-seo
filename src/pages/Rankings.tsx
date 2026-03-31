@@ -54,8 +54,15 @@ export default function Rankings() {
           <p className="text-muted-foreground text-sm mt-1.5">Weekly position tracking across all keywords</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button size="sm" variant="outline" disabled title="Rankings are auto-tracked weekly">
-            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
+          <Button size="sm" variant="outline"
+            disabled={fetchRankings.isPending}
+            onClick={() => fetchRankings.mutate(undefined, {
+              onSuccess: (data) => toast.success(data.message),
+              onError: (err: any) => toast.error(err.message || "Failed to fetch rankings"),
+            })}
+            title="Fetch live rankings from DataForSEO"
+          >
+            {fetchRankings.isPending ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5 mr-1" />} Refresh Rankings
           </Button>
         </div>
       </div>
