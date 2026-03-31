@@ -29,11 +29,12 @@ function AddClientDialog() {
   const [domain, setDomain] = useState("");
   const createClient = useCreateClient();
 
-  const handleSubmit = () => {
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!name || !domain) { toast.error("Name and domain are required"); return; }
     createClient.mutate({ name, domain }, {
       onSuccess: () => { toast.success("Client added!"); setOpen(false); setName(""); setDomain(""); },
-      onError: () => toast.error("Failed to add client"),
+      onError: (err: any) => toast.error(err.message || "Failed to add client"),
     });
   };
 
@@ -44,15 +45,15 @@ function AddClientDialog() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader><DialogTitle>Add New Client</DialogTitle></DialogHeader>
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div><Label>Client Name</Label><Input value={name} onChange={e => setName(e.target.value)} placeholder="Acme Corp" /></div>
           <div><Label>Domain</Label><Input value={domain} onChange={e => setDomain(e.target.value)} placeholder="acme.com" /></div>
-        </div>
-        <DialogFooter>
-          <Button onClick={handleSubmit} disabled={createClient.isPending}>
-            {createClient.isPending ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Creating...</> : "Add Client"}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type="submit" disabled={createClient.isPending}>
+              {createClient.isPending ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Creating...</> : "Add Client"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
