@@ -129,7 +129,7 @@ export const createClient = async (data: { name: string; domain: string }): Prom
   return sbQuery<Client>(supabase.from("clients").insert({ ...data, user_id: user.id }).select().single());
 };
 export const updateClient = (id: string, data: Partial<Client>) =>
-  sbQuery<Client>(supabase.from("clients").update(data).eq("id", id).select().single());
+  sbQuery<Client>(supabase.from("clients").update(data as any).eq("id", id).select().single());
 export const deleteClient = async (id: string) => {
   const { error } = await supabase.from("clients").delete().eq("id", id);
   if (error) throw new Error(error.message);
