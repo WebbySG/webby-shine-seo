@@ -25,6 +25,10 @@ export function useCreateKeyword(clientId: string) {
   const qc = useQueryClient();
   return useMutation({ mutationFn: (data: { keyword: string }) => api.createKeyword(clientId, data), onSuccess: () => qc.invalidateQueries({ queryKey: ["keywords", clientId] }) });
 }
+export function useFetchRankings(clientId: string) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: () => api.fetchRankings(clientId), onSuccess: () => qc.invalidateQueries({ queryKey: ["keywords", clientId] }) });
+}
 
 // ---------- Competitors ----------
 export function useCompetitors(clientId: string) {
